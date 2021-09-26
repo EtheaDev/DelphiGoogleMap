@@ -4,9 +4,9 @@ Delphi Edge Component to View Google Map with Routing and Markers Support
 
 ### Actual official version 1.0.0 (VCL)
 
-This component is based on [![TEdgeBrowser Component](https://docwiki.embarcadero.com/RADStudio/Sydney/en/Using_TEdgeBrowser_Component_and_Changes_to_the_TWebBrowser_Component) (available from Delphi 10.4)
+This component is based on [TEdgeBrowser Component](https://docwiki.embarcadero.com/RADStudio/Sydney/en/Using_TEdgeBrowser_Component_and_Changes_to_the_TWebBrowser_Component) (available from Delphi 10.4)
 
-It's very easy to use Google Maps API directly from Delphi Code, settings Component properties, for example:
+It's very easy to use Google Maps API directly from Delphi Code, settings Component properties or invoking methods, for example:
 
 ```pascal
 //Goto Address Example
