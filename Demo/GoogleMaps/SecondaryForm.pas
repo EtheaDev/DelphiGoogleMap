@@ -1,75 +1,49 @@
-unit MainForm;
+unit SecondaryForm;
 
 interface
 
 uses
-  WebView2, System.SysUtils, Winapi.ActiveX, Vcl.Forms,
-  Vcl.GoogleMap, Vcl.Edge, Data.DB, Datasnap.DBClient, Vcl.Menus, Vcl.ExtCtrls,
-  Vcl.DBCtrls, Vcl.Grids, Vcl.DBGrids, Vcl.StdCtrls, Vcl.Samples.Spin,
-  Vcl.Controls, System.Classes;
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Edge, Vcl.GoogleMap, Vcl.StdCtrls,
+  Vcl.Samples.Spin, Vcl.ExtCtrls, Vcl.Menus;
 
 type
-  TformMain = class(TForm)
+  TFormSecondary = class(TForm)
     PanelHeader: TPanel;
-    ButtonClearMarkers: TButton;
-    ShowMapButton: TButton;
-    PopupMenu: TPopupMenu;
-    HideMapButton: TButton;
-    EdgeGoogleMapViewer: TEdgeGoogleMapViewer;
-    cdsCustomers: TClientDataSet;
-    cdsCustomersCustNo: TFloatField;
-    cdsCustomersCompany: TStringField;
-    cdsCustomersAddr1: TStringField;
-    cdsCustomersAddr2: TStringField;
-    cdsCustomersCity: TStringField;
-    cdsCustomersState: TStringField;
-    cdsCustomersZip: TStringField;
-    cdsCustomersCountry: TStringField;
-    cdsCustomersPhone: TStringField;
-    cdsCustomersFAX: TStringField;
-    cdsCustomersTaxRate: TFloatField;
-    cdsCustomersContact: TStringField;
-    cdsCustomersLastInvoiceDate: TDateTimeField;
-    DBGrid: TDBGrid;
-    dsCustomers: TDataSource;
     gbMapAttributes: TGroupBox;
-    MapTypeIdComboBox: TComboBox;
     lbZoom: TLabel;
+    Label5: TLabel;
+    MapTypeIdComboBox: TComboBox;
     Zoom: TSpinEdit;
     CheckBoxStreeView: TCheckBox;
     CheckBoxBicycling: TCheckBox;
     CheckBoxTraffic: TCheckBox;
-    Label5: TLabel;
     GroupBox1: TGroupBox;
+    LabelLongitude: TLabel;
+    LabelLatitude: TLabel;
+    LabelAddress: TLabel;
     MemoAddress: TMemo;
     ButtonGotoLocation: TButton;
     Longitude: TEdit;
     Latitude: TEdit;
-    LabelLongitude: TLabel;
-    LabelLatitude: TLabel;
-    LabelAddress: TLabel;
+    ButtonGotoAddress: TButton;
     GroupBox2: TGroupBox;
     Label3: TLabel;
     Label4: TLabel;
-    StartLat: TEdit;
-    StartLng: TEdit;
     Label1: TLabel;
     Label2: TLabel;
+    Label6: TLabel;
+    Label8: TLabel;
+    StartLat: TEdit;
+    StartLng: TEdit;
     DestLat: TEdit;
     DestLng: TEdit;
     cbxTravelMode: TComboBox;
     ButtonRouteLatLng: TButton;
-    ButtonGotoAddress: TButton;
     StartAddressMemo: TMemo;
-    Label6: TLabel;
     DestinationAddressMemo: TMemo;
     ButtonRouteByAddress: TButton;
-    Label8: TLabel;
-    DBNavigator: TDBNavigator;
-    FileEdit: TLabeledEdit;
-    LoadTableButton: TButton;
-    Splitter1: TSplitter;
-    Button1: TButton;
+    EdgeGoogleMapViewer: TEdgeGoogleMapViewer;
     procedure FormCreate(Sender: TObject);
     procedure ButtonGotoAddressClick(Sender: TObject);
     procedure ButtonGotoLocationClick(Sender: TObject);
@@ -81,38 +55,23 @@ type
     procedure ShowMapButtonClick(Sender: TObject);
     procedure HideMapButtonClick(Sender: TObject);
     procedure MapTypeIdComboBoxChange(Sender: TObject);
-    procedure cdsCustomersAfterScroll(DataSet: TDataSet);
     procedure ButtonRouteLatLngClick(Sender: TObject);
     procedure cbxTravelModeChange(Sender: TObject);
     procedure ButtonRouteByAddressClick(Sender: TObject);
-    procedure LoadTableButtonClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure EdgeGoogleMapViewerBeforeShowMap(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
   private
   public
-    { Public declarations }
   end;
-
-var
-  formMain: TformMain;
 
 implementation
 
 uses
-  Vcl.Dialogs, SecondaryForm;
+  Vcl.Dialogs;
 
 {$R *.dfm}
 
-function B2S(value: boolean): string;
-begin
-  if value then
-    Result := 'true'
-  else
-    Result := 'false';
-end;
-
-procedure TformMain.FormCreate(Sender: TObject);
+procedure TFormSecondary.FormCreate(Sender: TObject);
 begin
   Zoom.Value := EdgeGoogleMapViewer.MapZoom;
   CheckBoxTraffic.Checked := EdgeGoogleMapViewer.MapShowTrafficLayer;
@@ -128,40 +87,34 @@ begin
   DestLng.Text := TEdgeGoogleMapViewer.CoordToText(-122.51089453697205);
   StartAddressMemo.Lines.Text := 'Via Santa Cecilia 4, 20061 Carugate, Milano';
   DestinationAddressMemo.Lines.Text := 'Via San Francesco 5, 20061 Carugate, Milano';
-  FileEdit.Text := ExtractFilePath(Application.ExeName)+'..\..\Data\customer.xml';
 end;
 
-procedure TformMain.FormDestroy(Sender: TObject);
+procedure TFormSecondary.FormDestroy(Sender: TObject);
 begin
   activeoleControl := nil;
 end;
 
-procedure TformMain.HideMapButtonClick(Sender: TObject);
+procedure TFormSecondary.HideMapButtonClick(Sender: TObject);
 begin
   EdgeGoogleMapViewer.HideMap;
 end;
 
-procedure TformMain.LoadTableButtonClick(Sender: TObject);
-begin
-  cdsCustomers.LoadFromFile(FileEdit.Text);
-end;
-
-procedure TformMain.MapTypeIdComboBoxChange(Sender: TObject);
+procedure TFormSecondary.MapTypeIdComboBoxChange(Sender: TObject);
 begin
   EdgeGoogleMapViewer.MapTypeId := TGoogleMapTypeId(MapTypeIdComboBox.ItemIndex);
 end;
 
-procedure TformMain.ShowMapButtonClick(Sender: TObject);
+procedure TFormSecondary.ShowMapButtonClick(Sender: TObject);
 begin
   EdgeGoogleMapViewer.GotoAddress(MemoAddress.Lines.Text);
 end;
 
-procedure TformMain.ZoomChange(Sender: TObject);
+procedure TFormSecondary.ZoomChange(Sender: TObject);
 begin
   EdgeGoogleMapViewer.MapZoom := Zoom.Value;
 end;
 
-procedure TformMain.ButtonGotoLocationClick(Sender: TObject);
+procedure TFormSecondary.ButtonGotoLocationClick(Sender: TObject);
 var
   Location: TLatLng;
 begin
@@ -170,36 +123,19 @@ begin
   EdgeGoogleMapViewer.GotoLocation(Location);
 end;
 
-procedure TformMain.cbxTravelModeChange(Sender: TObject);
+procedure TFormSecondary.cbxTravelModeChange(Sender: TObject);
 begin
   EdgeGoogleMapViewer.MapRouteModeId := TGoogleRouteModeId(cbxTravelMode.ItemIndex);
 end;
 
-procedure TformMain.cdsCustomersAfterScroll(DataSet: TDataSet);
-var
-  Address: string;
-begin
-  //Build Address from dataset
-  if (cdsCustomersState.Value <> '') then
-    Address := cdsCustomersAddr1.AsString+' '+cdsCustomersAddr2.AsString+', '+
-      cdsCustomersCity.AsString+', '+cdsCustomersState.AsString+', '+cdsCustomersCountry.AsString
-  else
-    Address := cdsCustomersAddr1.AsString+' '+cdsCustomersAddr2.AsString+', '+
-      cdsCustomersCity.AsString+', '+cdsCustomersCountry.AsString;
-
-  MemoAddress.Lines.Text := Address;
-  if EdgeGoogleMapViewer.MapVisible then
-    EdgeGoogleMapViewer.GotoAddress(Address);
-end;
-
-procedure TformMain.ButtonRouteByAddressClick(Sender: TObject);
+procedure TFormSecondary.ButtonRouteByAddressClick(Sender: TObject);
 begin
   EdgeGoogleMapViewer.MapStartAddress := StartAddressMemo.Lines.Text;
   EdgeGoogleMapViewer.MapDestinationAddress := DestinationAddressMemo.Lines.Text;
   EdgeGoogleMapViewer.RouteByAddresses;
 end;
 
-procedure TformMain.ButtonRouteLatLngClick(Sender: TObject);
+procedure TFormSecondary.ButtonRouteLatLngClick(Sender: TObject);
 begin
   EdgeGoogleMapViewer.MapStartLatitude :=  TEdgeGoogleMapViewer.TextToCoord(StartLat.Text);
   EdgeGoogleMapViewer.MapStartLongitude := TEdgeGoogleMapViewer.TextToCoord(StartLng.Text);
@@ -209,45 +145,38 @@ begin
   EdgeGoogleMapViewer.RouteByLocations;
 end;
 
-procedure TformMain.Button1Click(Sender: TObject);
-var
-  LFormSecondary: TFormSecondary;
-begin
-  Application.CreateForm(TFormSecondary, LFormSecondary);
-end;
-
-procedure TformMain.ButtonClearMarkersClick(Sender: TObject);
+procedure TFormSecondary.ButtonClearMarkersClick(Sender: TObject);
 begin
   EdgeGoogleMapViewer.ClearMarkers;
 end;
 
-procedure TformMain.ButtonGotoAddressClick(Sender: TObject);
+procedure TFormSecondary.ButtonGotoAddressClick(Sender: TObject);
 begin
   EdgeGoogleMapViewer.GotoAddress(MemoAddress.Lines.Text);
 end;
 
-procedure TformMain.CheckBoxStreeViewClick(Sender: TObject);
+procedure TFormSecondary.CheckBoxStreeViewClick(Sender: TObject);
 begin
   EdgeGoogleMapViewer.ShowStreetViewControl(CheckBoxStreeView.Checked);
 end;
 
-procedure TformMain.CheckBoxBicyclingClick(Sender: TObject);
+procedure TFormSecondary.CheckBoxBicyclingClick(Sender: TObject);
 begin
   EdgeGoogleMapViewer.ShowBicycling(CheckBoxBicycling.Checked);
  end;
 
 
-procedure TformMain.CheckBoxTrafficClick(Sender: TObject);
+procedure TFormSecondary.CheckBoxTrafficClick(Sender: TObject);
 begin
   EdgeGoogleMapViewer.ShowTraffic(CheckBoxTraffic.Checked);
  end;
 
-procedure TformMain.EdgeGoogleMapViewerBeforeShowMap(Sender: TObject);
+procedure TFormSecondary.EdgeGoogleMapViewerBeforeShowMap(Sender: TObject);
 var
   LApiKey: string;
 begin
   //If you have a Google API Key it's time to setup
-  TEdgeGoogleMapViewer.RegisterGoogleMapsApiKey('AIzaSyBNY0ARa4GdRU4LrOKfk9hpNp96yM3dgHg');
+  //TEdgeGoogleMapViewer.RegisterGoogleMapsApiKey('AIzaSyBNY0ARa4GdRU4LrOKfk9hpNp96yM3dgHg');
 
   //The demo requires to input the API Key: it's only for testing!
   if TEdgeGoogleMapViewer.ApiKey = '' then
@@ -258,9 +187,5 @@ begin
 end;
 
 initialization
-  //Setup UserDataFolder for Temp files
-  TEdgeGoogleMapViewer.RegisterUserDataFolder(ExtractFilePath(ParamStr(0))+'..\..\CacheTempFolder\');
-
-  ReportMemoryLeaksOnShutdown := DebugHook <> 0;
 
 end.

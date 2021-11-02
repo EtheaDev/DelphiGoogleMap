@@ -83,6 +83,7 @@ Type
   TEdgeGoogleMapViewer = class(TEdgeBrowser)
   strict private
     class var FApiKey: string;
+    class var FUserDataFolder: string;
   private
     MapIsBusy: boolean;
     FAddress: string;
@@ -107,6 +108,7 @@ Type
     FOnCreateWebViewCompleted: TWebViewStatusEvent;
     FBeforeShowMap: TNotifyEvent;
     FAfterHideMap: TNotifyEvent;
+    FBeforeInitMap: TNotifyEvent;
     function ClearAddressText(const Address: string): string;
     procedure SetAddress(const Value: string);
     procedure SetBicycling(const Value: boolean);
@@ -151,6 +153,7 @@ Type
     class function TextToCoord(const Value: String): Extended;
     class function CoordToText(const Coord: double): string;
     class procedure RegisterGoogleMapsApiKey(const AApiKey: string);
+    class procedure RegisterUserDataFolder(const ATempFolder: string);
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure ShowMap(const AAddress: string) overload;
@@ -164,6 +167,7 @@ Type
     procedure ShowBicycling(Show: boolean);
     procedure ShowTraffic(Show: boolean);
     procedure ClearMarkers;
+    class property ApiKey: string read FApiKey;
   published
     property MapShowPanControl: boolean read FPanControl write SetPanControl default true;
     property MapShowZoomControl: boolean read FZoomControl write SetZoomControl default true;
@@ -187,6 +191,7 @@ Type
     property MapShowTrafficLayer: boolean read FTraffic write SetTraffic default false;
     property MapShowBicyclingLayer: boolean read FBicycling write SetBicycling default false;
     property MapVisible: boolean read GetVisible write SetVisible default false;
+    property BeforeInitMap: TNotifyEvent read FBeforeInitMap write FBeforeInitMap;
     property BeforeShowMap: TNotifyEvent read FBeforeShowMap write FBeforeShowMap;
     property AfterHideMap: TNotifyEvent read FAfterHideMap write FAfterHideMap;
   end;
@@ -202,6 +207,11 @@ uses
 
 { TEdgeGoogleMapViewer }
 
+class procedure TEdgeGoogleMapViewer.RegisterUserDataFolder(const ATempFolder: string);
+begin
+  FUserDataFolder := ATempFolder;
+end;
+
 class procedure TEdgeGoogleMapViewer.RegisterGoogleMapsApiKey(const AApiKey: string);
 begin
   FApiKey := AApiKey;
@@ -210,7 +220,7 @@ end;
 procedure TEdgeGoogleMapViewer.CustomDocumentComplete(Sender: TCustomEdgeBrowser;
   IsSuccess: Boolean; WebErrorStatus: COREWEBVIEW2_WEB_ERROR_STATUS);
 begin
-  MapIsBusy := False;
+  //MapIsBusy := False;
   if Assigned(FOnNavigationCompleted) then
     FOnNavigationCompleted(Sender, IsSuccess, WebErrorStatus);
 end;
@@ -261,6 +271,7 @@ end;
 constructor TEdgeGoogleMapViewer.Create(AOwner: TComponent);
 begin
   inherited;
+  Self.UserDataFolder := FUserDataFolder;
   if WebViewCreated then
     DefaultScriptDialogsEnabled := False;
   FMapVisible := false;
@@ -493,7 +504,11 @@ begin
   TFile.AppendAllText(LFileName, HTMLString, TEncoding.UTF8);
   LFileName := StringReplace(LFileName, '\', '/', [rfReplaceAll]);
   MapIsBusy := True;
-  NavigateToURL('file:///'+LFileName);
+  try
+    NavigateToURL('file:///'+LFileName);
+  finally
+    MapIsBusy := False;
+  end;
   FMapVisible := True;
 end;
 
@@ -593,6 +608,11 @@ procedure TEdgeGoogleMapViewer.InitMap;
 begin
   if csDesigning in ComponentState then
     Exit;
+
+  if Assigned(FBeforeInitMap) then
+    FBeforeInitMap(Self);
+
+  Self.UserDataFolder := FUserDataFolder;
   Self.Navigate(ABOUT_BLANK_PAGE);
 end;
 
@@ -803,14 +823,24 @@ end;
 
 procedure TEdgeGoogleMapViewer.RouteByAddresses;
 begin
-  CheckVisibleMap;
+  if not MapVisible then
+  begin
+    ShowMap(EmptyLatLng);
+    while MapIsBusy do
+      Sleep(10);
+  end;
   if (FStartAddress <> '') and (FDestinationAddress <> '') then
     RouteByAddress(FStartAddress, FDestinationAddress, FMapRouteModeId);
 end;
 
 procedure TEdgeGoogleMapViewer.RouteByLocations;
 begin
-  CheckVisibleMap;
+  if not MapVisible then
+  begin
+    ShowMap(EmptyLatLng);
+    while MapIsBusy do
+      Sleep(10);
+  end;
   if (FMapStart.Latitude <> 0) and (FMapStart.Longitude <> 0) and
      (FMapDestination.Latitude <> 0) or (FMapDestination.Longitude <> 0) then
     CalcRoute(FMapStart, FMapDestination, FMapRouteModeId);

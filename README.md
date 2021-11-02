@@ -2,7 +2,7 @@
 
 Delphi Edge Component to View Google Map with Routing and Markers Support
 
-### Actual official version 1.0.0 (VCL)
+### Actual official version 1.1.0 (VCL)
 
 This component is based on [TEdgeBrowser Component](https://docwiki.embarcadero.com/RADStudio/Sydney/en/Using_TEdgeBrowser_Component_and_Changes_to_the_TWebBrowser_Component) (available from Delphi 10.4)
 
@@ -79,6 +79,12 @@ Load Customer Table, scroll down the table: for every record a Marker is added t
 No documentation available, but the Demo explain very well the use of the component.
 
 ### RELEASE NOTES
+02 Nov 2021:
+- Version 1.1.0
+- Added method to register UserDataFolder: TEdgeGoogleMapViewer.RegisterUserDataFolder
+- Added Event Handler BeforeInitMap
+- Added a secondary form to Demo (to test multiple instance of component)
+
 24 Sep 2021:
 - Version 1.0.0
 - Google Map Viewer Component based on TEdgeBrowser

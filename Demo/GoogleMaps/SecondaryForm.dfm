@@ -1,11 +1,11 @@
-object formMain: TformMain
-  Left = 427
-  Top = 268
+object FormSecondary: TFormSecondary
+  Left = 0
+  Top = 0
   Caption = 
-    'Delphi with Edge Google Maps Viewer Component Demo - CopyRight (' +
-    'c) Ethea S.r.l.'
-  ClientHeight = 611
-  ClientWidth = 968
+    'Delphi with Edge Google Maps Viewer Component Demo - Secondary f' +
+    'orm'
+  ClientHeight = 791
+  ClientWidth = 1353
   Color = clBtnFace
   Constraints.MinHeight = 550
   Constraints.MinWidth = 890
@@ -14,7 +14,7 @@ object formMain: TformMain
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
-  OldCreateOrder = True
+  OldCreateOrder = False
   Position = poScreenCenter
   Visible = True
   WindowState = wsMaximized
@@ -22,29 +22,19 @@ object formMain: TformMain
   OnDestroy = FormDestroy
   PixelsPerInch = 96
   TextHeight = 13
-  object Splitter1: TSplitter
-    Left = 0
-    Top = 461
-    Width = 968
-    Height = 3
-    Cursor = crVSplit
-    Align = alBottom
-    ExplicitTop = 151
-    ExplicitWidth = 231
-  end
   object PanelHeader: TPanel
     Left = 0
     Top = 0
-    Width = 968
-    Height = 151
-    Align = alTop
+    Width = 273
+    Height = 791
+    Align = alLeft
     TabOrder = 0
     object gbMapAttributes: TGroupBox
-      Left = 737
-      Top = 1
-      Width = 136
-      Height = 149
-      Align = alLeft
+      Left = 1
+      Top = 428
+      Width = 271
+      Height = 152
+      Align = alTop
       Caption = 'Map Attributes'
       TabOrder = 0
       object lbZoom: TLabel
@@ -62,8 +52,8 @@ object formMain: TformMain
         Caption = 'View Mode'
       end
       object MapTypeIdComboBox: TComboBox
-        Left = 5
-        Top = 32
+        Left = 3
+        Top = 35
         Width = 126
         Height = 22
         Style = csOwnerDrawFixed
@@ -119,9 +109,9 @@ object formMain: TformMain
     object GroupBox1: TGroupBox
       Left = 1
       Top = 1
-      Width = 280
-      Height = 149
-      Align = alLeft
+      Width = 271
+      Height = 136
+      Align = alTop
       Caption = 'Location'
       TabOrder = 1
       object LabelLongitude: TLabel
@@ -157,9 +147,9 @@ object formMain: TformMain
         TabOrder = 0
       end
       object ButtonGotoLocation: TButton
-        Left = 177
+        Left = 179
         Top = 79
-        Width = 99
+        Width = 85
         Height = 48
         Caption = 'Go to Latitude Lngitude'
         TabOrder = 4
@@ -181,9 +171,9 @@ object formMain: TformMain
         TabOrder = 2
       end
       object ButtonGotoAddress: TButton
-        Left = 178
+        Left = 181
         Top = 29
-        Width = 99
+        Width = 87
         Height = 44
         Caption = 'Go to Address'
         TabOrder = 1
@@ -191,11 +181,11 @@ object formMain: TformMain
       end
     end
     object GroupBox2: TGroupBox
-      Left = 281
-      Top = 1
-      Width = 456
-      Height = 149
-      Align = alLeft
+      Left = 1
+      Top = 137
+      Width = 271
+      Height = 291
+      Align = alTop
       Caption = 'Routing'
       TabOrder = 2
       object Label3: TLabel
@@ -229,8 +219,8 @@ object formMain: TformMain
         Caption = 'Longitude'
       end
       object Label6: TLabel
-        Left = 240
-        Top = 17
+        Left = 32
+        Top = 151
         Width = 39
         Height = 13
         Alignment = taRightJustify
@@ -290,8 +280,8 @@ object formMain: TformMain
           'TRANSIT')
       end
       object ButtonRouteLatLng: TButton
-        Left = 157
-        Top = 121
+        Left = 159
+        Top = 117
         Width = 107
         Height = 25
         Caption = 'Route by locations'
@@ -299,267 +289,44 @@ object formMain: TformMain
         OnClick = ButtonRouteLatLngClick
       end
       object StartAddressMemo: TMemo
-        Left = 285
-        Top = 14
-        Width = 163
+        Left = 77
+        Top = 148
+        Width = 187
         Height = 44
         Lines.Strings = (
           '')
         TabOrder = 6
       end
       object DestinationAddressMemo: TMemo
-        Left = 285
-        Top = 64
-        Width = 163
+        Left = 77
+        Top = 198
+        Width = 187
         Height = 44
         Lines.Strings = (
           '')
         TabOrder = 7
       end
       object ButtonRouteByAddress: TButton
-        Left = 334
-        Top = 119
-        Width = 116
+        Left = 159
+        Top = 248
+        Width = 107
         Height = 25
         Caption = 'Route by Addresses'
         TabOrder = 8
         OnClick = ButtonRouteByAddressClick
       end
     end
-    object Button1: TButton
-      Left = 879
-      Top = 6
-      Width = 77
-      Height = 47
-      Caption = 'Show another form...'
-      TabOrder = 3
-      WordWrap = True
-      OnClick = Button1Click
-    end
   end
   object EdgeGoogleMapViewer: TEdgeGoogleMapViewer
-    Left = 0
-    Top = 151
-    Width = 968
-    Height = 310
+    Left = 273
+    Top = 0
+    Width = 1080
+    Height = 791
     Align = alClient
     TabOrder = 1
     MapAddress = 'Via Santa Cecilia 4, Carugate, Milano'
     MapLatitude = 25.767314000000000000
     MapLongitude = -80.135694000000000000
     BeforeShowMap = EdgeGoogleMapViewerBeforeShowMap
-  end
-  object DBGrid: TDBGrid
-    Left = 0
-    Top = 464
-    Width = 968
-    Height = 100
-    Align = alBottom
-    DataSource = dsCustomers
-    TabOrder = 2
-    TitleFont.Charset = DEFAULT_CHARSET
-    TitleFont.Color = clWindowText
-    TitleFont.Height = -11
-    TitleFont.Name = 'Tahoma'
-    TitleFont.Style = []
-    Columns = <
-      item
-        Expanded = False
-        FieldName = 'CustNo'
-        Visible = True
-      end
-      item
-        Expanded = False
-        FieldName = 'Company'
-        Visible = True
-      end
-      item
-        Expanded = False
-        FieldName = 'Addr1'
-        Visible = True
-      end
-      item
-        Expanded = False
-        FieldName = 'Addr2'
-        Visible = True
-      end
-      item
-        Expanded = False
-        FieldName = 'City'
-        Visible = True
-      end
-      item
-        Expanded = False
-        FieldName = 'State'
-        Visible = True
-      end
-      item
-        Expanded = False
-        FieldName = 'Zip'
-        Visible = True
-      end
-      item
-        Expanded = False
-        FieldName = 'Country'
-        Visible = True
-      end
-      item
-        Expanded = False
-        FieldName = 'Phone'
-        Visible = True
-      end
-      item
-        Expanded = False
-        FieldName = 'FAX'
-        Visible = True
-      end
-      item
-        Expanded = False
-        FieldName = 'TaxRate'
-        Visible = True
-      end
-      item
-        Expanded = False
-        FieldName = 'Contact'
-        Visible = True
-      end
-      item
-        Expanded = False
-        FieldName = 'LastInvoiceDate'
-        Visible = True
-      end>
-  end
-  object paBottom: TPanel
-    Left = 0
-    Top = 564
-    Width = 968
-    Height = 47
-    Align = alBottom
-    TabOrder = 3
-    DesignSize = (
-      968
-      47)
-    object ShowMapButton: TButton
-      Left = 11
-      Top = 6
-      Width = 99
-      Height = 35
-      Caption = 'Show Map'
-      TabOrder = 0
-      OnClick = ShowMapButtonClick
-    end
-    object HideMapButton: TButton
-      Left = 116
-      Top = 6
-      Width = 99
-      Height = 35
-      Caption = 'Hide map'
-      TabOrder = 1
-      OnClick = HideMapButtonClick
-    end
-    object ButtonClearMarkers: TButton
-      Left = 719
-      Top = 6
-      Width = 101
-      Height = 35
-      Anchors = [akTop, akRight]
-      Caption = 'Clear Markers'
-      TabOrder = 4
-      OnClick = ButtonClearMarkersClick
-    end
-    object DBNavigator: TDBNavigator
-      Left = 826
-      Top = 6
-      Width = 128
-      Height = 35
-      DataSource = dsCustomers
-      VisibleButtons = [nbFirst, nbPrior, nbNext, nbLast]
-      Anchors = [akTop, akRight]
-      TabOrder = 5
-    end
-    object FileEdit: TLabeledEdit
-      Left = 221
-      Top = 19
-      Width = 405
-      Height = 21
-      Anchors = [akLeft, akTop, akRight]
-      EditLabel.Width = 120
-      EditLabel.Height = 13
-      EditLabel.Caption = 'Customers ClientDataSet'
-      TabOrder = 2
-      Text = 'customer.xml'
-    end
-    object LoadTableButton: TButton
-      Left = 632
-      Top = 6
-      Width = 81
-      Height = 35
-      Anchors = [akTop, akRight]
-      Caption = 'Load Table'
-      TabOrder = 3
-      OnClick = LoadTableButtonClick
-    end
-  end
-  object PopupMenu: TPopupMenu
-    Left = 416
-    Top = 264
-  end
-  object cdsCustomers: TClientDataSet
-    Aggregates = <>
-    Params = <>
-    AfterScroll = cdsCustomersAfterScroll
-    Left = 664
-    Top = 264
-    object cdsCustomersCustNo: TFloatField
-      FieldName = 'CustNo'
-    end
-    object cdsCustomersCompany: TStringField
-      FieldName = 'Company'
-      Size = 30
-    end
-    object cdsCustomersAddr1: TStringField
-      FieldName = 'Addr1'
-      Size = 30
-    end
-    object cdsCustomersAddr2: TStringField
-      FieldName = 'Addr2'
-      Size = 30
-    end
-    object cdsCustomersCity: TStringField
-      FieldName = 'City'
-      Size = 15
-    end
-    object cdsCustomersState: TStringField
-      FieldName = 'State'
-    end
-    object cdsCustomersZip: TStringField
-      FieldName = 'Zip'
-      Size = 10
-    end
-    object cdsCustomersCountry: TStringField
-      FieldName = 'Country'
-    end
-    object cdsCustomersPhone: TStringField
-      FieldName = 'Phone'
-      Size = 15
-    end
-    object cdsCustomersFAX: TStringField
-      FieldName = 'FAX'
-      Size = 15
-    end
-    object cdsCustomersTaxRate: TFloatField
-      FieldName = 'TaxRate'
-    end
-    object cdsCustomersContact: TStringField
-      FieldName = 'Contact'
-    end
-    object cdsCustomersLastInvoiceDate: TDateTimeField
-      FieldName = 'LastInvoiceDate'
-    end
-  end
-  object dsCustomers: TDataSource
-    DataSet = cdsCustomers
-    Left = 824
-    Top = 272
   end
 end

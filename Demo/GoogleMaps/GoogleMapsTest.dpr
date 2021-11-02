@@ -4,7 +4,8 @@ uses
   Forms,
   MIdasLib,
   MainForm in 'MainForm.pas' {formMain},
-  Vcl.GoogleMap in '..\..\Source\Vcl.GoogleMap.pas';
+  Vcl.GoogleMap in '..\..\Source\Vcl.GoogleMap.pas',
+  SecondaryForm in 'SecondaryForm.pas' {FormSecondary};
 
 {$R *.res}
 
