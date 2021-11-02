@@ -257,6 +257,8 @@ end;
 initialization
   //Setup UserDataFolder for Temp files
   TEdgeGoogleMapViewer.RegisterUserDataFolder(ExtractFilePath(ParamStr(0))+'..\..\CacheTempFolder\');
+  //If you have a Google API Key it's time to setup
+  //TEdgeGoogleMapViewer.RegisterGoogleMapsApiKey('xyz');
 
   ReportMemoryLeaksOnShutdown := DebugHook <> 0;
 
