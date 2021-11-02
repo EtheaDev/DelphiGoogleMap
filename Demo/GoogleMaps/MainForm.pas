@@ -246,9 +246,6 @@ procedure TformMain.EdgeGoogleMapViewerBeforeShowMap(Sender: TObject);
 var
   LApiKey: string;
 begin
-  //If you have a Google API Key it's time to setup
-  TEdgeGoogleMapViewer.RegisterGoogleMapsApiKey('AIzaSyBNY0ARa4GdRU4LrOKfk9hpNp96yM3dgHg');
-
   //The demo requires to input the API Key: it's only for testing!
   if TEdgeGoogleMapViewer.ApiKey = '' then
   begin
