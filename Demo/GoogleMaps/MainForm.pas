@@ -6,7 +6,7 @@ uses
   WebView2, System.SysUtils, Winapi.ActiveX, Vcl.Forms,
   Vcl.GoogleMap, Vcl.Edge, Data.DB, Datasnap.DBClient, Vcl.Menus, Vcl.ExtCtrls,
   Vcl.DBCtrls, Vcl.Grids, Vcl.DBGrids, Vcl.StdCtrls, Vcl.Samples.Spin,
-  Vcl.Controls, System.Classes;
+  Vcl.Controls, System.Classes, Vcl.Mask, Vcl.ComCtrls;
 
 type
   TformMain = class(TForm)
@@ -33,7 +33,6 @@ type
     DBGrid: TDBGrid;
     dsCustomers: TDataSource;
     gbMapAttributes: TGroupBox;
-    MapTypeIdComboBox: TComboBox;
     lbZoom: TLabel;
     Zoom: TSpinEdit;
     CheckBoxStreeView: TCheckBox;
@@ -44,9 +43,7 @@ type
     MemoAddress: TMemo;
     ButtonGotoLocation: TButton;
     Longitude: TEdit;
-    Latitude: TEdit;
     LabelLongitude: TLabel;
-    LabelLatitude: TLabel;
     LabelAddress: TLabel;
     GroupBox2: TGroupBox;
     Label3: TLabel;
@@ -66,10 +63,44 @@ type
     ButtonRouteByAddress: TButton;
     Label8: TLabel;
     DBNavigator: TDBNavigator;
-    FileEdit: TLabeledEdit;
     LoadTableButton: TButton;
     Splitter1: TSplitter;
+    CheckBoxDirectionPanel: TCheckBox;
+    GroupBox3: TGroupBox;
     Button1: TButton;
+    Panel1: TPanel;
+    FileEdit: TEdit;
+    Label7: TLabel;
+    LabelLatitude: TLabel;
+    Latitude: TEdit;
+    PageControlMarker: TPageControl;
+    TabSheet1: TTabSheet;
+    TabSheet2: TTabSheet;
+    GridPanel1: TGridPanel;
+    GridPanel2: TGridPanel;
+    Panel2: TPanel;
+    Label9: TLabel;
+    editMarkerLat: TEdit;
+    Panel3: TPanel;
+    Label10: TLabel;
+    editMarkerLng: TEdit;
+    Panel5: TPanel;
+    Label11: TLabel;
+    editMarkerDescription: TEdit;
+    Panel6: TPanel;
+    Label12: TLabel;
+    editMarkerLabel: TEdit;
+    TabSheet3: TTabSheet;
+    Panel7: TPanel;
+    Label13: TLabel;
+    MapTypeIdComboBox: TComboBox;
+    comboMarkerAnimation: TComboBox;
+    btnAddMarker: TButton;
+    TabSheet4: TTabSheet;
+    cbMarkerCustom: TCheckBox;
+    memoMarkerCustomJSON: TMemo;
+    Label14: TLabel;
+    memoMarkerInformation: TMemo;
     procedure FormCreate(Sender: TObject);
     procedure ButtonGotoAddressClick(Sender: TObject);
     procedure ButtonGotoLocationClick(Sender: TObject);
@@ -89,6 +120,9 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure EdgeGoogleMapViewerBeforeShowMap(Sender: TObject);
     procedure Button1Click(Sender: TObject);
+    procedure CheckBoxDirectionPanelClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure btnAddMarkerClick(Sender: TObject);
   private
   public
     { Public declarations }
@@ -118,9 +152,16 @@ begin
   CheckBoxTraffic.Checked := EdgeGoogleMapViewer.MapShowTrafficLayer;
   CheckBoxBicycling.Checked := EdgeGoogleMapViewer.MapShowBicyclingLayer;
   CheckBoxStreeView.Checked := EdgeGoogleMapViewer.MapShowStreetViewControl;
+  CheckBoxDirectionPanel.Checked := EdgeGoogleMapViewer.MapShowDirectionsPanel;
   MemoAddress.Lines.Text := EdgeGoogleMapViewer.MapAddress;
   Latitude.Text := TEdgeGoogleMapViewer.CoordToText(EdgeGoogleMapViewer.MapLatitude);
   Longitude.Text := TEdgeGoogleMapViewer.CoordToText(EdgeGoogleMapViewer.MapLongitude);
+  editMarkerLat.Text := TEdgeGoogleMapViewer.CoordToText(-31.9523);
+  editMarkerLng.Text  := TEdgeGoogleMapViewer.CoordToText(115.8613);
+  editMarkerDescription.Text := 'Perth, Western Australia';
+  editMarkerLabel.Text := 'Here';
+  comboMarkerAnimation.ItemIndex := 0;
+  memoMarkerCustomJSON.Lines.Text := EdgeGoogleMapViewer.DefaultCustomMarkerJSON;
   MapTypeIdComboBox.ItemIndex := Ord(EdgeGoogleMapViewer.MapTypeId);
   StartLat.Text := TEdgeGoogleMapViewer.CoordToText(37.7699298);
   StartLng.Text := TEdgeGoogleMapViewer.CoordToText(-122.4469157);
@@ -129,11 +170,17 @@ begin
   StartAddressMemo.Lines.Text := 'Via Santa Cecilia 4, 20061 Carugate, Milano';
   DestinationAddressMemo.Lines.Text := 'Via San Francesco 5, 20061 Carugate, Milano';
   FileEdit.Text := ExtractFilePath(Application.ExeName)+'..\..\Data\customer.xml';
+  PageControlMarker.ActivePageIndex := 0;
 end;
 
 procedure TformMain.FormDestroy(Sender: TObject);
 begin
   activeoleControl := nil;
+end;
+
+procedure TformMain.FormShow(Sender: TObject);
+begin
+  ShowMapButtonClick(Sender);
 end;
 
 procedure TformMain.HideMapButtonClick(Sender: TObject);
@@ -194,6 +241,7 @@ end;
 
 procedure TformMain.ButtonRouteByAddressClick(Sender: TObject);
 begin
+  EdgeGoogleMapViewer.MapShowDirectionsPanel := CheckBoxDirectionPanel.Checked;
   EdgeGoogleMapViewer.MapStartAddress := StartAddressMemo.Lines.Text;
   EdgeGoogleMapViewer.MapDestinationAddress := DestinationAddressMemo.Lines.Text;
   EdgeGoogleMapViewer.RouteByAddresses;
@@ -201,12 +249,30 @@ end;
 
 procedure TformMain.ButtonRouteLatLngClick(Sender: TObject);
 begin
+  EdgeGoogleMapViewer.MapShowDirectionsPanel := CheckBoxDirectionPanel.Checked;
   EdgeGoogleMapViewer.MapStartLatitude :=  TEdgeGoogleMapViewer.TextToCoord(StartLat.Text);
   EdgeGoogleMapViewer.MapStartLongitude := TEdgeGoogleMapViewer.TextToCoord(StartLng.Text);
   EdgeGoogleMapViewer.MapDestinationLatitude := TEdgeGoogleMapViewer.TextToCoord (DestLat.Text);
   EdgeGoogleMapViewer.MapDestinationLongitude := TEdgeGoogleMapViewer.TextToCoord(DestLng.Text);
   EdgeGoogleMapViewer.MapRouteModeId := TGoogleRouteModeId(cbxTravelMode.ItemIndex);
   EdgeGoogleMapViewer.RouteByLocations;
+end;
+
+procedure TformMain.btnAddMarkerClick(Sender: TObject);
+var
+  LLatLng : TLatLng;
+  LCustomJSON : string;
+  LAnimation : TGoogleMarkerAnimationId;
+begin
+  LLatLng.Latitude := TEdgeGoogleMapViewer.TextToCoord (editMarkerLat.Text);
+  LLatLng.Longitude := TEdgeGoogleMapViewer.TextToCoord (editMarkerLng.Text);
+  LAnimation := TGoogleMarkerAnimationId(comboMarkerAnimation.ItemIndex);
+  LCustomJSON := '';
+  if cbMarkerCustom.Checked then
+    begin
+      LCustomJSON := memoMarkerCustomJSON.Lines.Text;
+    end;
+  EdgeGoogleMapViewer.PutMarker(LLatLng,editMarkerDescription.Text, LAnimation ,editMarkerLabel.Text, memoMarkerInformation.Lines.Text, LCustomJSON);
 end;
 
 procedure TformMain.Button1Click(Sender: TObject);
@@ -236,6 +302,11 @@ begin
   EdgeGoogleMapViewer.ShowBicycling(CheckBoxBicycling.Checked);
  end;
 
+
+procedure TformMain.CheckBoxDirectionPanelClick(Sender: TObject);
+begin
+  EdgeGoogleMapViewer.ShowDirectionsPanel(CheckBoxDirectionPanel.Checked);
+end;
 
 procedure TformMain.CheckBoxTrafficClick(Sender: TObject);
 begin
