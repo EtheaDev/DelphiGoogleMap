@@ -101,6 +101,8 @@ type
     memoMarkerCustomJSON: TMemo;
     Label14: TLabel;
     memoMarkerInformation: TMemo;
+    cbCenterOnClick: TCheckBox;
+    mnuAddMarker: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure ButtonGotoAddressClick(Sender: TObject);
     procedure ButtonGotoLocationClick(Sender: TObject);
@@ -123,7 +125,12 @@ type
     procedure CheckBoxDirectionPanelClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure btnAddMarkerClick(Sender: TObject);
+    procedure mnuAddMarkerClick(Sender: TObject);
   private
+    FRighClickLatLng : TLatLng;
+    procedure OnMapClick(ASender: TObject; ALatLng : TLatLng);
+    procedure OnMapRightClick(ASender: TObject; ALatLng : TLatLng);
+    procedure OnMapZoom(ASender: TObject; AZoom : integer);
   public
     { Public declarations }
   end;
@@ -171,6 +178,29 @@ begin
   DestinationAddressMemo.Lines.Text := 'Via San Francesco 5, 20061 Carugate, Milano';
   FileEdit.Text := ExtractFilePath(Application.ExeName)+'..\..\Data\customer.xml';
   PageControlMarker.ActivePageIndex := 0;
+  EdgeGoogleMapViewer.OnMapClick := OnMapClick;
+  EdgeGoogleMapViewer.OnMapRightClick := OnMapRightClick;
+  EdgeGoogleMapViewer.OnMapZoom := OnMapZoom;
+end;
+
+procedure TformMain.OnMapClick(ASender : TObject;  ALatLng : TLatLng);
+begin
+  if cbCenterOnClick.Checked then
+  begin
+    EdgeGoogleMapViewer.GotoLocation(ALatLng, False)
+  end;
+end;
+
+procedure TformMain.OnMapRightClick(ASender : TObject; ALatLng : TLatLng);
+begin
+  FRighClickLatLng.Latitude := ALatLng.Latitude;
+  FRighClickLatLng.Longitude := ALatLng.Longitude;
+  PopupMenu.Popup(Mouse.CursorPos.X,Mouse.CursorPos.Y);
+end;
+
+procedure TformMain.OnMapZoom(ASender: TObject; AZoom: integer);
+begin
+  Zoom.Value := AZoom;
 end;
 
 procedure TformMain.FormDestroy(Sender: TObject);
@@ -196,6 +226,11 @@ end;
 procedure TformMain.MapTypeIdComboBoxChange(Sender: TObject);
 begin
   EdgeGoogleMapViewer.MapTypeId := TGoogleMapTypeId(MapTypeIdComboBox.ItemIndex);
+end;
+
+procedure TformMain.mnuAddMarkerClick(Sender: TObject);
+begin
+  EdgeGoogleMapViewer.PutMarker(FRighClickLatLng,'Added from right click menu');
 end;
 
 procedure TformMain.ShowMapButtonClick(Sender: TObject);

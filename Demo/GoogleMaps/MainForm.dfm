@@ -116,6 +116,15 @@ object formMain: TformMain
           #39'HYBRID'
           'TERRAIN')
       end
+      object cbCenterOnClick: TCheckBox
+        Left = 13
+        Top = 150
+        Width = 100
+        Height = 17
+        Caption = 'Center on click'
+        TabOrder = 5
+        OnClick = CheckBoxStreeViewClick
+      end
     end
     object GroupBox1: TGroupBox
       Left = 1
@@ -353,7 +362,7 @@ object formMain: TformMain
         Top = 15
         Width = 129
         Height = 128
-        ActivePage = TabSheet3
+        ActivePage = TabSheet2
         Align = alClient
         MultiLine = True
         TabOrder = 0
@@ -889,6 +898,10 @@ object formMain: TformMain
   object PopupMenu: TPopupMenu
     Left = 416
     Top = 264
+    object mnuAddMarker: TMenuItem
+      Caption = 'Add Marker'
+      OnClick = mnuAddMarkerClick
+    end
   end
   object cdsCustomers: TClientDataSet
     Aggregates = <>

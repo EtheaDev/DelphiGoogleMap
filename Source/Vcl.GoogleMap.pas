@@ -78,8 +78,8 @@ Const
 
   AGoogleMarkerAnimationId : Array[TGoogleMarkerAnimationId] of string =
     ('null',
-     'google.maps.Animation.BOUNCE',
-     'google.maps.Animation.DROP');
+     'BOUNCE',
+     'DROP');
 
 Type
   TLatLng = record
@@ -90,9 +90,11 @@ Type
 
   TEdgeGoogleMapViewHTMLBody = procedure(ASender : TObject; var AHTML : string) of object;
   TEdgeGoogleMapViewJavascript = procedure(ASender : TObject; var AJavascript : string) of object;
+  TEdgeGoogleMapViewMapClick = procedure(ASender : TObject;  ALatLng : TLatLng) of object;
+  TEdgeGoogleMapViewZoomChanged = procedure(ASender : TObject;  AZoom : integer) of object;
 
   { TEdgeGoogleMapViewer }
-  TEdgeGoogleMapViewer = class(TEdgeBrowser)
+  TEdgeGoogleMapViewer = class(TCustomEdgeBrowser)
   strict private
     class var FApiKey: string;
     class var FUserDataFolder: string;
@@ -124,6 +126,10 @@ Type
     FOnGetHTMLBody: TEdgeGoogleMapViewHTMLBody;
     FMapShowDirectionsPanel : boolean;
     FOnGetJavascript: TEdgeGoogleMapViewJavascript;
+    FOnWebUnhandledMessageReceived: TWebMessageReceivedEvent;
+    FOnMapClick: TEdgeGoogleMapViewMapClick;
+    FOnMapRightClick: TEdgeGoogleMapViewMapClick;
+    FOnMapZoom: TEdgeGoogleMapViewZoomChanged;
     function ClearAddressText(const Address: string): string;
     procedure SetAddress(const Value: string);
     procedure SetBicycling(const Value: boolean);
@@ -164,6 +170,11 @@ Type
     procedure SetOnGetHTMLBody(const Value: TEdgeGoogleMapViewHTMLBody);
     procedure SetMapShowDirectionsPanel(const Value: boolean);
     procedure SetOnGetJavascript(const Value: TEdgeGoogleMapViewJavascript);
+    procedure SetOnWebUnhandledMessageReceived(
+      const Value: TWebMessageReceivedEvent);
+    procedure SetOnMapClick(const Value: TEdgeGoogleMapViewMapClick);
+    procedure SetOnMapRightClick(const Value: TEdgeGoogleMapViewMapClick);
+    procedure SetOnMapZoom(const Value: TEdgeGoogleMapViewZoomChanged);
   protected
     procedure Loaded; override;
     procedure ShowMap(AMapCenter: TLatLng; const AAddress: string = ''); overload;
@@ -183,6 +194,8 @@ Type
     function GetJSRouteAddress: string;
     function GetJSCalcRoute: string;
     function StripCRLF(AValue: string; AReplaceWith: string = ' '): string;
+    procedure CustomWebMessageReceived(ASender: TCustomEdgeBrowser; Args: TWebMessageReceivedEventArgs); virtual;
+    function HandleWebMessageEvent(AEvent: string): boolean;
   public
     class function TextToCoord(const Value: String): Extended;
     class function CoordToText(const Coord: double): string;
@@ -195,7 +208,7 @@ Type
     procedure HideMap;
     function JSONEncodeString(const AText: string): string;
     //Goto Method automatically show Map
-    procedure GotoLocation(LatLng: TLatLng);
+    procedure GotoLocation(LatLng: TLatLng; AAddMarker : boolean = true);
     procedure GotoAddress(const Address: string);
     procedure RouteByLocations;
     procedure RouteByAddresses;
@@ -208,6 +221,36 @@ Type
     procedure ClearMarkers;
     class property ApiKey: string read FApiKey;
   published
+    property Align;
+    property Anchors;
+    property TabOrder;
+    property TabStop;
+    property OnEnter;
+    property OnExit;
+    property BrowserExecutableFolder;
+    property UserDataFolder;
+    property OnCapturePreviewCompleted;
+    property OnContainsFullScreenElementChanged;
+    property OnContentLoading;
+    property OnCreateWebViewCompleted;
+    property OnDevToolsProtocolEventReceived;
+    property OnDocumentTitleChanged;
+    property OnExecuteScript;
+    property OnFrameNavigationStarting;
+    property OnFrameNavigationCompleted;
+    property OnHistoryChanged;
+    property OnNavigationStarting;
+    property OnNavigationCompleted;
+    property OnNewWindowRequested;
+    property OnPermissionRequested;
+    property OnProcessFailed;
+    property OnScriptDialogOpening;
+    property OnSourceChanged;
+    // property OnWebMessageReceived;
+    property OnWebResourceRequested;
+    property OnWindowCloseRequested;
+    property OnZoomFactorChanged;
+    // Custom properties
     property MapShowPanControl: boolean read FPanControl write SetPanControl default true;
     property MapShowZoomControl: boolean read FZoomControl write SetZoomControl default true;
     property MapShowTypeControl: boolean read FTypeControl write SetTypeControl default true;
@@ -236,6 +279,10 @@ Type
     property AfterHideMap: TNotifyEvent read FAfterHideMap write FAfterHideMap;
     property OnGetHTMLBody : TEdgeGoogleMapViewHTMLBody read FOnGetHTMLBody write SetOnGetHTMLBody;
     property OnGetJavascript : TEdgeGoogleMapViewJavascript read FOnGetJavascript write SetOnGetJavascript;
+    property OnWebUnhandledMessageReceived : TWebMessageReceivedEvent read FOnWebUnhandledMessageReceived write SetOnWebUnhandledMessageReceived;
+    property OnMapClick : TEdgeGoogleMapViewMapClick read FOnMapClick write SetOnMapClick;
+    property OnMapRightClick : TEdgeGoogleMapViewMapClick read FOnMapRightClick write SetOnMapRightClick;
+    property OnMapZoom : TEdgeGoogleMapViewZoomChanged read FOnMapZoom write SetOnMapZoom;
   end;
 
 procedure Register;
@@ -246,6 +293,7 @@ uses
   System.StrUtils
   , System.IOUtils
   , REST.Json
+  , SyStem.JSON
   ;
 
 { TEdgeGoogleMapViewer }
@@ -296,6 +344,71 @@ begin
   Result := StrToFloat(Value, LFormatSettinga);
 end;
 
+function TEdgeGoogleMapViewer.HandleWebMessageEvent(AEvent : string) : boolean;
+var
+  LEventValue : TJSONObject;
+  LEvent : string;
+  LLatLng : TLatLng;
+begin
+  Result := False;
+  LEventValue := nil;
+  try
+    LEventValue := TJSONObject.ParseJSONValue(AEvent) as TJSONObject;
+    LEvent := LEventValue.GetValue('event').GetValue<string>;
+    if SameText(LEvent,'click') then
+      begin
+       if Assigned(FOnMapClick) then
+        begin
+          LLatLng.Latitude := LEventValue.GetValue('lat').GetValue<double>;
+          LLatLng.Longitude := LEventValue.GetValue('lng').GetValue<double>;
+
+          FOnMapClick(Self,LLatLng);
+        end;
+      end;
+     if SameText(LEvent,'rightclick') then
+      begin
+       if Assigned(FOnMapRightClick) then
+        begin
+          LLatLng.Latitude := LEventValue.GetValue('lat').GetValue<double>;
+          LLatLng.Longitude := LEventValue.GetValue('lng').GetValue<double>;
+          FOnMapRightClick(Self,LLatLng);
+        end;
+      end;
+       if SameText(LEvent,'zoom_changed') then
+      begin
+        FZoom := LEventValue.GetValue('zoom').GetValue<integer>;
+        if Assigned(FOnMapZoom) then
+          begin
+            FOnMapZoom(Self,FZoom);
+          end;
+      end;
+  except
+
+  end;
+  if Assigned(LEventValue) then
+    LEventValue.Free;
+end;
+
+procedure TEdgeGoogleMapViewer.CustomWebMessageReceived(ASender: TCustomEdgeBrowser;
+  Args: TWebMessageReceivedEventArgs);
+var
+  LSource: PWideChar;
+  LwebMessageAsString: PWideChar;
+  LHandled : boolean;
+begin
+
+  Args.ArgsInterface.Get_Source(LSource);
+  Args.ArgsInterface.TryGetWebMessageAsString(LwebMessageAsString);
+
+  LHandled := HandleWebMessageEvent(LwebMessageAsString);
+
+  if not LHandled then
+    begin
+      if Assigned(FOnWebUnhandledMessageReceived) then
+        FOnWebUnhandledMessageReceived(ASender,Args);
+    end;
+end;
+
 class function TEdgeGoogleMapViewer.CoordToText(const Coord: double): string;
 begin
   //Format Coordinates to String
@@ -332,6 +445,7 @@ begin
   begin
     OnNavigationCompleted := CustomDocumentComplete;
     OnCreateWebViewCompleted := CustomWebViewCreateComplete;
+    OnWebMessageReceived := CustomWebMessageReceived;
   end;
 end;
 
@@ -417,6 +531,20 @@ begin
   '    Traffic(%s);'+sLineBreak+
   '    bikeLayer = new google.maps.BicyclingLayer();'+sLineBreak+
   '    Bicycling(%s);'+sLineBreak+
+  '    map.addListener("click", (mapsMouseEvent) => {'+sLineBreak+
+  '      window.chrome.webview.postMessage(JSON.stringify({"event" : "click",'+sLineBreak+
+  '      "lat" : mapsMouseEvent.latLng.lat().toFixed(4),'+sLineBreak+
+  '      "lng" : mapsMouseEvent.latLng.lng().toFixed(4) } , null, 2));'+sLineBreak+
+  '    });'+sLineBreak+
+  '    map.addListener("rightclick", (mapsMouseEvent) => {'+sLineBreak+
+  '      window.chrome.webview.postMessage(JSON.stringify({"event" : "rightclick",'+sLineBreak+
+  '      "lat" : mapsMouseEvent.latLng.lat().toFixed(4),'+sLineBreak+
+  '      "lng" : mapsMouseEvent.latLng.lng().toFixed(4) } , null, 2));'+sLineBreak+
+  '    });'+sLineBreak+
+  '    map.addListener("zoom_changed", (mapsMouseEvent) => {'+sLineBreak+
+  '      window.chrome.webview.postMessage(JSON.stringify({"event" : "zoom_changed",'+sLineBreak+
+  '      "zoom" :  map.getZoom()} , null, 2));'+sLineBreak+
+  '    });'+sLineBreak+
   '  }';
 end;
 
@@ -437,11 +565,11 @@ end;
 
 function TEdgeGoogleMapViewer.GetJSGotoLatLng : string;
 begin
-   Result := '  function GotoLatLng(Lat, Lng, Description) { '+sLineBreak+
+   Result := '  function GotoLatLng(Lat, Lng, Description, AddMarker) { '+sLineBreak+
   '   var latlng = new google.maps.LatLng(Lat,Lng);'+sLineBreak+
   '   SetMapShowDirectionsPanel(false, true);'+sLineBreak+
   '   map.setCenter(latlng);'+sLineBreak+
-  '   PutMarker(Lat, Lng, Description);'+sLineBreak+
+  '   if (AddMarker) { PutMarker(Lat, Lng, Description) };'+sLineBreak+
   '  }';
 end;
 
@@ -747,7 +875,7 @@ procedure TEdgeGoogleMapViewer.SetMapCenter(Latitude, Longitude: double;
 begin
   AssignMapLatLng(FMapCenter, Latitude, Longitude, Description);
   if ((Latitude <> 0) or (Longitude <> 0)) and (MapVisible) then
-    GotoLocation(FMapCenter);
+    GotoLocation(FMapCenter, Trim(Description) <> '');
 end;
 
 procedure TEdgeGoogleMapViewer.SetMapLatitude(const Value: double);
@@ -875,6 +1003,7 @@ procedure TEdgeGoogleMapViewer.PutMarker(LatLng: TLatLng; ADescription : string;
 var
   LScriptCommand: String;
   LInfoWindowContent : string;
+  LAnimation : string;
 begin
   if not MapVisible then
   begin
@@ -885,13 +1014,14 @@ begin
   LInfoWindowContent := AInfoWindowContent;
   if LInfoWindowContent = '' then
     LInfoWindowContent := ADescription ;
+  LAnimation := Format('google.maps.Animation.%s',[AGoogleMarkerAnimationId[AAnimation]]);
   if ACustomMarkerJSON = '' then
   begin
   LScriptCommand := Format('PutMarker(%s, %s, %s, %s, %s, %s)',[
     CoordToText(LatLng.Latitude),
     CoordToText(LatLng.Longitude),
     QuotedStr(ADescription),
-    (AGoogleMarkerAnimationId[AAnimation]),
+    LAnimation,
     QuotedStr(ALabel),
     QuotedStr(StripCRLF(LInfoWindowContent))
     ]);
@@ -953,6 +1083,30 @@ procedure TEdgeGoogleMapViewer.SetOnGetJavascript(
   const Value: TEdgeGoogleMapViewJavascript);
 begin
   FOnGetJavascript := Value;
+end;
+
+procedure TEdgeGoogleMapViewer.SetOnMapClick(
+  const Value: TEdgeGoogleMapViewMapClick);
+begin
+  FOnMapClick := Value;
+end;
+
+procedure TEdgeGoogleMapViewer.SetOnMapRightClick(
+  const Value: TEdgeGoogleMapViewMapClick);
+begin
+  FOnMapRightClick := Value;
+end;
+
+procedure TEdgeGoogleMapViewer.SetOnMapZoom(
+  const Value: TEdgeGoogleMapViewZoomChanged);
+begin
+  FOnMapZoom := Value;
+end;
+
+procedure TEdgeGoogleMapViewer.SetOnWebUnhandledMessageReceived(
+  const Value: TWebMessageReceivedEvent);
+begin
+  FOnWebUnhandledMessageReceived := Value;
 end;
 
 procedure TEdgeGoogleMapViewer.SetOverviewMapControl(const Value: boolean);
@@ -1019,7 +1173,7 @@ begin
   FZoomControl := Value;
 end;
 
-procedure TEdgeGoogleMapViewer.GotoLocation(LatLng: TLatLng);
+procedure TEdgeGoogleMapViewer.GotoLocation(LatLng: TLatLng; AAddMarker : boolean);
 var
   ScriptCommand: String;
 begin
@@ -1033,10 +1187,11 @@ begin
     ShowMap(LatLng)
   else
   begin
-    ScriptCommand := Format('GotoLatLng(%s,%s,%s)',[
+    ScriptCommand := Format('GotoLatLng(%s,%s,%s,%s)',[
       CoordToText(LatLng.Latitude),
       CoordToText(LatLng.Longitude),
-      QuotedStr(LatLng.Description)
+      QuotedStr(LatLng.Description),
+      B2S(AAddMarker)
       ]);
     ExecuteScript(ScriptCommand);
   end;
