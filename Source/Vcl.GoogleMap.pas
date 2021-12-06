@@ -5,6 +5,7 @@
 {       Copyright (c) 2021 (Ethea S.r.l.)                                      }
 {       Author: Carlo Barazzetta                                               }
 {       Contributors:                                                          }
+{         littleearth (https://github.com/littleearth)                         }
 {                                                                              }
 {       https://github.com/EtheaDev/DelphiGoogleMap                            }
 {                                                                              }
@@ -166,7 +167,6 @@ Type
     procedure SetDestinationAddress(const Value: string);
     procedure SetStartAddress(const Value: string);
     procedure SetMapLocationDesc(const Value: string);
-    procedure CheckVisibleMap;
     procedure SetOnGetHTMLBody(const Value: TEdgeGoogleMapViewHTMLBody);
     procedure SetMapShowDirectionsPanel(const Value: boolean);
     procedure SetOnGetJavascript(const Value: TEdgeGoogleMapViewJavascript);
@@ -267,7 +267,7 @@ Type
     property MapStartLongitude: double read FMapStart.Longitude write SetMapStartLongitude;
     property MapDestinationLatitude: double read FMapDestination.Latitude write SetMapDestinationLatitude;
     property MapDestinationLongitude: double read FMapDestination.Longitude write SetMapDestinationLongitude;
-    property MapShowDirectionsPanel : boolean read FMapShowDirectionsPanel write SetMapShowDirectionsPanel default true;
+    property MapShowDirectionsPanel : boolean read FMapShowDirectionsPanel write SetMapShowDirectionsPanel default false;
     property MapZoom: integer read FZoom write SetZoom default DEFAULT_ZOOM_FACTOR;
     property MapTypeId: TGoogleMapTypeId read FMapTypeId write SetMapTypeId default mtROADMAP;
     property MapRouteModeId: TGoogleRouteModeId read FMapRouteModeId write SetMapRouteModeId default rmDRIVING;
@@ -436,7 +436,7 @@ begin
   FTypeControl := true;
   FScaleControl := true;
   FOverviewMapControl := true;
-  FMapShowDirectionsPanel := true;
+  FMapShowDirectionsPanel := false;
   FZoom := DEFAULT_ZOOM_FACTOR;
   FOnNavigationCompleted := OnNavigationCompleted;
   FOnCreateWebViewCompleted := OnCreateWebViewCompleted;
@@ -1219,12 +1219,6 @@ begin
     B2S(FMapShowDirectionsPanel)
     ]);
   ExecuteScript(ScriptCommand);
-end;
-
-procedure TEdgeGoogleMapViewer.CheckVisibleMap;
-begin
-  if not MapVisible then
-    raise EGoogleMapError.Create('Cannot Route to invisible Map!');
 end;
 
 procedure TEdgeGoogleMapViewer.GotoAddress(const Address: string);

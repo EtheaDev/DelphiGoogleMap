@@ -1,3 +1,29 @@
+{******************************************************************************}
+{                                                                              }
+{       Delphi Google Map Viewer Demo                                          }
+{                                                                              }
+{       Copyright (c) 2021 (Ethea S.r.l.)                                      }
+{       Author: Carlo Barazzetta                                               }
+{       Contributors:                                                          }
+{         littleearth (https://github.com/littleearth)                         }
+{                                                                              }
+{       https://github.com/EtheaDev/DelphiGoogleMap                            }
+{                                                                              }
+{******************************************************************************}
+{                                                                              }
+{  Licensed under the Apache License, Version 2.0 (the "License");             }
+{  you may not use this file except in compliance with the License.            }
+{  You may obtain a copy of the License at                                     }
+{                                                                              }
+{      http://www.apache.org/licenses/LICENSE-2.0                              }
+{                                                                              }
+{  Unless required by applicable law or agreed to in writing, software         }
+{  distributed under the License is distributed on an "AS IS" BASIS,           }
+{  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.    }
+{  See the License for the specific language governing permissions and         }
+{  limitations under the License.                                              }
+{                                                                              }
+{******************************************************************************}
 unit MainForm;
 
 interface
@@ -66,7 +92,7 @@ type
     LoadTableButton: TButton;
     Splitter1: TSplitter;
     CheckBoxDirectionPanel: TCheckBox;
-    GroupBox3: TGroupBox;
+    GroupBoxMarker: TGroupBox;
     Button1: TButton;
     Panel1: TPanel;
     FileEdit: TEdit;
@@ -74,8 +100,8 @@ type
     LabelLatitude: TLabel;
     Latitude: TEdit;
     PageControlMarker: TPageControl;
-    TabSheet1: TTabSheet;
-    TabSheet2: TTabSheet;
+    LatLongMarkerTabSheet: TTabSheet;
+    TabSheetLabelAnimation: TTabSheet;
     GridPanel1: TGridPanel;
     GridPanel2: TGridPanel;
     Panel2: TPanel;
@@ -90,13 +116,13 @@ type
     Panel6: TPanel;
     Label12: TLabel;
     editMarkerLabel: TEdit;
-    TabSheet3: TTabSheet;
+    TabSheetInformation: TTabSheet;
     Panel7: TPanel;
     Label13: TLabel;
     MapTypeIdComboBox: TComboBox;
     comboMarkerAnimation: TComboBox;
     btnAddMarker: TButton;
-    TabSheet4: TTabSheet;
+    TabSheetCustom: TTabSheet;
     cbMarkerCustom: TCheckBox;
     memoMarkerCustomJSON: TMemo;
     Label14: TLabel;
@@ -299,14 +325,15 @@ var
   LCustomJSON : string;
   LAnimation : TGoogleMarkerAnimationId;
 begin
-  LLatLng.Latitude := TEdgeGoogleMapViewer.TextToCoord (editMarkerLat.Text);
-  LLatLng.Longitude := TEdgeGoogleMapViewer.TextToCoord (editMarkerLng.Text);
+  LLatLng.Latitude := TEdgeGoogleMapViewer.TextToCoord(editMarkerLat.Text);
+  LLatLng.Longitude := TEdgeGoogleMapViewer.TextToCoord(editMarkerLng.Text);
   LAnimation := TGoogleMarkerAnimationId(comboMarkerAnimation.ItemIndex);
   LCustomJSON := '';
   if cbMarkerCustom.Checked then
     begin
       LCustomJSON := memoMarkerCustomJSON.Lines.Text;
     end;
+  EdgeGoogleMapViewer.GotoLocation(LLatLng);
   EdgeGoogleMapViewer.PutMarker(LLatLng,editMarkerDescription.Text, LAnimation ,editMarkerLabel.Text, memoMarkerInformation.Lines.Text, LCustomJSON);
 end;
 
@@ -349,15 +376,9 @@ begin
  end;
 
 procedure TformMain.EdgeGoogleMapViewerBeforeShowMap(Sender: TObject);
-var
-  LApiKey: string;
 begin
-  //The demo requires to input the API Key: it's only for testing!
   if TEdgeGoogleMapViewer.ApiKey = '' then
-  begin
-    if InputQuery('Activate Google Maps API','Insert Google Maps API Key:', LApiKey) then
-       TEdgeGoogleMapViewer.RegisterGoogleMapsApiKey(LApiKey);
-  end;
+    raise Exception.Create('Error: you must put your Google API Key into TEdgeGoogleMapViewer: change initialization section!');
 end;
 
 initialization
