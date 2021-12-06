@@ -58,6 +58,10 @@ Type
                         rmBICYCLING,
                         rmTRANSIT);
 
+  TGoogleMarkerAnimationId = (maNONE,
+                        maBOUNCE,
+                        maDROP);
+
 Const
   ABOUT_BLANK_PAGE = 'about:blank';
   AGoogleMapTypeId : Array[TGoogleMapTypeId] of string =
@@ -72,6 +76,11 @@ Const
      'BICYCLING',
      'TRANSIT');
 
+  AGoogleMarkerAnimationId : Array[TGoogleMarkerAnimationId] of string =
+    ('null',
+     'BOUNCE',
+     'DROP');
+
 Type
   TLatLng = record
     Latitude: double;
@@ -79,8 +88,13 @@ Type
     Description: string;
   end;
 
+  TEdgeGoogleMapViewHTMLBody = procedure(ASender : TObject; var AHTML : string) of object;
+  TEdgeGoogleMapViewJavascript = procedure(ASender : TObject; var AJavascript : string) of object;
+  TEdgeGoogleMapViewMapClick = procedure(ASender : TObject;  ALatLng : TLatLng) of object;
+  TEdgeGoogleMapViewZoomChanged = procedure(ASender : TObject;  AZoom : integer) of object;
+
   { TEdgeGoogleMapViewer }
-  TEdgeGoogleMapViewer = class(TEdgeBrowser)
+  TEdgeGoogleMapViewer = class(TCustomEdgeBrowser)
   strict private
     class var FApiKey: string;
     class var FUserDataFolder: string;
@@ -109,6 +123,13 @@ Type
     FBeforeShowMap: TNotifyEvent;
     FAfterHideMap: TNotifyEvent;
     FBeforeInitMap: TNotifyEvent;
+    FOnGetHTMLBody: TEdgeGoogleMapViewHTMLBody;
+    FMapShowDirectionsPanel : boolean;
+    FOnGetJavascript: TEdgeGoogleMapViewJavascript;
+    FOnWebUnhandledMessageReceived: TWebMessageReceivedEvent;
+    FOnMapClick: TEdgeGoogleMapViewMapClick;
+    FOnMapRightClick: TEdgeGoogleMapViewMapClick;
+    FOnMapZoom: TEdgeGoogleMapViewZoomChanged;
     function ClearAddressText(const Address: string): string;
     procedure SetAddress(const Value: string);
     procedure SetBicycling(const Value: boolean);
@@ -146,9 +167,35 @@ Type
     procedure SetStartAddress(const Value: string);
     procedure SetMapLocationDesc(const Value: string);
     procedure CheckVisibleMap;
+    procedure SetOnGetHTMLBody(const Value: TEdgeGoogleMapViewHTMLBody);
+    procedure SetMapShowDirectionsPanel(const Value: boolean);
+    procedure SetOnGetJavascript(const Value: TEdgeGoogleMapViewJavascript);
+    procedure SetOnWebUnhandledMessageReceived(
+      const Value: TWebMessageReceivedEvent);
+    procedure SetOnMapClick(const Value: TEdgeGoogleMapViewMapClick);
+    procedure SetOnMapRightClick(const Value: TEdgeGoogleMapViewMapClick);
+    procedure SetOnMapZoom(const Value: TEdgeGoogleMapViewZoomChanged);
   protected
     procedure Loaded; override;
     procedure ShowMap(AMapCenter: TLatLng; const AAddress: string = ''); overload;
+    function GetHTMLHeader: string; virtual;
+    function GetHTMLStyle : string; virtual;
+    function GetHTMLScript: string; virtual;
+    function GetHTMLBody : string; virtual;
+    function GetJSInitialize: string; virtual;
+    function GetJSVariables: string; virtual;
+    function GetJSCodeAddress: string;virtual;
+    function GetJSGotoLatLng: string; virtual;
+    function GetJSClearMakers: string; virtual;
+    function GetJSPutMarker: string; virtual;
+    function GetJSPutCustomMarker: string; virtual;
+    function GetJSMapOptions: string; virtual;
+    function GetJSMapShowDirectionsPanel: string;
+    function GetJSRouteAddress: string;
+    function GetJSCalcRoute: string;
+    function StripCRLF(AValue: string; AReplaceWith: string = ' '): string;
+    procedure CustomWebMessageReceived(ASender: TCustomEdgeBrowser; Args: TWebMessageReceivedEventArgs); virtual;
+    function HandleWebMessageEvent(AEvent: string): boolean;
   public
     class function TextToCoord(const Value: String): Extended;
     class function CoordToText(const Coord: double): string;
@@ -156,19 +203,54 @@ Type
     class procedure RegisterUserDataFolder(const ATempFolder: string);
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    function DefaultCustomMarkerJSON: string;
     procedure ShowMap(const AAddress: string) overload;
     procedure HideMap;
+    function JSONEncodeString(const AText: string): string;
     //Goto Method automatically show Map
-    procedure GotoLocation(LatLng: TLatLng);
+    procedure GotoLocation(LatLng: TLatLng; AAddMarker : boolean = true);
     procedure GotoAddress(const Address: string);
     procedure RouteByLocations;
     procedure RouteByAddresses;
     procedure ShowStreetViewControl(Show: boolean);
     procedure ShowBicycling(Show: boolean);
     procedure ShowTraffic(Show: boolean);
+    procedure ShowDirectionsPanel(const Value: boolean);
+    procedure PutMarker(LatLng: TLatLng; ADescription : string; AAnimation : TGoogleMarkerAnimationId = maNONE;
+      ALabel : string = ''; AInfoWindowContent : string = ''; ACustomMarkerJSON : string = '');
     procedure ClearMarkers;
     class property ApiKey: string read FApiKey;
   published
+    property Align;
+    property Anchors;
+    property TabOrder;
+    property TabStop;
+    property OnEnter;
+    property OnExit;
+    property BrowserExecutableFolder;
+    property UserDataFolder;
+    property OnCapturePreviewCompleted;
+    property OnContainsFullScreenElementChanged;
+    property OnContentLoading;
+    property OnCreateWebViewCompleted;
+    property OnDevToolsProtocolEventReceived;
+    property OnDocumentTitleChanged;
+    property OnExecuteScript;
+    property OnFrameNavigationStarting;
+    property OnFrameNavigationCompleted;
+    property OnHistoryChanged;
+    property OnNavigationStarting;
+    property OnNavigationCompleted;
+    property OnNewWindowRequested;
+    property OnPermissionRequested;
+    property OnProcessFailed;
+    property OnScriptDialogOpening;
+    property OnSourceChanged;
+    // property OnWebMessageReceived;
+    property OnWebResourceRequested;
+    property OnWindowCloseRequested;
+    property OnZoomFactorChanged;
+    // Custom properties
     property MapShowPanControl: boolean read FPanControl write SetPanControl default true;
     property MapShowZoomControl: boolean read FZoomControl write SetZoomControl default true;
     property MapShowTypeControl: boolean read FTypeControl write SetTypeControl default true;
@@ -185,6 +267,7 @@ Type
     property MapStartLongitude: double read FMapStart.Longitude write SetMapStartLongitude;
     property MapDestinationLatitude: double read FMapDestination.Latitude write SetMapDestinationLatitude;
     property MapDestinationLongitude: double read FMapDestination.Longitude write SetMapDestinationLongitude;
+    property MapShowDirectionsPanel : boolean read FMapShowDirectionsPanel write SetMapShowDirectionsPanel default true;
     property MapZoom: integer read FZoom write SetZoom default DEFAULT_ZOOM_FACTOR;
     property MapTypeId: TGoogleMapTypeId read FMapTypeId write SetMapTypeId default mtROADMAP;
     property MapRouteModeId: TGoogleRouteModeId read FMapRouteModeId write SetMapRouteModeId default rmDRIVING;
@@ -194,6 +277,12 @@ Type
     property BeforeInitMap: TNotifyEvent read FBeforeInitMap write FBeforeInitMap;
     property BeforeShowMap: TNotifyEvent read FBeforeShowMap write FBeforeShowMap;
     property AfterHideMap: TNotifyEvent read FAfterHideMap write FAfterHideMap;
+    property OnGetHTMLBody : TEdgeGoogleMapViewHTMLBody read FOnGetHTMLBody write SetOnGetHTMLBody;
+    property OnGetJavascript : TEdgeGoogleMapViewJavascript read FOnGetJavascript write SetOnGetJavascript;
+    property OnWebUnhandledMessageReceived : TWebMessageReceivedEvent read FOnWebUnhandledMessageReceived write SetOnWebUnhandledMessageReceived;
+    property OnMapClick : TEdgeGoogleMapViewMapClick read FOnMapClick write SetOnMapClick;
+    property OnMapRightClick : TEdgeGoogleMapViewMapClick read FOnMapRightClick write SetOnMapRightClick;
+    property OnMapZoom : TEdgeGoogleMapViewZoomChanged read FOnMapZoom write SetOnMapZoom;
   end;
 
 procedure Register;
@@ -203,6 +292,8 @@ implementation
 uses
   System.StrUtils
   , System.IOUtils
+  , REST.Json
+  , SyStem.JSON
   ;
 
 { TEdgeGoogleMapViewer }
@@ -231,7 +322,7 @@ begin
   if not self.WebViewCreated then
     raise EGoogleMapError.Create('Error: cannot initilize Google Map Viewer! Check if webview2loader.dll is present');
   if Assigned(FOnCreateWebViewCompleted) then
-    FOnCreateWebViewCompleted(Sender, AResult);    
+    FOnCreateWebViewCompleted(Sender, AResult);
 end;
 
 destructor TEdgeGoogleMapViewer.Destroy;
@@ -251,6 +342,71 @@ var
 begin
   LFormatSettinga.DecimalSeparator := '.';
   Result := StrToFloat(Value, LFormatSettinga);
+end;
+
+function TEdgeGoogleMapViewer.HandleWebMessageEvent(AEvent : string) : boolean;
+var
+  LEventValue : TJSONObject;
+  LEvent : string;
+  LLatLng : TLatLng;
+begin
+  Result := False;
+  LEventValue := nil;
+  try
+    LEventValue := TJSONObject.ParseJSONValue(AEvent) as TJSONObject;
+    LEvent := LEventValue.GetValue('event').GetValue<string>;
+    if SameText(LEvent,'click') then
+      begin
+       if Assigned(FOnMapClick) then
+        begin
+          LLatLng.Latitude := LEventValue.GetValue('lat').GetValue<double>;
+          LLatLng.Longitude := LEventValue.GetValue('lng').GetValue<double>;
+
+          FOnMapClick(Self,LLatLng);
+        end;
+      end;
+     if SameText(LEvent,'rightclick') then
+      begin
+       if Assigned(FOnMapRightClick) then
+        begin
+          LLatLng.Latitude := LEventValue.GetValue('lat').GetValue<double>;
+          LLatLng.Longitude := LEventValue.GetValue('lng').GetValue<double>;
+          FOnMapRightClick(Self,LLatLng);
+        end;
+      end;
+       if SameText(LEvent,'zoom_changed') then
+      begin
+        FZoom := LEventValue.GetValue('zoom').GetValue<integer>;
+        if Assigned(FOnMapZoom) then
+          begin
+            FOnMapZoom(Self,FZoom);
+          end;
+      end;
+  except
+
+  end;
+  if Assigned(LEventValue) then
+    LEventValue.Free;
+end;
+
+procedure TEdgeGoogleMapViewer.CustomWebMessageReceived(ASender: TCustomEdgeBrowser;
+  Args: TWebMessageReceivedEventArgs);
+var
+  LSource: PWideChar;
+  LwebMessageAsString: PWideChar;
+  LHandled : boolean;
+begin
+
+  Args.ArgsInterface.Get_Source(LSource);
+  Args.ArgsInterface.TryGetWebMessageAsString(LwebMessageAsString);
+
+  LHandled := HandleWebMessageEvent(LwebMessageAsString);
+
+  if not LHandled then
+    begin
+      if Assigned(FOnWebUnhandledMessageReceived) then
+        FOnWebUnhandledMessageReceived(ASender,Args);
+    end;
 end;
 
 class function TEdgeGoogleMapViewer.CoordToText(const Coord: double): string;
@@ -280,6 +436,7 @@ begin
   FTypeControl := true;
   FScaleControl := true;
   FOverviewMapControl := true;
+  FMapShowDirectionsPanel := true;
   FZoom := DEFAULT_ZOOM_FACTOR;
   FOnNavigationCompleted := OnNavigationCompleted;
   FOnCreateWebViewCompleted := OnCreateWebViewCompleted;
@@ -288,6 +445,7 @@ begin
   begin
     OnNavigationCompleted := CustomDocumentComplete;
     OnCreateWebViewCompleted := CustomWebViewCreateComplete;
+    OnWebMessageReceived := CustomWebMessageReceived;
   end;
 end;
 
@@ -306,29 +464,54 @@ begin
   ExecuteScript('ClearMarkers()');
 end;
 
-procedure TEdgeGoogleMapViewer.ShowMap(AMapCenter: TLatLng; const AAddress: string = '');
-const
-  HTMLStr: String =
-  '<html> '+sLineBreak+
+function TEdgeGoogleMapViewer.GetHTMLHEader : string;
+begin
+    Result := '<html> '+sLineBreak+
   '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">'+sLineBreak+
   '<head> '+sLineBreak+
   '<meta name="viewport" content="initial-scale=1.0, user-scalable=yes" /> '+sLineBreak+
-  '<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=%s"></script> '+sLineBreak+
-  '<script type="text/javascript"> '+sLineBreak+
-  ''+sLineBreak+
-  ''+sLineBreak+
-  '  var geocoder; '+sLineBreak+
+  '<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=%s"></script> '+sLineBreak;
+end;
+
+function TEdgeGoogleMapViewer.GetHTMLBody: string;
+var
+  LBody : string;
+begin
+ LBody :=
+  '<div id="container">'+sLineBreak+
+  '    <div id="map_canvas"></div>'+sLineBreak +
+  '    <div id="directions_canvas"></div>'+sLineBreak+
+  '</div>';
+  if Assigned(FOnGetHTMLBody) then
+    FOnGetHTMLBody(Self,LBody);
+
+  LBody := StringReplace(LBody,'%','%%',[rfReplaceAll]);
+
+  Result :=
+  '</head> '+sLineBreak +
+  '<body onload="initialize()"> '+ sLineBreak +
+  LBody + sLineBreak +
+  '</body> '+sLineBreak +
+  '</html>';
+end;
+
+function TEdgeGoogleMapViewer.GetJSVariables : string;
+begin
+    Result :=  '  var geocoder; '+sLineBreak+
   '  var directionsDisplay; '+sLineBreak+
   '  var directionsService = new google.maps.DirectionsService(); '+sLineBreak+
+  '  var infoWindow = new google.maps.InfoWindow();'+sLineBreak+
   '  var map;  '+sLineBreak+
   '  var trafficLayer;'+sLineBreak+
   '  var bikeLayer;'+sLineBreak+
-  '  var markersArray = [];'+sLineBreak+
-  ''+sLineBreak+
-  ''+sLineBreak+
-  '  function initialize() { '+sLineBreak+
+  '  var markersArray = [];';
+end;
+
+function TEdgeGoogleMapViewer.GetJSInitialize : string;
+begin
+   Result := '  function initialize() { '+sLineBreak+
   '    geocoder = new google.maps.Geocoder();'+sLineBreak+
-  '    directionsDisplay = new google.maps.DirectionsRenderer({suppressMarkers: true});'+sLineBreak+
+  '    directionsDisplay = new google.maps.DirectionsRenderer();'+sLineBreak+
   '    var latlng = new google.maps.LatLng(%s,%s); '+sLineBreak+
   '    var myOptions = { '+sLineBreak+
   '      zoom: %d, '+sLineBreak+
@@ -348,58 +531,131 @@ const
   '    Traffic(%s);'+sLineBreak+
   '    bikeLayer = new google.maps.BicyclingLayer();'+sLineBreak+
   '    Bicycling(%s);'+sLineBreak+
-  '  } '+sLineBreak+
-  ''+sLineBreak+
-  ''+sLineBreak+
-  '  function codeAddress(address) { '+sLineBreak+
+  '    map.addListener("click", (mapsMouseEvent) => {'+sLineBreak+
+  '      window.chrome.webview.postMessage(JSON.stringify({"event" : "click",'+sLineBreak+
+  '      "lat" : mapsMouseEvent.latLng.lat().toFixed(4),'+sLineBreak+
+  '      "lng" : mapsMouseEvent.latLng.lng().toFixed(4) } , null, 2));'+sLineBreak+
+  '    });'+sLineBreak+
+  '    map.addListener("rightclick", (mapsMouseEvent) => {'+sLineBreak+
+  '      window.chrome.webview.postMessage(JSON.stringify({"event" : "rightclick",'+sLineBreak+
+  '      "lat" : mapsMouseEvent.latLng.lat().toFixed(4),'+sLineBreak+
+  '      "lng" : mapsMouseEvent.latLng.lng().toFixed(4) } , null, 2));'+sLineBreak+
+  '    });'+sLineBreak+
+  '    map.addListener("zoom_changed", (mapsMouseEvent) => {'+sLineBreak+
+  '      window.chrome.webview.postMessage(JSON.stringify({"event" : "zoom_changed",'+sLineBreak+
+  '      "zoom" :  map.getZoom()} , null, 2));'+sLineBreak+
+  '    });'+sLineBreak+
+  '  }';
+end;
+
+function TEdgeGoogleMapViewer.GetJSCodeAddress : string;
+begin
+   Result := '  function codeAddress(address) { '+sLineBreak+
   '    if (geocoder) {'+sLineBreak+
   '      geocoder.geocode( { ''address'': address}, function(results, status) { '+sLineBreak+
   '        if (status == google.maps.GeocoderStatus.OK) {'+sLineBreak+
-  '          directionsDisplay.setMap(null);'+sLineBreak+
+  '          SetMapShowDirectionsPanel(false,true);'+sLineBreak+
   '          map.setCenter(results[0].geometry.location);'+sLineBreak+
   '          PutMarker(results[0].geometry.location.lat(), results[0].geometry.location.lng(), address);'+sLineBreak+
   '        }'+sLineBreak+
   '      });'+sLineBreak+
   '    }'+sLineBreak+
-  '  }'+sLineBreak+
-  ''+sLineBreak+
-  ''+sLineBreak+
-  '  function GotoLatLng(Lat, Lng, Description) { '+sLineBreak+
+  '  }';
+end;
+
+function TEdgeGoogleMapViewer.GetJSGotoLatLng : string;
+begin
+   Result := '  function GotoLatLng(Lat, Lng, Description, AddMarker) { '+sLineBreak+
   '   var latlng = new google.maps.LatLng(Lat,Lng);'+sLineBreak+
-  '   directionsDisplay.setMap(null);'+sLineBreak+
+  '   SetMapShowDirectionsPanel(false, true);'+sLineBreak+
   '   map.setCenter(latlng);'+sLineBreak+
-  '   PutMarker(Lat, Lng, Description);'+sLineBreak+
-  '  }'+sLineBreak+
-  ''+sLineBreak+
-  ''+sLineBreak+
-  'function ClearMarkers() {  '+sLineBreak+
+  '   if (AddMarker) { PutMarker(Lat, Lng, Description) };'+sLineBreak+
+  '  }';
+end;
+
+function TEdgeGoogleMapViewer.GetJSClearMakers : string;
+begin
+   Result :=   'function ClearMarkers() {  '+sLineBreak+
   '  if (markersArray) {        '+sLineBreak+
   '    for (i in markersArray) {  '+sLineBreak+
   '      markersArray[i].setMap(null); '+sLineBreak+
   '    } '+sLineBreak+
   '  } '+sLineBreak+
-  '}  '+sLineBreak+
-  ''+sLineBreak+
-  '  function PutMarker(Lat, Lng, Msg) { '+sLineBreak+
+  '}  '
+end;
+
+function TEdgeGoogleMapViewer.GetJSPutMarker : string;
+begin
+  Result :=
+  '  function PutMarker(Lat, Lng, Msg, Animation, Label, Info) { '+sLineBreak+
   '   var latlng = new google.maps.LatLng(Lat,Lng);'+sLineBreak+
   '   var marker = new google.maps.Marker({'+sLineBreak+
   '      position: latlng, '+sLineBreak+
   '      map: map,'+sLineBreak+
-  '      title: Msg'+sLineBreak+
-  '  });'+sLineBreak+
-  ' markersArray.push(marker); '+sLineBreak+
-  '  }'+sLineBreak+
-  ''+sLineBreak+
-  '  function Traffic(On)   { if (On) {trafficLayer.setMap(map);} else {trafficLayer.setMap(null);}; }'+sLineBreak+
+  '      title: Msg,'+sLineBreak+
+  '      label: Label,'+sLineBreak+
+  '      animation: Animation,'+sLineBreak+
+  '   });'+sLineBreak+
+  '   markersArray.push(marker); '+sLineBreak+
+  '   if (Info) { ' +sLineBreak+
+  '   marker.addListener("click", () => {'+sLineBreak+
+  '    infoWindow.open(marker.getMap(), marker);'+sLineBreak+
+  '    infoWindow.setContent(Info);'+sLineBreak+
+  '    });'+sLineBreak+
+  '   }'+sLineBreak+
+  '}';
+end;
+
+function TEdgeGoogleMapViewer.GetJSPutCustomMarker : string;
+begin
+
+  Result := Result +
+  '  function PutCustomMarker(Lat, Lng, Msg, Label, Info, CustomMarker) { '+sLineBreak+
+  '   var latlng = new google.maps.LatLng(Lat,Lng);'+sLineBreak+
+  '   var marker = new google.maps.Marker({'+sLineBreak+
+  '      position: latlng, '+sLineBreak+
+  '      map: map,'+sLineBreak+
+  '      title: Msg,'+sLineBreak+
+  '      label: Label,'+sLineBreak+
+  '      icon: CustomMarker,'+sLineBreak+
+  '   });'+sLineBreak+
+  '   markersArray.push(marker); '+sLineBreak+
+  '   if (Info) { ' +sLineBreak+
+  '   marker.addListener("click", () => {'+sLineBreak+
+  '    infoWindow.open(marker.getMap(), marker);'+sLineBreak+
+  '    infoWindow.setContent(Info);'+sLineBreak+
+  '    });'+sLineBreak+
+  '   }'+sLineBreak+
+  '}';
+end;
+
+
+function TEdgeGoogleMapViewer.GetJSMapOptions : string;
+begin
+  Result :=   '  function Traffic(On)   { if (On) {trafficLayer.setMap(map);} else {trafficLayer.setMap(null);}; }'+sLineBreak+
   ''+sLineBreak+
   '  function Bicycling(On) { if (On) {bikeLayer.setMap(map);} else {bikeLayer.setMap(null);}; }'+sLineBreak+
   ''+sLineBreak+
   '  function StreetViewControl(On) { map.set("streetViewControl", On); }'+sLineBreak+
   ''+sLineBreak+
-  '  function SetZoom(zoom) { map.setZoom(zoom); }'+sLineBreak+
+  '  function SetZoom(zoom) { map.setZoom(zoom); }';
+end;
 
-  ''+sLineBreak+
-  '  function routeByAddress(startAddress, destinationAddress, travelMode) {'+sLineBreak+
+function TEdgeGoogleMapViewer.GetJSMapShowDirectionsPanel : string;
+begin
+  Result := Result +
+  '  function SetMapShowDirectionsPanel(On, clearMap) { if (On) {' +sLineBreak+
+  '    directionsDisplay.setPanel(document.getElementById("directions_canvas"));  '+sLineBreak+
+  '  } else {'+sLineBreak+
+  '    if (clearMap) { directionsDisplay.setMap(null); }'+sLineBreak+
+  '    directionsDisplay.setPanel(null);' + sLineBreak+
+  '  }'+sLineBreak+
+  '  }'+sLineBreak;
+end;
+
+function TEdgeGoogleMapViewer.GetJSRouteAddress : string;
+begin
+  Result := '  function routeByAddress(startAddress, destinationAddress, travelMode, showDirections) {'+sLineBreak+
   '    var originLat;'+sLineBreak+
   '    var originLng;'+sLineBreak+
   '    var destinationLat;'+sLineBreak+
@@ -413,17 +669,18 @@ const
   '            if (status == google.maps.GeocoderStatus.OK) {'+sLineBreak+
   '              destinationLat = results[0].geometry.location.lat();'+sLineBreak+
   '              destinationLng = results[0].geometry.location.lng();'+sLineBreak+
-  '              calcRoute(originLat, originLng, destinationLat, destinationLng, travelMode, startAddress, destinationAddress);'+sLineBreak+
+  '              calcRoute(originLat, originLng, destinationLat, destinationLng, travelMode, startAddress, destinationAddress,showDirections);'+sLineBreak+
   '            }'+sLineBreak+
   '          });'+sLineBreak+
   '        }'+sLineBreak+
   '      });'+sLineBreak+
   '    }'+sLineBreak+
-  '  }'+sLineBreak+
-  ''+sLineBreak+
+  '  }';
+end;
 
-  ''+sLineBreak+
-  '  function calcRoute(originLat, originLng, destinationLat, destinationLng, travelMode, originDesc, destinationDesc) {'+sLineBreak+
+function TEdgeGoogleMapViewer.GetJSCalcRoute : string;
+begin
+  REsult :=   '  function calcRoute(originLat, originLng, destinationLat, destinationLng, travelMode, originDesc, destinationDesc, showDirections) {'+sLineBreak+
   '   var origin_route = new google.maps.LatLng(originLat,originLng);'+sLineBreak+
   '   var destination_route = new google.maps.LatLng(destinationLat,destinationLng);'+sLineBreak+
   '   var request = {'+sLineBreak+
@@ -431,24 +688,86 @@ const
   '       destination: destination_route,'+sLineBreak+
   '       travelMode: google.maps.TravelMode[travelMode]'+sLineBreak+
   '   };'+sLineBreak+
-  '   directionsDisplay.setMap(map);'+sLineBreak+
   '   directionsService.route(request, function(response, status) {'+sLineBreak+
   '    if (status == google.maps.DirectionsStatus.OK) {'+sLineBreak+
+  '      SetMapShowDirectionsPanel(showDirections);'+sLineBreak+
+  '      directionsDisplay.setMap(map);'+sLineBreak+
   '      directionsDisplay.setDirections(response);'+sLineBreak+
   '    }'+sLineBreak+
   '   });'+sLineBreak+
-  '   PutMarker(originLat, originLng, originDesc);'+sLineBreak+
-  '   PutMarker(destinationLat, destinationLng, destinationDesc);'+sLineBreak+
-  '  }'+sLineBreak+
-  ''+sLineBreak+
+  '  }';
+end;
 
-  '</script> '+sLineBreak+
-  '</head> '+sLineBreak+
-  '<body onload="initialize()"> '+sLineBreak+
-  '  <div id="map_canvas" style="width:100%%; height:100%%"></div> '+sLineBreak+
-  '</body> '+sLineBreak+
-  '</html> ';
+function TEdgeGoogleMapViewer.GetHTMLStyle: string;
+var
+  LStyle  :string;
+begin
+  LStyle :=
+  'html,' +sLineBreak+
+  'body {' +sLineBreak+
+  'height: 100%;' +sLineBreak+
+  'margin: 0;' +sLineBreak+
+  'padding: 0;' +sLineBreak+
+  '}' +sLineBreak+
 
+  '#container {'+sLineBreak+
+  'height: 100%;'+sLineBreak+
+  'display: flex;'+sLineBreak+
+  '}'+sLineBreak+
+
+  '#directions_canvas {'+sLineBreak+
+  'flex-basis: 15rem;'+sLineBreak+
+  'flex-grow: 1;'+sLineBreak+
+  'padding: 1rem;'+sLineBreak+
+  'max-width: 30rem;'+sLineBreak+
+  'height: 100%;'+sLineBreak+
+//  'width: 30%;'+sLineBreak+
+  'box-sizing: border-box;'+sLineBreak+
+  'overflow: auto;'+sLineBreak+
+  'flex: 0 1 auto;'+sLineBreak+
+  'padding: 0;'+sLineBreak+
+  '}'+sLineBreak+
+
+  '#map_canvas {'+sLineBreak+
+  'flex: auto;' + sLineBreak+
+  'flex-basis: 0;'+sLineBreak+
+  'flex-grow: 4;'+sLineBreak+
+  'height: 100%;'+sLineBreak+
+//  'width: 70%;'+sLineBreak+
+  '}';
+
+  LStyle := StringReplace(LStyle,'%','%%',[rfReplaceAll]);
+
+  Result := '<style>' + sLineBreak +  LStyle + sLineBreak + '</style>';
+end;
+
+function TEdgeGoogleMapViewer.GetHTMLScript : string;
+var
+  LJSScript : string;
+begin
+  LJSScript := GetJSVariables +sLineBreak+
+  GetJSInitialize +sLineBreak+
+  GetJSCodeAddress + sLineBreak+
+  GetJSGotoLatLng + sLineBreak +
+  GetJSClearMakers + sLineBreak +
+  GetJSPutMarker + sLineBreak +
+  GetJSPutCustomMarker + sLineBreak +
+  GetJSMapOptions + sLineBreak +
+  GetJSMapShowDirectionsPanel + sLineBreak+
+  GetJSRouteAddress + sLineBreak +
+  GetJSCalcRoute;
+  if Assigned(FOnGetJavascript) then
+    FOnGetJavascript(Self,LJSScript);
+  Result :=
+  '<script type="text/javascript"> '+sLineBreak+
+  LJSScript + sLineBreak +
+  '</script> '+ sLineBreak;
+end;
+
+
+
+
+procedure TEdgeGoogleMapViewer.ShowMap(AMapCenter: TLatLng; const AAddress: string = '');
 var
   HTMLString  : String;
   LAddress, MyAddress, LFileName: string;
@@ -482,7 +801,8 @@ begin
 
   LAddress := ClearAddressText(MyAddress);
   LAddress := StringReplace(LAddress,'''',' ',[rfReplaceAll]);
-  HTMLString := Format(HTMLStr,
+  HTMLString := GetHTMLHeader + GetHTMLStyle + GetHTMLScript + GetHTMLBody;
+  HTMLString := Format(HTMLString,
     [
       FApiKey,
       CoordToText(MyCenter.Latitude), //Latitudine
@@ -531,6 +851,13 @@ begin
   FDestinationAddress := Value;
 end;
 
+procedure TEdgeGoogleMapViewer.SetMapShowDirectionsPanel(const Value: boolean);
+begin
+  FMapShowDirectionsPanel := Value;
+  if MapVisible then
+    ShowDirectionsPanel(Value);
+end;
+
 procedure TEdgeGoogleMapViewer.AssignMapLatLng(var Coords: TLatLng; Latitude, Longitude: double;
   const Description: string);
 begin
@@ -548,7 +875,7 @@ procedure TEdgeGoogleMapViewer.SetMapCenter(Latitude, Longitude: double;
 begin
   AssignMapLatLng(FMapCenter, Latitude, Longitude, Description);
   if ((Latitude <> 0) or (Longitude <> 0)) and (MapVisible) then
-    GotoLocation(FMapCenter);
+    GotoLocation(FMapCenter, Trim(Description) <> '');
 end;
 
 procedure TEdgeGoogleMapViewer.SetMapLatitude(const Value: double);
@@ -642,6 +969,77 @@ begin
   Navigate(URL);
 end;
 
+function TEdgeGoogleMapViewer.JSONEncodeString(const AText: string): string;
+begin
+  Result := TJson.JsonEncode(AText);
+end;
+
+function TEdgeGoogleMapViewer.StripCRLF(AValue, AReplaceWith: string): string;
+begin
+  Result := AValue;
+  Result := StringReplace(Result, #13, '', [rfReplaceAll, rfIgnoreCase]);
+  Result := StringReplace(Result, #10, AReplaceWith,
+    [rfReplaceAll, rfIgnoreCase]);
+end;
+
+function TEdgeGoogleMapViewer.DefaultCustomMarkerJSON : string;
+begin
+  Result :=
+  '{'+SLineBreak+
+  '  "path": "M 0,0 C -2,-20 -10,-22 -10,-30 A 10,10 0 1,1 10,-30 C 10,-22 2,-20 0,0 z M -2,-30 a 2,2 0 1,1 4,0 2,2 0 1,1 -4,0",'+SLineBreak+
+  '  "fillColor": "#00D800",'+SLineBreak+
+  '  "fillOpacity": 1,'+SLineBreak+
+  '  "strokeColor": "#000",'+SLineBreak+
+  '  "strokeWeight": 2,'+SLineBreak+
+  '  "scale": 1'+SLineBreak+
+  '}'+SLineBreak;
+end;
+
+
+
+procedure TEdgeGoogleMapViewer.PutMarker(LatLng: TLatLng; ADescription : string;
+  AAnimation : TGoogleMarkerAnimationId;
+  ALabel, AInfoWindowContent, ACustomMarkerJSON: string);
+var
+  LScriptCommand: String;
+  LInfoWindowContent : string;
+  LAnimation : string;
+begin
+  if not MapVisible then
+  begin
+    ShowMap(EmptyLatLng);
+    while MapIsBusy do
+      Sleep(10);
+  end;
+  LInfoWindowContent := AInfoWindowContent;
+  if LInfoWindowContent = '' then
+    LInfoWindowContent := ADescription ;
+  LAnimation := Format('google.maps.Animation.%s',[AGoogleMarkerAnimationId[AAnimation]]);
+  if ACustomMarkerJSON = '' then
+  begin
+  LScriptCommand := Format('PutMarker(%s, %s, %s, %s, %s, %s)',[
+    CoordToText(LatLng.Latitude),
+    CoordToText(LatLng.Longitude),
+    QuotedStr(ADescription),
+    LAnimation,
+    QuotedStr(ALabel),
+    QuotedStr(StripCRLF(LInfoWindowContent))
+    ]);
+  end else
+  begin
+  LScriptCommand := Format('PutCustomMarker(%s, %s, %s, %s, %s, %s)',[
+    CoordToText(LatLng.Latitude),
+    CoordToText(LatLng.Longitude),
+    QuotedStr(ADescription),
+    QuotedStr(ALabel),
+    QuotedStr(StripCRLF(LInfoWindowContent)),
+    JSONEncodeString(ACustomMarkerJSON)
+    ]);
+  end;
+  ExecuteScript(LScriptCommand);
+end;
+
+
 procedure TEdgeGoogleMapViewer.RoutebyAddress(StartAddress,
   DestinationAddress: string; RouteMode: TGoogleRouteModeId);
 var
@@ -653,10 +1051,11 @@ begin
     while MapIsBusy do
       Sleep(10);
   end;
-  ScriptCommand := Format('routeByAddress(%s, %s, %s)',[
+  ScriptCommand := Format('routeByAddress(%s, %s, %s, %s)',[
     QuotedStr(ClearAddressText(StartAddress)),
     QuotedStr(ClearAddressText(DestinationAddress)),
-    QuotedStr(AGoogleRouteModeId[RouteMode])
+    QuotedStr(AGoogleRouteModeId[RouteMode]),
+    B2S(FMapShowDirectionsPanel)
     ]);
   ExecuteScript(ScriptCommand);
 end;
@@ -672,6 +1071,42 @@ begin
   end
   else
     FMapVisible := Value;
+end;
+
+procedure TEdgeGoogleMapViewer.SetOnGetHTMLBody(
+  const Value: TEdgeGoogleMapViewHTMLBody);
+begin
+  FOnGetHTMLBody := Value;
+end;
+
+procedure TEdgeGoogleMapViewer.SetOnGetJavascript(
+  const Value: TEdgeGoogleMapViewJavascript);
+begin
+  FOnGetJavascript := Value;
+end;
+
+procedure TEdgeGoogleMapViewer.SetOnMapClick(
+  const Value: TEdgeGoogleMapViewMapClick);
+begin
+  FOnMapClick := Value;
+end;
+
+procedure TEdgeGoogleMapViewer.SetOnMapRightClick(
+  const Value: TEdgeGoogleMapViewMapClick);
+begin
+  FOnMapRightClick := Value;
+end;
+
+procedure TEdgeGoogleMapViewer.SetOnMapZoom(
+  const Value: TEdgeGoogleMapViewZoomChanged);
+begin
+  FOnMapZoom := Value;
+end;
+
+procedure TEdgeGoogleMapViewer.SetOnWebUnhandledMessageReceived(
+  const Value: TWebMessageReceivedEvent);
+begin
+  FOnWebUnhandledMessageReceived := Value;
 end;
 
 procedure TEdgeGoogleMapViewer.SetOverviewMapControl(const Value: boolean);
@@ -738,7 +1173,7 @@ begin
   FZoomControl := Value;
 end;
 
-procedure TEdgeGoogleMapViewer.GotoLocation(LatLng: TLatLng);
+procedure TEdgeGoogleMapViewer.GotoLocation(LatLng: TLatLng; AAddMarker : boolean);
 var
   ScriptCommand: String;
 begin
@@ -752,10 +1187,11 @@ begin
     ShowMap(LatLng)
   else
   begin
-    ScriptCommand := Format('GotoLatLng(%s,%s,%s)',[
+    ScriptCommand := Format('GotoLatLng(%s,%s,%s,%s)',[
       CoordToText(LatLng.Latitude),
       CoordToText(LatLng.Longitude),
-      QuotedStr(LatLng.Description)
+      QuotedStr(LatLng.Description),
+      B2S(AAddMarker)
       ]);
     ExecuteScript(ScriptCommand);
   end;
@@ -772,12 +1208,15 @@ begin
     while MapIsBusy do
       Sleep(10);
   end;
-  ScriptCommand := Format('calcRoute(%s, %s, %s, %s, %s)',[
+  ScriptCommand := Format('calcRoute(%s, %s, %s, %s, %s, %s,%s, %s)',[
     CoordToText(Origin.Latitude),
     CoordToText(Origin.Longitude),
     CoordToText(Destination.Latitude),
     CoordToText(Destination.Longitude),
-    QuotedStr(AGoogleRouteModeId[RouteMode])
+    QuotedStr(AGoogleRouteModeId[RouteMode]),
+    QuotedStr(CoordToText(Origin.Latitude) + ',' + CoordToText(Origin.Longitude)),
+    QuotedStr(CoordToText(Destination.Latitude) + ',' +  CoordToText(Destination.Longitude)),
+    B2S(FMapShowDirectionsPanel)
     ]);
   ExecuteScript(ScriptCommand);
 end;
@@ -816,6 +1255,12 @@ begin
   ExecuteScript(Format('Bicycling(%s)',[B2S(FBicycling)]));
 end;
 
+procedure TEdgeGoogleMapViewer.ShowDirectionsPanel(const Value: boolean);
+begin
+  FMapShowDirectionsPanel := Value;
+  ExecuteScript(Format('SetMapShowDirectionsPanel(%s)',[B2S(FMapShowDirectionsPanel)]));
+end;
+
 procedure TEdgeGoogleMapViewer.ShowMap(const AAddress: string);
 begin
   ShowMap(EmptyLatLng, AAddress);
@@ -852,9 +1297,11 @@ begin
   ExecuteScript(Format('Traffic(%s)',[B2S(FTraffic)]));
 end;
 
+
 procedure Register;
 begin
   RegisterComponents('ISControls', [TEdgeGoogleMapViewer]);
 end;
 
 end.
+

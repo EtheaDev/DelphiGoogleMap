@@ -4,8 +4,8 @@ object formMain: TformMain
   Caption = 
     'Delphi with Edge Google Maps Viewer Component Demo - CopyRight (' +
     'c) Ethea S.r.l.'
-  ClientHeight = 611
-  ClientWidth = 968
+  ClientHeight = 729
+  ClientWidth = 1007
   Color = clBtnFace
   Constraints.MinHeight = 550
   Constraints.MinWidth = 890
@@ -14,18 +14,18 @@ object formMain: TformMain
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
-  OldCreateOrder = True
   Position = poScreenCenter
   Visible = True
   WindowState = wsMaximized
   OnCreate = FormCreate
   OnDestroy = FormDestroy
+  OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
   object Splitter1: TSplitter
     Left = 0
-    Top = 461
-    Width = 968
+    Top = 579
+    Width = 1007
     Height = 3
     Cursor = crVSplit
     Align = alBottom
@@ -35,18 +35,19 @@ object formMain: TformMain
   object PanelHeader: TPanel
     Left = 0
     Top = 0
-    Width = 968
-    Height = 151
+    Width = 1007
+    Height = 185
     Align = alTop
     TabOrder = 0
     object gbMapAttributes: TGroupBox
       Left = 737
       Top = 1
       Width = 136
-      Height = 149
+      Height = 183
       Align = alLeft
       Caption = 'Map Attributes'
       TabOrder = 0
+      ExplicitHeight = 149
       object lbZoom: TLabel
         Left = 5
         Top = 126
@@ -61,22 +62,6 @@ object formMain: TformMain
         Height = 13
         Caption = 'View Mode'
       end
-      object MapTypeIdComboBox: TComboBox
-        Left = 5
-        Top = 32
-        Width = 126
-        Height = 22
-        Style = csOwnerDrawFixed
-        ItemIndex = 0
-        TabOrder = 0
-        Text = 'ROADMAP'
-        OnChange = MapTypeIdComboBoxChange
-        Items.Strings = (
-          'ROADMAP'
-          'SATELLITE'
-          #39'HYBRID'
-          'TERRAIN')
-      end
       object Zoom: TSpinEdit
         Left = 37
         Top = 122
@@ -84,7 +69,7 @@ object formMain: TformMain
         Height = 22
         MaxValue = 0
         MinValue = 0
-        TabOrder = 1
+        TabOrder = 0
         Value = 15
         OnChange = ZoomChange
       end
@@ -94,7 +79,7 @@ object formMain: TformMain
         Width = 70
         Height = 17
         Caption = 'Street View'
-        TabOrder = 2
+        TabOrder = 1
         OnClick = CheckBoxStreeViewClick
       end
       object CheckBoxBicycling: TCheckBox
@@ -103,7 +88,7 @@ object formMain: TformMain
         Width = 70
         Height = 17
         Caption = 'Bicycling'
-        TabOrder = 3
+        TabOrder = 2
         OnClick = CheckBoxBicyclingClick
       end
       object CheckBoxTraffic: TCheckBox
@@ -112,18 +97,44 @@ object formMain: TformMain
         Width = 61
         Height = 17
         Caption = 'Traffic'
-        TabOrder = 4
+        TabOrder = 3
         OnClick = CheckBoxTrafficClick
+      end
+      object MapTypeIdComboBox: TComboBox
+        Left = 5
+        Top = 32
+        Width = 126
+        Height = 22
+        Style = csOwnerDrawFixed
+        ItemIndex = 0
+        TabOrder = 4
+        Text = 'ROADMAP'
+        OnChange = MapTypeIdComboBoxChange
+        Items.Strings = (
+          'ROADMAP'
+          'SATELLITE'
+          #39'HYBRID'
+          'TERRAIN')
+      end
+      object cbCenterOnClick: TCheckBox
+        Left = 13
+        Top = 150
+        Width = 100
+        Height = 17
+        Caption = 'Center on click'
+        TabOrder = 5
+        OnClick = CheckBoxStreeViewClick
       end
     end
     object GroupBox1: TGroupBox
       Left = 1
       Top = 1
       Width = 280
-      Height = 149
+      Height = 183
       Align = alLeft
       Caption = 'Location'
       TabOrder = 1
+      ExplicitHeight = 149
       object LabelLongitude: TLabel
         Left = 30
         Top = 109
@@ -132,6 +143,13 @@ object formMain: TformMain
         Alignment = taRightJustify
         Caption = 'Longitude'
       end
+      object LabelAddress: TLabel
+        Left = 10
+        Top = 14
+        Width = 39
+        Height = 13
+        Caption = 'Address'
+      end
       object LabelLatitude: TLabel
         Left = 38
         Top = 79
@@ -139,13 +157,6 @@ object formMain: TformMain
         Height = 13
         Alignment = taRightJustify
         Caption = 'Latitude'
-      end
-      object LabelAddress: TLabel
-        Left = 10
-        Top = 14
-        Width = 39
-        Height = 13
-        Caption = 'Address'
       end
       object MemoAddress: TMemo
         Left = 10
@@ -162,20 +173,13 @@ object formMain: TformMain
         Width = 99
         Height = 48
         Caption = 'Go to Latitude Lngitude'
-        TabOrder = 4
+        TabOrder = 3
         WordWrap = True
         OnClick = ButtonGotoLocationClick
       end
       object Longitude: TEdit
         Left = 83
         Top = 106
-        Width = 90
-        Height = 21
-        TabOrder = 3
-      end
-      object Latitude: TEdit
-        Left = 83
-        Top = 79
         Width = 90
         Height = 21
         TabOrder = 2
@@ -189,15 +193,23 @@ object formMain: TformMain
         TabOrder = 1
         OnClick = ButtonGotoAddressClick
       end
+      object Latitude: TEdit
+        Left = 83
+        Top = 79
+        Width = 90
+        Height = 21
+        TabOrder = 4
+      end
     end
     object GroupBox2: TGroupBox
       Left = 281
       Top = 1
       Width = 456
-      Height = 149
+      Height = 183
       Align = alLeft
       Caption = 'Routing'
       TabOrder = 2
+      ExplicitHeight = 149
       object Label3: TLabel
         Left = 42
         Top = 64
@@ -325,34 +337,379 @@ object formMain: TformMain
         TabOrder = 8
         OnClick = ButtonRouteByAddressClick
       end
+      object CheckBoxDirectionPanel: TCheckBox
+        Left = 13
+        Top = 123
+        Width = 103
+        Height = 17
+        Caption = 'Direction panel'
+        TabOrder = 9
+        OnClick = CheckBoxDirectionPanelClick
+      end
     end
-    object Button1: TButton
-      Left = 879
-      Top = 6
-      Width = 77
-      Height = 47
-      Caption = 'Show another form...'
+    object GroupBox3: TGroupBox
+      Left = 873
+      Top = 1
+      Width = 133
+      Height = 183
+      Align = alClient
+      Caption = 'Markers'
       TabOrder = 3
-      WordWrap = True
-      OnClick = Button1Click
+      ExplicitWidth = 135
+      ExplicitHeight = 149
+      object PageControlMarker: TPageControl
+        Left = 2
+        Top = 15
+        Width = 129
+        Height = 128
+        ActivePage = TabSheet2
+        Align = alClient
+        MultiLine = True
+        TabOrder = 0
+        TabPosition = tpLeft
+        object TabSheet1: TTabSheet
+          Caption = 'Page 1'
+          object GridPanel1: TGridPanel
+            Left = 0
+            Top = 0
+            Width = 81
+            Height = 120
+            Align = alClient
+            BevelOuter = bvNone
+            ColumnCollection = <
+              item
+                Value = 100.000000000000000000
+              end>
+            ControlCollection = <
+              item
+                Column = 0
+                Control = GridPanel2
+                Row = 0
+              end
+              item
+                Column = 0
+                Control = Panel5
+                Row = 1
+              end>
+            RowCollection = <
+              item
+                Value = 50.000000000000000000
+              end
+              item
+                Value = 50.000000000000000000
+              end>
+            TabOrder = 0
+            ExplicitLeft = 2
+            ExplicitTop = 15
+            ExplicitWidth = 131
+            ExplicitHeight = 132
+            object GridPanel2: TGridPanel
+              Left = 0
+              Top = 0
+              Width = 81
+              Height = 60
+              Align = alClient
+              BevelOuter = bvNone
+              ColumnCollection = <
+                item
+                  Value = 50.000000000000000000
+                end
+                item
+                  Value = 50.000000000000000000
+                end>
+              ControlCollection = <
+                item
+                  Column = 0
+                  Control = Panel2
+                  Row = 0
+                end
+                item
+                  Column = 1
+                  Control = Panel3
+                  Row = 0
+                end>
+              RowCollection = <
+                item
+                  Value = 100.000000000000000000
+                end>
+              TabOrder = 0
+              ExplicitWidth = 131
+              ExplicitHeight = 44
+              object Panel2: TPanel
+                Left = 0
+                Top = 0
+                Width = 40
+                Height = 60
+                Align = alClient
+                BevelOuter = bvNone
+                TabOrder = 0
+                object Label9: TLabel
+                  AlignWithMargins = True
+                  Left = 3
+                  Top = 3
+                  Width = 34
+                  Height = 13
+                  Align = alTop
+                  Caption = 'Latitude'
+                  ExplicitWidth = 39
+                end
+                object editMarkerLat: TEdit
+                  AlignWithMargins = True
+                  Left = 3
+                  Top = 22
+                  Width = 34
+                  Height = 21
+                  Align = alTop
+                  TabOrder = 0
+                  ExplicitWidth = 60
+                end
+              end
+              object Panel3: TPanel
+                Left = 40
+                Top = 0
+                Width = 41
+                Height = 60
+                Align = alClient
+                BevelOuter = bvNone
+                TabOrder = 1
+                ExplicitLeft = 66
+                ExplicitWidth = 65
+                ExplicitHeight = 44
+                object Label10: TLabel
+                  AlignWithMargins = True
+                  Left = 3
+                  Top = 3
+                  Width = 35
+                  Height = 13
+                  Align = alTop
+                  Caption = 'Longitude'
+                  ExplicitWidth = 47
+                end
+                object editMarkerLng: TEdit
+                  AlignWithMargins = True
+                  Left = 3
+                  Top = 22
+                  Width = 35
+                  Height = 21
+                  Align = alTop
+                  TabOrder = 0
+                  ExplicitWidth = 59
+                end
+              end
+            end
+            object Panel5: TPanel
+              Left = 0
+              Top = 60
+              Width = 81
+              Height = 60
+              Align = alClient
+              BevelOuter = bvNone
+              TabOrder = 1
+              ExplicitTop = 44
+              ExplicitWidth = 131
+              ExplicitHeight = 44
+              object Label11: TLabel
+                AlignWithMargins = True
+                Left = 3
+                Top = 3
+                Width = 75
+                Height = 13
+                Align = alTop
+                Caption = 'Description'
+                ExplicitWidth = 53
+              end
+              object editMarkerDescription: TEdit
+                AlignWithMargins = True
+                Left = 3
+                Top = 22
+                Width = 75
+                Height = 21
+                Align = alTop
+                TabOrder = 0
+                ExplicitWidth = 125
+              end
+            end
+          end
+        end
+        object TabSheet2: TTabSheet
+          Caption = 'Page 2'
+          ImageIndex = 1
+          object Panel6: TPanel
+            Left = 0
+            Top = 0
+            Width = 81
+            Height = 54
+            Align = alTop
+            BevelOuter = bvNone
+            TabOrder = 0
+            object Label12: TLabel
+              AlignWithMargins = True
+              Left = 3
+              Top = 3
+              Width = 75
+              Height = 13
+              Align = alTop
+              Caption = 'Label'
+              ExplicitWidth = 25
+            end
+            object editMarkerLabel: TEdit
+              AlignWithMargins = True
+              Left = 3
+              Top = 22
+              Width = 75
+              Height = 21
+              Align = alTop
+              TabOrder = 0
+              ExplicitWidth = 77
+            end
+          end
+          object Panel7: TPanel
+            Left = 0
+            Top = 54
+            Width = 81
+            Height = 54
+            Align = alTop
+            BevelOuter = bvNone
+            TabOrder = 1
+            ExplicitLeft = 4
+            ExplicitTop = 76
+            object Label13: TLabel
+              AlignWithMargins = True
+              Left = 3
+              Top = 3
+              Width = 75
+              Height = 13
+              Align = alTop
+              Caption = 'Animation'
+              ExplicitWidth = 47
+            end
+            object comboMarkerAnimation: TComboBox
+              AlignWithMargins = True
+              Left = 3
+              Top = 22
+              Width = 75
+              Height = 22
+              Align = alTop
+              Style = csOwnerDrawFixed
+              ItemIndex = 0
+              TabOrder = 0
+              Text = 'NONE'
+              Items.Strings = (
+                'NONE'
+                'BOUNCE'
+                'DROP'
+                '')
+              ExplicitLeft = -45
+              ExplicitTop = 32
+              ExplicitWidth = 126
+            end
+          end
+        end
+        object TabSheet3: TTabSheet
+          Caption = 'Page 3'
+          ImageIndex = 2
+          object Label14: TLabel
+            AlignWithMargins = True
+            Left = 3
+            Top = 3
+            Width = 75
+            Height = 13
+            Align = alTop
+            Caption = 'Information'
+            ExplicitWidth = 56
+          end
+          object memoMarkerInformation: TMemo
+            AlignWithMargins = True
+            Left = 3
+            Top = 22
+            Width = 75
+            Height = 95
+            Align = alClient
+            Lines.Strings = (
+              '<div id="content">'
+              '<h1>Perth</h1>'
+              
+                '<p>Perth, capital of Western Australia, sits where the Swan Rive' +
+                'r meets the southwest coast. Sandy beaches line its suburbs, and' +
+                ' the huge, riverside Kings Park and Botanic Garden on Mount Eliz' +
+                'a offer sweeping views of the city. The Perth Cultural Centre ho' +
+                'uses the state ballet and opera companies, and occupies its own ' +
+                'central precinct, including a theatre, library and the Art Galle' +
+                'ry of Western Australia.</p>'
+              
+                '<a href="https://en.wikipedia.org/wiki/Perth" target="_blank">Pe' +
+                'rth</a>'
+              '</div>')
+            TabOrder = 0
+            WordWrap = False
+          end
+        end
+        object TabSheet4: TTabSheet
+          Caption = 'Page 4'
+          ImageIndex = 3
+          object cbMarkerCustom: TCheckBox
+            AlignWithMargins = True
+            Left = 3
+            Top = 3
+            Width = 75
+            Height = 17
+            Align = alTop
+            Caption = 'Custom'
+            TabOrder = 0
+            ExplicitLeft = 6
+            ExplicitTop = 7
+          end
+          object memoMarkerCustomJSON: TMemo
+            AlignWithMargins = True
+            Left = 3
+            Top = 26
+            Width = 75
+            Height = 91
+            Align = alClient
+            Lines.Strings = (
+              '')
+            TabOrder = 1
+            ExplicitLeft = -82
+            ExplicitTop = 72
+            ExplicitWidth = 163
+            ExplicitHeight = 44
+          end
+        end
+      end
+      object btnAddMarker: TButton
+        AlignWithMargins = True
+        Left = 5
+        Top = 146
+        Width = 123
+        Height = 32
+        Align = alBottom
+        Caption = 'Add Marker'
+        TabOrder = 1
+        OnClick = btnAddMarkerClick
+        ExplicitTop = 112
+      end
     end
   end
   object EdgeGoogleMapViewer: TEdgeGoogleMapViewer
     Left = 0
-    Top = 151
-    Width = 968
-    Height = 310
+    Top = 185
+    Width = 1007
+    Height = 394
     Align = alClient
     TabOrder = 1
     MapAddress = 'Via Santa Cecilia 4, Carugate, Milano'
     MapLatitude = 25.767314000000000000
     MapLongitude = -80.135694000000000000
+    MapShowDirectionsPanel = True
     BeforeShowMap = EdgeGoogleMapViewerBeforeShowMap
+    ExplicitTop = 151
+    ExplicitWidth = 1008
+    ExplicitHeight = 428
   end
   object DBGrid: TDBGrid
     Left = 0
-    Top = 464
-    Width = 968
+    Top = 582
+    Width = 1007
     Height = 100
     Align = alBottom
     DataSource = dsCustomers
@@ -431,78 +788,120 @@ object formMain: TformMain
   end
   object paBottom: TPanel
     Left = 0
-    Top = 564
-    Width = 968
+    Top = 682
+    Width = 1007
     Height = 47
     Align = alBottom
     TabOrder = 3
-    DesignSize = (
-      968
-      47)
+    ExplicitWidth = 1008
     object ShowMapButton: TButton
-      Left = 11
-      Top = 6
+      AlignWithMargins = True
+      Left = 109
+      Top = 4
       Width = 99
-      Height = 35
+      Height = 39
+      Align = alLeft
       Caption = 'Show Map'
       TabOrder = 0
       OnClick = ShowMapButtonClick
     end
     object HideMapButton: TButton
-      Left = 116
-      Top = 6
+      AlignWithMargins = True
+      Left = 214
+      Top = 4
       Width = 99
-      Height = 35
+      Height = 39
+      Align = alLeft
       Caption = 'Hide map'
       TabOrder = 1
       OnClick = HideMapButtonClick
     end
     object ButtonClearMarkers: TButton
-      Left = 719
-      Top = 6
+      AlignWithMargins = True
+      Left = 768
+      Top = 4
       Width = 101
-      Height = 35
-      Anchors = [akTop, akRight]
+      Height = 39
+      Align = alRight
       Caption = 'Clear Markers'
-      TabOrder = 4
+      TabOrder = 3
       OnClick = ButtonClearMarkersClick
+      ExplicitLeft = 769
     end
     object DBNavigator: TDBNavigator
-      Left = 826
-      Top = 6
+      AlignWithMargins = True
+      Left = 875
+      Top = 4
       Width = 128
-      Height = 35
+      Height = 39
       DataSource = dsCustomers
       VisibleButtons = [nbFirst, nbPrior, nbNext, nbLast]
-      Anchors = [akTop, akRight]
-      TabOrder = 5
-    end
-    object FileEdit: TLabeledEdit
-      Left = 221
-      Top = 19
-      Width = 405
-      Height = 21
-      Anchors = [akLeft, akTop, akRight]
-      EditLabel.Width = 120
-      EditLabel.Height = 13
-      EditLabel.Caption = 'Customers ClientDataSet'
-      TabOrder = 2
-      Text = 'customer.xml'
+      Align = alRight
+      TabOrder = 4
+      ExplicitLeft = 876
     end
     object LoadTableButton: TButton
-      Left = 632
-      Top = 6
-      Width = 81
-      Height = 35
-      Anchors = [akTop, akRight]
+      AlignWithMargins = True
+      Left = 663
+      Top = 4
+      Width = 99
+      Height = 39
+      Align = alRight
       Caption = 'Load Table'
-      TabOrder = 3
+      TabOrder = 2
       OnClick = LoadTableButtonClick
+      ExplicitLeft = 664
+    end
+    object Button1: TButton
+      AlignWithMargins = True
+      Left = 4
+      Top = 4
+      Width = 99
+      Height = 39
+      Align = alLeft
+      Caption = 'Show another form...'
+      TabOrder = 5
+      WordWrap = True
+      OnClick = Button1Click
+    end
+    object Panel1: TPanel
+      Left = 316
+      Top = 1
+      Width = 344
+      Height = 45
+      Align = alClient
+      BevelOuter = bvNone
+      TabOrder = 6
+      ExplicitWidth = 345
+      object Label7: TLabel
+        Left = 0
+        Top = 0
+        Width = 344
+        Height = 13
+        Align = alTop
+        Caption = 'File'
+        ExplicitWidth = 16
+      end
+      object FileEdit: TEdit
+        AlignWithMargins = True
+        Left = 3
+        Top = 16
+        Width = 338
+        Height = 21
+        Align = alTop
+        TabOrder = 0
+        Text = 'customer.xml'
+        ExplicitWidth = 339
+      end
     end
   end
   object PopupMenu: TPopupMenu
     Left = 416
     Top = 264
+    object mnuAddMarker: TMenuItem
+      Caption = 'Add Marker'
+      OnClick = mnuAddMarkerClick
+    end
   end
   object cdsCustomers: TClientDataSet
     Aggregates = <>
