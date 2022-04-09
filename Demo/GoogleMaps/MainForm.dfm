@@ -14,14 +14,12 @@ object formMain: TformMain
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
-  OldCreateOrder = True
   Position = poScreenCenter
   Visible = True
   WindowState = wsMaximized
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
-  PixelsPerInch = 96
   TextHeight = 13
   object Splitter1: TSplitter
     Left = 0
@@ -40,7 +38,6 @@ object formMain: TformMain
     Height = 185
     Align = alTop
     TabOrder = 0
-    ExplicitWidth = 1007
     object gbMapAttributes: TGroupBox
       Left = 737
       Top = 1
@@ -354,7 +351,6 @@ object formMain: TformMain
       Align = alClient
       Caption = 'Markers'
       TabOrder = 3
-      ExplicitWidth = 133
       object PageControlMarker: TPageControl
         Left = 2
         Top = 15
@@ -531,7 +527,7 @@ object formMain: TformMain
               Height = 13
               Align = alTop
               Caption = 'Label'
-              ExplicitLeft = 0
+              ExplicitWidth = 25
             end
             object editMarkerLabel: TEdit
               AlignWithMargins = True
@@ -655,8 +651,6 @@ object formMain: TformMain
         Caption = 'Add Marker'
         TabOrder = 1
         OnClick = btnAddMarkerClick
-        ExplicitLeft = 6
-        ExplicitTop = 148
       end
     end
   end
@@ -671,7 +665,6 @@ object formMain: TformMain
     MapLatitude = 25.767314000000000000
     MapLongitude = -80.135694000000000000
     BeforeShowMap = EdgeGoogleMapViewerBeforeShowMap
-    ExplicitWidth = 1007
   end
   object DBGrid: TDBGrid
     Left = 0
@@ -760,7 +753,6 @@ object formMain: TformMain
     Height = 47
     Align = alBottom
     TabOrder = 3
-    ExplicitWidth = 1007
     object ShowMapButton: TButton
       AlignWithMargins = True
       Left = 109
@@ -793,7 +785,6 @@ object formMain: TformMain
       Caption = 'Clear Markers'
       TabOrder = 3
       OnClick = ButtonClearMarkersClick
-      ExplicitLeft = 768
     end
     object DBNavigator: TDBNavigator
       AlignWithMargins = True
@@ -805,7 +796,6 @@ object formMain: TformMain
       VisibleButtons = [nbFirst, nbPrior, nbNext, nbLast]
       Align = alRight
       TabOrder = 4
-      ExplicitLeft = 875
     end
     object LoadTableButton: TButton
       AlignWithMargins = True
@@ -817,7 +807,6 @@ object formMain: TformMain
       Caption = 'Load Table'
       TabOrder = 2
       OnClick = LoadTableButtonClick
-      ExplicitLeft = 663
     end
     object Button1: TButton
       AlignWithMargins = True
@@ -839,7 +828,6 @@ object formMain: TformMain
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 6
-      ExplicitWidth = 344
       object Label7: TLabel
         Left = 0
         Top = 0
@@ -858,7 +846,6 @@ object formMain: TformMain
         Align = alTop
         TabOrder = 0
         Text = 'customer.xml'
-        ExplicitWidth = 338
       end
     end
   end

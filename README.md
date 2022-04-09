@@ -1,8 +1,8 @@
-# DelphiGoogleMap  [![License](https://img.shields.io/badge/License-Apache%202.0-yellowgreen.svg)](https://opensource.org/licenses/Apache-2.0)
+﻿# DelphiGoogleMap  [![License](https://img.shields.io/badge/License-Apache%202.0-yellowgreen.svg)](https://opensource.org/licenses/Apache-2.0)
 
 Delphi Edge Component to View Google Map with Routing and Markers Support
 
-### Actual official version 1.1.0 (VCL)
+### Actual official version 1.3.0 (VCL)
 
 This component is based on [TEdgeBrowser Component](https://docwiki.embarcadero.com/RADStudio/Sydney/en/Using_TEdgeBrowser_Component_and_Changes_to_the_TWebBrowser_Component) (available from Delphi 10.4)
 
@@ -79,6 +79,21 @@ Load Customer Table, scroll down the table: for every record a Marker is added t
 No documentation available, but the Demo explain very well the use of the component.
 
 ### RELEASE NOTES
+09 Apr 2022:
+- Version 1.3.0
+- Fixed problem building package for Delphi 10.4.2
+
+07 Dec 2021:
+- Version 1.2.0
+- Change base object to TCustomEdgeBrowser
+- inherit properies to allow the hiding of OnWebMessageReceived and presenting new event OnWebUnhandledMessageReceived
+- Map onclick, onzoom listener events
+- New property OnMapClick and OnMapRightClick
+- Demo to show right click menu and adding a marker
+- Demo to have option on center on mouse click
+- Demo updated to change zoom edit value on map zoom event
+- GotoLocation changed to have option to place marker.
+
 02 Nov 2021:
 - Version 1.1.0
 - Added method to register UserDataFolder: TEdgeGoogleMapViewer.RegisterUserDataFolder

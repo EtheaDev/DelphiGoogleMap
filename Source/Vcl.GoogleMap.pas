@@ -2,7 +2,7 @@
 {                                                                              }
 {       Delphi Google Map Viewer                                               }
 {                                                                              }
-{       Copyright (c) 2021 (Ethea S.r.l.)                                      }
+{       Copyright (c) 2021-2022 (Ethea S.r.l.)                                 }
 {       Author: Carlo Barazzetta                                               }
 {       Contributors:                                                          }
 {         littleearth (https://github.com/littleearth)                         }
@@ -227,8 +227,6 @@ Type
     property TabStop;
     property OnEnter;
     property OnExit;
-    property BrowserExecutableFolder;
-    property UserDataFolder;
     property OnCapturePreviewCompleted;
     property OnContainsFullScreenElementChanged;
     property OnContentLoading;
