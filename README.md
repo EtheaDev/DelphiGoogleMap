@@ -1,6 +1,6 @@
 ﻿# DelphiGoogleMap  [![License](https://img.shields.io/badge/License-Apache%202.0-yellowgreen.svg)](https://opensource.org/licenses/Apache-2.0)
 
-Delphi Edge Component to View Google Map with Routing and Markers Support
+Delphi "WebView2" Component to View Google Map with Routing and Markers Support
 
 ### Actual official version 1.3.0 (VCL)
 
