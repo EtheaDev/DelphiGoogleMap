@@ -14,12 +14,14 @@ object formMain: TformMain
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
+  OldCreateOrder = True
   Position = poScreenCenter
   Visible = True
   WindowState = wsMaximized
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
+  PixelsPerInch = 96
   TextHeight = 13
   object Splitter1: TSplitter
     Left = 0
@@ -523,11 +525,10 @@ object formMain: TformMain
               AlignWithMargins = True
               Left = 3
               Top = 3
-              Width = 587
+              Width = 25
               Height = 13
               Align = alTop
               Caption = 'Label'
-              ExplicitWidth = 25
             end
             object editMarkerLabel: TEdit
               AlignWithMargins = True
