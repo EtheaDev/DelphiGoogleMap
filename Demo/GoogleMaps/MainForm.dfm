@@ -14,14 +14,12 @@ object formMain: TformMain
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
-  OldCreateOrder = True
   Position = poScreenCenter
   Visible = True
   WindowState = wsMaximized
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
-  PixelsPerInch = 96
   TextHeight = 13
   object Splitter1: TSplitter
     Left = 0
@@ -41,16 +39,16 @@ object formMain: TformMain
     Align = alTop
     TabOrder = 0
     object gbMapAttributes: TGroupBox
-      Left = 737
+      Left = 1
       Top = 1
-      Width = 136
+      Width = 198
       Height = 183
       Align = alLeft
       Caption = 'Map Attributes'
       TabOrder = 0
       object lbZoom: TLabel
-        Left = 5
-        Top = 126
+        Left = 135
+        Top = 16
         Width = 26
         Height = 13
         Caption = 'Zoom'
@@ -63,8 +61,8 @@ object formMain: TformMain
         Caption = 'View Mode'
       end
       object Zoom: TSpinEdit
-        Left = 37
-        Top = 122
+        Left = 135
+        Top = 32
         Width = 57
         Height = 22
         MaxValue = 0
@@ -73,41 +71,14 @@ object formMain: TformMain
         Value = 15
         OnChange = ZoomChange
       end
-      object CheckBoxStreeView: TCheckBox
-        Left = 13
-        Top = 103
-        Width = 70
-        Height = 17
-        Caption = 'Street View'
-        TabOrder = 1
-        OnClick = CheckBoxStreeViewClick
-      end
-      object CheckBoxBicycling: TCheckBox
-        Left = 13
-        Top = 83
-        Width = 70
-        Height = 17
-        Caption = 'Bicycling'
-        TabOrder = 2
-        OnClick = CheckBoxBicyclingClick
-      end
-      object CheckBoxTraffic: TCheckBox
-        Left = 13
-        Top = 64
-        Width = 61
-        Height = 17
-        Caption = 'Traffic'
-        TabOrder = 3
-        OnClick = CheckBoxTrafficClick
-      end
       object MapTypeIdComboBox: TComboBox
-        Left = 5
+        Left = 6
         Top = 32
         Width = 126
         Height = 22
         Style = csOwnerDrawFixed
         ItemIndex = 0
-        TabOrder = 4
+        TabOrder = 1
         Text = 'ROADMAP'
         OnChange = MapTypeIdComboBoxChange
         Items.Strings = (
@@ -117,17 +88,79 @@ object formMain: TformMain
           'TERRAIN')
       end
       object cbCenterOnClick: TCheckBox
-        Left = 13
-        Top = 150
+        Left = 6
+        Top = 60
         Width = 100
         Height = 17
         Caption = 'Center on click'
-        TabOrder = 5
+        TabOrder = 2
         OnClick = CheckBoxStreeViewClick
+      end
+      object mapControlGroupBox: TGroupBox
+        Left = -1
+        Top = 79
+        Width = 196
+        Height = 99
+        Caption = 'Map Controls'
+        TabOrder = 3
+        object CheckBoxTraffic: TCheckBox
+          Left = 7
+          Top = 17
+          Width = 90
+          Height = 17
+          Caption = 'Traffic'
+          TabOrder = 0
+          OnClick = CheckBoxTrafficClick
+        end
+        object CheckBoxBicycling: TCheckBox
+          Left = 102
+          Top = 17
+          Width = 90
+          Height = 17
+          Caption = 'Bicycling'
+          TabOrder = 1
+          OnClick = CheckBoxBicyclingClick
+        end
+        object CheckBoxStreeView: TCheckBox
+          Left = 7
+          Top = 40
+          Width = 90
+          Height = 17
+          Caption = 'Street View'
+          TabOrder = 2
+          OnClick = CheckBoxStreeViewClick
+        end
+        object CheckBoxFullScreen: TCheckBox
+          Left = 7
+          Top = 63
+          Width = 90
+          Height = 17
+          Caption = 'Full Screen'
+          TabOrder = 4
+          OnClick = CheckBoxFullScreenClick
+        end
+        object CheckBoxZoom: TCheckBox
+          Left = 102
+          Top = 40
+          Width = 90
+          Height = 17
+          Caption = 'Zoom'
+          TabOrder = 3
+          OnClick = CheckBoxZoomClick
+        end
+        object CheckBoxMapType: TCheckBox
+          Left = 102
+          Top = 63
+          Width = 90
+          Height = 17
+          Caption = 'Map Type'
+          TabOrder = 5
+          OnClick = CheckBoxMapTypeClick
+        end
       end
     end
     object GroupBox1: TGroupBox
-      Left = 1
+      Left = 199
       Top = 1
       Width = 280
       Height = 183
@@ -201,7 +234,7 @@ object formMain: TformMain
       end
     end
     object GroupBox2: TGroupBox
-      Left = 281
+      Left = 479
       Top = 1
       Width = 456
       Height = 183
@@ -346,9 +379,9 @@ object formMain: TformMain
       end
     end
     object GroupBoxMarker: TGroupBox
-      Left = 873
+      Left = 935
       Top = 1
-      Width = 605
+      Width = 543
       Height = 183
       Align = alClient
       Caption = 'Markers'
@@ -356,7 +389,7 @@ object formMain: TformMain
       object PageControlMarker: TPageControl
         Left = 2
         Top = 15
-        Width = 601
+        Width = 539
         Height = 128
         ActivePage = LatLongMarkerTabSheet
         Align = alClient
@@ -366,7 +399,7 @@ object formMain: TformMain
           object GridPanel1: TGridPanel
             Left = 0
             Top = 0
-            Width = 593
+            Width = 531
             Height = 100
             Align = alClient
             BevelOuter = bvNone
@@ -396,7 +429,7 @@ object formMain: TformMain
             object GridPanel2: TGridPanel
               Left = 0
               Top = 0
-              Width = 593
+              Width = 531
               Height = 50
               Align = alClient
               BevelOuter = bvNone
@@ -426,7 +459,7 @@ object formMain: TformMain
               object Panel2: TPanel
                 Left = 0
                 Top = 0
-                Width = 296
+                Width = 266
                 Height = 50
                 Align = alClient
                 BevelOuter = bvNone
@@ -435,7 +468,7 @@ object formMain: TformMain
                   AlignWithMargins = True
                   Left = 3
                   Top = 3
-                  Width = 290
+                  Width = 260
                   Height = 13
                   Align = alTop
                   Caption = 'Latitude'
@@ -445,16 +478,16 @@ object formMain: TformMain
                   AlignWithMargins = True
                   Left = 3
                   Top = 22
-                  Width = 290
+                  Width = 260
                   Height = 21
                   Align = alTop
                   TabOrder = 0
                 end
               end
               object Panel3: TPanel
-                Left = 296
+                Left = 266
                 Top = 0
-                Width = 297
+                Width = 265
                 Height = 50
                 Align = alClient
                 BevelOuter = bvNone
@@ -463,7 +496,7 @@ object formMain: TformMain
                   AlignWithMargins = True
                   Left = 3
                   Top = 3
-                  Width = 291
+                  Width = 259
                   Height = 13
                   Align = alTop
                   Caption = 'Longitude'
@@ -473,7 +506,7 @@ object formMain: TformMain
                   AlignWithMargins = True
                   Left = 3
                   Top = 22
-                  Width = 291
+                  Width = 259
                   Height = 21
                   Align = alTop
                   TabOrder = 0
@@ -483,7 +516,7 @@ object formMain: TformMain
             object Panel5: TPanel
               Left = 0
               Top = 50
-              Width = 593
+              Width = 531
               Height = 50
               Align = alClient
               BevelOuter = bvNone
@@ -492,7 +525,7 @@ object formMain: TformMain
                 AlignWithMargins = True
                 Left = 3
                 Top = 3
-                Width = 587
+                Width = 525
                 Height = 13
                 Align = alTop
                 Caption = 'Description'
@@ -502,7 +535,7 @@ object formMain: TformMain
                 AlignWithMargins = True
                 Left = 3
                 Top = 22
-                Width = 587
+                Width = 525
                 Height = 21
                 Align = alTop
                 TabOrder = 0
@@ -516,7 +549,7 @@ object formMain: TformMain
           object Panel6: TPanel
             Left = 0
             Top = 0
-            Width = 593
+            Width = 531
             Height = 54
             Align = alTop
             BevelOuter = bvNone
@@ -525,16 +558,17 @@ object formMain: TformMain
               AlignWithMargins = True
               Left = 3
               Top = 3
-              Width = 25
+              Width = 525
               Height = 13
               Align = alTop
               Caption = 'Label'
+              ExplicitWidth = 25
             end
             object editMarkerLabel: TEdit
               AlignWithMargins = True
               Left = 3
               Top = 22
-              Width = 587
+              Width = 525
               Height = 21
               Align = alTop
               TabOrder = 0
@@ -543,7 +577,7 @@ object formMain: TformMain
           object Panel7: TPanel
             Left = 0
             Top = 54
-            Width = 593
+            Width = 531
             Height = 54
             Align = alTop
             BevelOuter = bvNone
@@ -552,7 +586,7 @@ object formMain: TformMain
               AlignWithMargins = True
               Left = 3
               Top = 3
-              Width = 587
+              Width = 525
               Height = 13
               Align = alTop
               Caption = 'Animation'
@@ -562,7 +596,7 @@ object formMain: TformMain
               AlignWithMargins = True
               Left = 3
               Top = 22
-              Width = 587
+              Width = 525
               Height = 22
               Align = alTop
               Style = csOwnerDrawFixed
@@ -584,7 +618,7 @@ object formMain: TformMain
             AlignWithMargins = True
             Left = 3
             Top = 3
-            Width = 587
+            Width = 525
             Height = 13
             Align = alTop
             Caption = 'Information'
@@ -594,7 +628,7 @@ object formMain: TformMain
             AlignWithMargins = True
             Left = 3
             Top = 22
-            Width = 587
+            Width = 525
             Height = 75
             Align = alClient
             Lines.Strings = (
@@ -623,7 +657,7 @@ object formMain: TformMain
             AlignWithMargins = True
             Left = 3
             Top = 3
-            Width = 587
+            Width = 525
             Height = 17
             Align = alTop
             Caption = 'Custom'
@@ -633,7 +667,7 @@ object formMain: TformMain
             AlignWithMargins = True
             Left = 3
             Top = 26
-            Width = 587
+            Width = 525
             Height = 71
             Align = alClient
             Lines.Strings = (
@@ -646,7 +680,7 @@ object formMain: TformMain
         AlignWithMargins = True
         Left = 5
         Top = 146
-        Width = 595
+        Width = 533
         Height = 32
         Align = alBottom
         Caption = 'Add Marker'
@@ -662,6 +696,7 @@ object formMain: TformMain
     Height = 394
     Align = alClient
     TabOrder = 1
+    OnContainsFullScreenElementChanged = EdgeGoogleMapViewerContainsFullScreenElementChanged
     MapAddress = 'Via Santa Cecilia 4, Carugate, Milano'
     MapLatitude = 25.767314000000000000
     MapLongitude = -80.135694000000000000
@@ -747,7 +782,7 @@ object formMain: TformMain
         Visible = True
       end>
   end
-  object paBottom: TPanel
+  object BottomPanel: TPanel
     Left = 0
     Top = 682
     Width = 1479

@@ -6,6 +6,7 @@
 {       Author: Carlo Barazzetta                                               }
 {       Contributors:                                                          }
 {         littleearth (https://github.com/littleearth)                         }
+{         tbegsr (https://github.com/tbegsr)                                   }
 {                                                                              }
 {       https://github.com/EtheaDev/DelphiGoogleMap                            }
 {                                                                              }
@@ -104,6 +105,7 @@ Type
     FAddress: string;
     FOverviewMapControl: boolean;
     FTypeControl: boolean;
+    FFullScreenControl: boolean;
     FTraffic: boolean;
     FZoom: integer;
     FBicycling: boolean;
@@ -138,6 +140,7 @@ Type
     procedure SetOverviewMapControl(const Value: boolean);
     procedure SetPanControl(const Value: boolean);
     procedure SetScaleControl(const Value: boolean);
+    procedure SetFullScreenControl(const Value: boolean);
     procedure SetStreetViewControl(const Value: boolean);
     procedure SetTraffic(const Value: boolean);
     procedure SetTypeControl(const Value: boolean);
@@ -216,6 +219,9 @@ Type
     procedure ShowBicycling(Show: boolean);
     procedure ShowTraffic(Show: boolean);
     procedure ShowDirectionsPanel(const Value: boolean);
+    procedure ShowZoomControl(Show: boolean);
+    procedure ShowMapTypeControl(Show: boolean);
+    procedure ShowFullScreenControl(Show: boolean);
     procedure PutMarker(LatLng: TLatLng; ADescription : string; AAnimation : TGoogleMarkerAnimationId = maNONE;
       ALabel : string = ''; AInfoWindowContent : string = ''; ACustomMarkerJSON : string = '');
     procedure ClearMarkers;
@@ -253,6 +259,7 @@ Type
     property MapShowZoomControl: boolean read FZoomControl write SetZoomControl default true;
     property MapShowTypeControl: boolean read FTypeControl write SetTypeControl default true;
     property MapShowScaleControl: boolean read FScaleControl write SetScaleControl default true;
+    property MapShowFullScreenControl: boolean read FFullScreenControl write SetFullScreenControl default true;
     property MapShowStreetViewControl: boolean read FStreetViewControl write SetStreetViewControl default false;
     property MapShowoverviewMapControl: boolean read FOverviewMapControl write SetOverviewMapControl default true;
     property MapAddress: string read FAddress write SetAddress;
@@ -433,6 +440,7 @@ begin
   FZoomControl := true;
   FTypeControl := true;
   FScaleControl := true;
+  FFullScreenControl := true;
   FOverviewMapControl := true;
   FMapShowDirectionsPanel := false;
   FZoom := DEFAULT_ZOOM_FACTOR;
@@ -517,6 +525,7 @@ begin
   '      panControl: %s, '+sLineBreak+
   '      zoomControl: %s, '+sLineBreak+
   '      mapTypeControl: %s, '+sLineBreak+
+  '      fullscreenControl: %s, '+sLineBreak+
   '      scaleControl: %s, '+sLineBreak+
   '      streetViewControl: %s, '+sLineBreak+
   '      overviewMapControl: %s, '+sLineBreak+
@@ -627,7 +636,6 @@ begin
   '}';
 end;
 
-
 function TEdgeGoogleMapViewer.GetJSMapOptions : string;
 begin
   Result :=   '  function Traffic(On)   { if (On) {trafficLayer.setMap(map);} else {trafficLayer.setMap(null);}; }'+sLineBreak+
@@ -635,6 +643,12 @@ begin
   '  function Bicycling(On) { if (On) {bikeLayer.setMap(map);} else {bikeLayer.setMap(null);}; }'+sLineBreak+
   ''+sLineBreak+
   '  function StreetViewControl(On) { map.set("streetViewControl", On); }'+sLineBreak+
+  ''+sLineBreak+
+  '  function zoomControl(On) { map.set("zoomControl", On); }'+sLineBreak+
+  ''+sLineBreak+
+  '  function mapTypeControl(On) { map.set("mapTypeControl", On); }'+sLineBreak+
+  ''+sLineBreak+
+  '  function fullscreenControl(On) { map.set("fullscreenControl", On); }'+sLineBreak+
   ''+sLineBreak+
   '  function SetZoom(zoom) { map.setZoom(zoom); }';
 end;
@@ -809,6 +823,7 @@ begin
       B2S(FPanControl),
       B2S(FZoomControl),
       B2S(FTypeControl),
+      B2S(FFullScreenControl),
       B2S(FScaleControl),
       B2S(FStreetViewControl),
       B2S(FOverviewMapControl),
@@ -1134,6 +1149,13 @@ begin
     ShowMap(EmptyLatLng);
 end;
 
+procedure TEdgeGoogleMapViewer.SetFullScreenControl(const Value: boolean);
+begin
+  FFullScreenControl := Value;
+  if MapVisible then
+    ShowFullScreenControl(Value);
+end;
+
 procedure TEdgeGoogleMapViewer.SetStartAddress(const Value: string);
 begin
   FStartAddress := Value;
@@ -1169,6 +1191,7 @@ end;
 procedure TEdgeGoogleMapViewer.SetZoomControl(const Value: boolean);
 begin
   FZoomControl := Value;
+  ShowZoomControl(FZoomControl);
 end;
 
 procedure TEdgeGoogleMapViewer.GotoLocation(LatLng: TLatLng; AAddMarker : boolean);
@@ -1289,6 +1312,23 @@ begin
   ExecuteScript(Format('Traffic(%s)',[B2S(FTraffic)]));
 end;
 
+procedure TEdgeGoogleMapViewer.ShowZoomControl(Show: boolean);
+begin
+  FZoomControl := Show;
+  ExecuteScript(Format('zoomControl(%s)',[B2S(FZoomControl)]));
+end;
+
+procedure TEdgeGoogleMapViewer.ShowMapTypeControl(Show: boolean);
+begin
+  FTypeControl := Show;
+  ExecuteScript(Format('mapTypeControl(%s)',[B2S(FTypeControl)]));
+end;
+
+procedure TEdgeGoogleMapViewer.ShowFullScreenControl(Show: boolean);
+begin
+  FFullScreenControl := Show;
+  ExecuteScript(Format('fullscreenControl(%s)',[B2S(FFullScreenControl)]));
+end;
 
 procedure Register;
 begin

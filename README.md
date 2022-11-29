@@ -2,7 +2,7 @@
 
 Delphi "WebView2" Component to View Google Map with Routing and Markers Support
 
-### Actual official version 1.3.1 (VCL)
+### Actual official version 1.4.0 (VCL)
 
 This component is based on [TEdgeBrowser Component](https://docwiki.embarcadero.com/RADStudio/Sydney/en/Using_TEdgeBrowser_Component_and_Changes_to_the_TWebBrowser_Component) (available from Delphi 10.4)
 
@@ -44,41 +44,48 @@ Open \Demo\GoogleMaps\GoogleMapsTest.dproj: Build (32 or 64 bit) and Run.
 
 **Notice: you need a Google API key to activate the navigation**: by default the Demo request to input API before using the component, or you can edit TformMain.EdgeGoogleMapViewerBeforeShowMap event to add your API KEY to the component.
 
-### Goto Address (Via S.Cecilia 4, Carugate, Milano )
+### Goto Address: Via S.Cecilia 4, Carugate, Milano
 
 Input Address and click to "Goto Address":
 
-![GoTo Address](./Images/GoToAddress.png)
+![GoTo Address](./Images/GoToAddress.jpg)
 
 ### Goto Latitude/Longitude (25.767314 / -80.135694)
 
 Input Latutude and Longitude and click to "Goto Latitude/Longitude"
 
-![GoTo Latitude](./Images/GoToLatitudeLongitude.png)
+![GoTo Latitude](./Images/GoToLatitudeLongitude.jpg)
 
 ### Route Bicycling - RoadMap View Style
 
 Select Routing Mode "Bicycling", Select "RoadMap" View Mode, click to "Route by Location":
 
-![Route Bicycling RoadMap](./Images/RouteBicyclingRoadMap.png)
+![Route Bicycling RoadMap](./Images/RouteBicyclingRoadMap.jpg)
 
 ### Route By Address - Hybrid and Traffic from Satellite View Style
 
 Select Select "Hybrid" View Mode, Activate Traffic and click to "Route by Addreess":
 
-![RouteByAddressHybridTraffic](./Images/RouteByAddressHybridTraffic.png)
+![RouteByAddressHybridTraffic](./Images/RouteByAddressHybridTraffic.jpg)
 
 ### Markers from Customer Table (customers.xml)
 
 Load Customer Table, scroll down the table: for every record a Marker is added to the Map. Zoom out map to see all Markers.
 
-![Markers Of Customers](./Images/MarkersOfCustomers.png)
+![Markers Of Customers](./Images/MarkersOfCustomers.jpg)
 
 ### DOCUMENTATION
 
 No documentation available, but the Demo explain very well the use of the component.
 
 ### RELEASE NOTES
+29 Nov 2022:
+- Version 1.4.0
+- FullScreen Control showing switch
+- Zoom Control showing switch
+- MapType Control showing switch
+- Update Demo to implement "fullscreen" request
+
 15 Sep 2022:
 - Version 1.3.1
 - Added 64bit platform to package and demo

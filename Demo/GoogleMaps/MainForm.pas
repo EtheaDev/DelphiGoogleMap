@@ -61,9 +61,6 @@ type
     gbMapAttributes: TGroupBox;
     lbZoom: TLabel;
     Zoom: TSpinEdit;
-    CheckBoxStreeView: TCheckBox;
-    CheckBoxBicycling: TCheckBox;
-    CheckBoxTraffic: TCheckBox;
     Label5: TLabel;
     GroupBox1: TGroupBox;
     MemoAddress: TMemo;
@@ -129,6 +126,14 @@ type
     memoMarkerInformation: TMemo;
     cbCenterOnClick: TCheckBox;
     mnuAddMarker: TMenuItem;
+    mapControlGroupBox: TGroupBox;
+    CheckBoxTraffic: TCheckBox;
+    CheckBoxBicycling: TCheckBox;
+    CheckBoxStreeView: TCheckBox;
+    CheckBoxFullScreen: TCheckBox;
+    CheckBoxZoom: TCheckBox;
+    BottomPanel: TPanel;
+    CheckBoxMapType: TCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure ButtonGotoAddressClick(Sender: TObject);
     procedure ButtonGotoLocationClick(Sender: TObject);
@@ -152,6 +157,11 @@ type
     procedure FormShow(Sender: TObject);
     procedure btnAddMarkerClick(Sender: TObject);
     procedure mnuAddMarkerClick(Sender: TObject);
+    procedure CheckBoxFullScreenClick(Sender: TObject);
+    procedure CheckBoxZoomClick(Sender: TObject);
+    procedure EdgeGoogleMapViewerContainsFullScreenElementChanged(
+      Sender: TCustomEdgeBrowser; ContainsFullScreenElement: Boolean);
+    procedure CheckBoxMapTypeClick(Sender: TObject);
   private
     FRighClickLatLng : TLatLng;
     procedure OnMapClick(ASender: TObject; ALatLng : TLatLng);
@@ -182,10 +192,16 @@ end;
 procedure TformMain.FormCreate(Sender: TObject);
 begin
   Zoom.Value := EdgeGoogleMapViewer.MapZoom;
+
+  //Init checkboxes based on Component Proprerties
   CheckBoxTraffic.Checked := EdgeGoogleMapViewer.MapShowTrafficLayer;
   CheckBoxBicycling.Checked := EdgeGoogleMapViewer.MapShowBicyclingLayer;
   CheckBoxStreeView.Checked := EdgeGoogleMapViewer.MapShowStreetViewControl;
   CheckBoxDirectionPanel.Checked := EdgeGoogleMapViewer.MapShowDirectionsPanel;
+  CheckBoxFullScreen.Checked := EdgeGoogleMapViewer.MapShowFullScreenControl;
+  CheckBoxZoom.Checked := EdgeGoogleMapViewer.MapShowZoomControl;
+  CheckBoxMapType.Checked := EdgeGoogleMapViewer.MapShowTypeControl;
+
   MemoAddress.Lines.Text := EdgeGoogleMapViewer.MapAddress;
   Latitude.Text := TEdgeGoogleMapViewer.CoordToText(EdgeGoogleMapViewer.MapLatitude);
   Longitude.Text := TEdgeGoogleMapViewer.CoordToText(EdgeGoogleMapViewer.MapLongitude);
@@ -276,6 +292,24 @@ begin
   Location.Latitude := TEdgeGoogleMapViewer.TextToCoord(Latitude.Text);
   Location.Longitude := TEdgeGoogleMapViewer.TextToCoord(Longitude.Text);
   EdgeGoogleMapViewer.GotoLocation(Location);
+end;
+
+procedure TformMain.CheckBoxFullScreenClick(Sender: TObject);
+begin
+  EdgeGoogleMapViewer.MapShowFullScreenControl :=
+    CheckBoxFullScreen.Checked;
+end;
+
+procedure TformMain.CheckBoxMapTypeClick(Sender: TObject);
+begin
+  EdgeGoogleMapViewer.MapShowTypeControl :=
+    CheckBoxMapType.Checked;
+end;
+
+procedure TformMain.CheckBoxZoomClick(Sender: TObject);
+begin
+  EdgeGoogleMapViewer.MapShowZoomControl :=
+    CheckBoxZoom.Checked;
 end;
 
 procedure TformMain.cbxTravelModeChange(Sender: TObject);
@@ -381,11 +415,20 @@ begin
     raise Exception.Create('Error: you must put your Google API Key into TEdgeGoogleMapViewer: change initialization section!');
 end;
 
+procedure TformMain.EdgeGoogleMapViewerContainsFullScreenElementChanged(
+  Sender: TCustomEdgeBrowser; ContainsFullScreenElement: Boolean);
+begin
+  PanelHeader.Visible := not ContainsFullScreenElement;
+  BottomPanel.Visible := not ContainsFullScreenElement;
+  DBGrid.Visible := not ContainsFullScreenElement;
+  DBGrid.Top := BottomPanel.Top -1;
+end;
+
 initialization
   //Setup UserDataFolder for Temp files
   TEdgeGoogleMapViewer.RegisterUserDataFolder(ExtractFilePath(ParamStr(0))+'..\..\CacheTempFolder\');
   //If you have a Google API Key it's time to setup
-  //TEdgeGoogleMapViewer.RegisterGoogleMapsApiKey('xyz');
+  TEdgeGoogleMapViewer.RegisterGoogleMapsApiKey('AIzaSyBNY0ARa4GdRU4LrOKfk9hpNp96yM3dgHg');
 
   {$WARN SYMBOL_PLATFORM OFF}
   ReportMemoryLeaksOnShutdown := DebugHook <> 0;
