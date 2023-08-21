@@ -2,7 +2,7 @@
 {                                                                              }
 {       Delphi Google Map Viewer                                               }
 {                                                                              }
-{       Copyright (c) 2021-2022 (Ethea S.r.l.)                                 }
+{       Copyright (c) 2021-2023 (Ethea S.r.l.)                                 }
 {       Author: Carlo Barazzetta                                               }
 {       Contributors:                                                          }
 {         littleearth (https://github.com/littleearth)                         }
@@ -46,6 +46,7 @@ uses
 
 const
   DEFAULT_ZOOM_FACTOR = 15;
+  DelphiGoogleMapViewerVersion = '1.5.0';
 
 Type
   EGoogleMapError = Exception;
@@ -206,6 +207,7 @@ Type
     class procedure RegisterUserDataFolder(const ATempFolder: string);
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    procedure ShowPrintUI;
     function DefaultCustomMarkerJSON: string;
     procedure ShowMap(const AAddress: string) overload;
     procedure HideMap;
@@ -289,8 +291,6 @@ Type
     property OnMapRightClick : TEdgeGoogleMapViewMapClick read FOnMapRightClick write SetOnMapRightClick;
     property OnMapZoom : TEdgeGoogleMapViewZoomChanged read FOnMapZoom write SetOnMapZoom;
   end;
-
-procedure Register;
 
 implementation
 
@@ -845,6 +845,11 @@ begin
   FMapVisible := True;
 end;
 
+procedure TEdgeGoogleMapViewer.ShowPrintUI;
+begin
+  ExecuteScript('window.print();');
+end;
+
 procedure TEdgeGoogleMapViewer.SetAddress(const Value: string);
 begin
   FAddress := Value;
@@ -1328,11 +1333,6 @@ procedure TEdgeGoogleMapViewer.ShowFullScreenControl(Show: boolean);
 begin
   FFullScreenControl := Show;
   ExecuteScript(Format('fullscreenControl(%s)',[B2S(FFullScreenControl)]));
-end;
-
-procedure Register;
-begin
-  RegisterComponents('ISControls', [TEdgeGoogleMapViewer]);
 end;
 
 end.

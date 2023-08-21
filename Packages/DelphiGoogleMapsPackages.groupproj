@@ -1,0 +1,48 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{FF91CF05-F719-48EB-8DD4-8E376995A456}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="DelphiGoogleMap.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="dclDelphiGoogleMap.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="DelphiGoogleMap">
+        <MSBuild Projects="DelphiGoogleMap.dproj"/>
+    </Target>
+    <Target Name="DelphiGoogleMap:Clean">
+        <MSBuild Projects="DelphiGoogleMap.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="DelphiGoogleMap:Make">
+        <MSBuild Projects="DelphiGoogleMap.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="dclDelphiGoogleMap">
+        <MSBuild Projects="dclDelphiGoogleMap.dproj"/>
+    </Target>
+    <Target Name="dclDelphiGoogleMap:Clean">
+        <MSBuild Projects="dclDelphiGoogleMap.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="dclDelphiGoogleMap:Make">
+        <MSBuild Projects="dclDelphiGoogleMap.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="DelphiGoogleMap;dclDelphiGoogleMap"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="DelphiGoogleMap:Clean;dclDelphiGoogleMap:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="DelphiGoogleMap:Make;dclDelphiGoogleMap:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>

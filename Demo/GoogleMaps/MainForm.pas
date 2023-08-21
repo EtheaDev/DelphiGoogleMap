@@ -2,7 +2,7 @@
 {                                                                              }
 {       Delphi Google Map Viewer Demo                                          }
 {                                                                              }
-{       Copyright (c) 2021-2022 (Ethea S.r.l.)                                 }
+{       Copyright (c) 2021-2023 (Ethea S.r.l.)                                 }
 {       Author: Carlo Barazzetta                                               }
 {       Contributors:                                                          }
 {         littleearth (https://github.com/littleearth)                         }
@@ -38,6 +38,7 @@ type
   TformMain = class(TForm)
     PanelHeader: TPanel;
     ButtonClearMarkers: TButton;
+    ShowPrintUIButton: TButton;
     ShowMapButton: TButton;
     PopupMenu: TPopupMenu;
     HideMapButton: TButton;
@@ -142,6 +143,7 @@ type
     procedure CheckBoxStreeViewClick(Sender: TObject);
     procedure ButtonClearMarkersClick(Sender: TObject);
     procedure ZoomChange(Sender: TObject);
+    procedure ShowPrintUIButtonClick(Sender: TObject);
     procedure ShowMapButtonClick(Sender: TObject);
     procedure HideMapButtonClick(Sender: TObject);
     procedure MapTypeIdComboBoxChange(Sender: TObject);
@@ -252,7 +254,7 @@ end;
 
 procedure TformMain.FormShow(Sender: TObject);
 begin
-  ShowMapButtonClick(Sender);
+  ButtonGotoAddressClick(Sender);
 end;
 
 procedure TformMain.HideMapButtonClick(Sender: TObject);
@@ -273,6 +275,11 @@ end;
 procedure TformMain.mnuAddMarkerClick(Sender: TObject);
 begin
   EdgeGoogleMapViewer.PutMarker(FRighClickLatLng,'Added from right click menu');
+end;
+
+procedure TformMain.ShowPrintUIButtonClick(Sender: TObject);
+begin
+  EdgeGoogleMapViewer.ShowPrintUI;
 end;
 
 procedure TformMain.ShowMapButtonClick(Sender: TObject);

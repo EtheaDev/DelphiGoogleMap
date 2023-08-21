@@ -11,6 +11,7 @@ uses
 
 begin
   Application.Initialize;
+  Application.Title := 'Delphi with Edge Google Maps Viewer Component Demo';
   Application.MainFormOnTaskbar := True;
   Application.CreateForm(TformMain, formMain);
   Application.Run;

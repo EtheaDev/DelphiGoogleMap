@@ -5,7 +5,7 @@ object formMain: TformMain
     'Delphi with Edge Google Maps Viewer Component Demo - Copyright (' +
     'c) Ethea S.r.l.'
   ClientHeight = 729
-  ClientWidth = 1479
+  ClientWidth = 1190
   Color = clBtnFace
   Constraints.MinHeight = 550
   Constraints.MinWidth = 890
@@ -24,17 +24,15 @@ object formMain: TformMain
   object Splitter1: TSplitter
     Left = 0
     Top = 579
-    Width = 1479
+    Width = 1190
     Height = 3
     Cursor = crVSplit
     Align = alBottom
-    ExplicitTop = 151
-    ExplicitWidth = 231
   end
   object PanelHeader: TPanel
     Left = 0
     Top = 0
-    Width = 1479
+    Width = 1190
     Height = 185
     Align = alTop
     TabOrder = 0
@@ -381,7 +379,7 @@ object formMain: TformMain
     object GroupBoxMarker: TGroupBox
       Left = 935
       Top = 1
-      Width = 543
+      Width = 254
       Height = 183
       Align = alClient
       Caption = 'Markers'
@@ -389,7 +387,7 @@ object formMain: TformMain
       object PageControlMarker: TPageControl
         Left = 2
         Top = 15
-        Width = 539
+        Width = 250
         Height = 128
         ActivePage = LatLongMarkerTabSheet
         Align = alClient
@@ -399,7 +397,7 @@ object formMain: TformMain
           object GridPanel1: TGridPanel
             Left = 0
             Top = 0
-            Width = 531
+            Width = 242
             Height = 100
             Align = alClient
             BevelOuter = bvNone
@@ -429,7 +427,7 @@ object formMain: TformMain
             object GridPanel2: TGridPanel
               Left = 0
               Top = 0
-              Width = 531
+              Width = 242
               Height = 50
               Align = alClient
               BevelOuter = bvNone
@@ -459,7 +457,7 @@ object formMain: TformMain
               object Panel2: TPanel
                 Left = 0
                 Top = 0
-                Width = 266
+                Width = 121
                 Height = 50
                 Align = alClient
                 BevelOuter = bvNone
@@ -468,26 +466,25 @@ object formMain: TformMain
                   AlignWithMargins = True
                   Left = 3
                   Top = 3
-                  Width = 260
+                  Width = 115
                   Height = 13
                   Align = alTop
                   Caption = 'Latitude'
-                  ExplicitWidth = 39
                 end
                 object editMarkerLat: TEdit
                   AlignWithMargins = True
                   Left = 3
                   Top = 22
-                  Width = 260
+                  Width = 115
                   Height = 21
                   Align = alTop
                   TabOrder = 0
                 end
               end
               object Panel3: TPanel
-                Left = 266
+                Left = 121
                 Top = 0
-                Width = 265
+                Width = 121
                 Height = 50
                 Align = alClient
                 BevelOuter = bvNone
@@ -496,17 +493,16 @@ object formMain: TformMain
                   AlignWithMargins = True
                   Left = 3
                   Top = 3
-                  Width = 259
+                  Width = 115
                   Height = 13
                   Align = alTop
                   Caption = 'Longitude'
-                  ExplicitWidth = 47
                 end
                 object editMarkerLng: TEdit
                   AlignWithMargins = True
                   Left = 3
                   Top = 22
-                  Width = 259
+                  Width = 115
                   Height = 21
                   Align = alTop
                   TabOrder = 0
@@ -516,7 +512,7 @@ object formMain: TformMain
             object Panel5: TPanel
               Left = 0
               Top = 50
-              Width = 531
+              Width = 242
               Height = 50
               Align = alClient
               BevelOuter = bvNone
@@ -525,17 +521,16 @@ object formMain: TformMain
                 AlignWithMargins = True
                 Left = 3
                 Top = 3
-                Width = 525
+                Width = 236
                 Height = 13
                 Align = alTop
                 Caption = 'Description'
-                ExplicitWidth = 53
               end
               object editMarkerDescription: TEdit
                 AlignWithMargins = True
                 Left = 3
                 Top = 22
-                Width = 525
+                Width = 236
                 Height = 21
                 Align = alTop
                 TabOrder = 0
@@ -549,7 +544,7 @@ object formMain: TformMain
           object Panel6: TPanel
             Left = 0
             Top = 0
-            Width = 531
+            Width = 242
             Height = 54
             Align = alTop
             BevelOuter = bvNone
@@ -558,17 +553,16 @@ object formMain: TformMain
               AlignWithMargins = True
               Left = 3
               Top = 3
-              Width = 525
+              Width = 236
               Height = 13
               Align = alTop
               Caption = 'Label'
-              ExplicitWidth = 25
             end
             object editMarkerLabel: TEdit
               AlignWithMargins = True
               Left = 3
               Top = 22
-              Width = 525
+              Width = 236
               Height = 21
               Align = alTop
               TabOrder = 0
@@ -577,7 +571,7 @@ object formMain: TformMain
           object Panel7: TPanel
             Left = 0
             Top = 54
-            Width = 531
+            Width = 242
             Height = 54
             Align = alTop
             BevelOuter = bvNone
@@ -586,17 +580,16 @@ object formMain: TformMain
               AlignWithMargins = True
               Left = 3
               Top = 3
-              Width = 525
+              Width = 236
               Height = 13
               Align = alTop
               Caption = 'Animation'
-              ExplicitWidth = 47
             end
             object comboMarkerAnimation: TComboBox
               AlignWithMargins = True
               Left = 3
               Top = 22
-              Width = 525
+              Width = 236
               Height = 22
               Align = alTop
               Style = csOwnerDrawFixed
@@ -618,17 +611,16 @@ object formMain: TformMain
             AlignWithMargins = True
             Left = 3
             Top = 3
-            Width = 525
+            Width = 236
             Height = 13
             Align = alTop
             Caption = 'Information'
-            ExplicitWidth = 56
           end
           object memoMarkerInformation: TMemo
             AlignWithMargins = True
             Left = 3
             Top = 22
-            Width = 525
+            Width = 236
             Height = 75
             Align = alClient
             Lines.Strings = (
@@ -657,7 +649,7 @@ object formMain: TformMain
             AlignWithMargins = True
             Left = 3
             Top = 3
-            Width = 525
+            Width = 236
             Height = 17
             Align = alTop
             Caption = 'Custom'
@@ -667,7 +659,7 @@ object formMain: TformMain
             AlignWithMargins = True
             Left = 3
             Top = 26
-            Width = 525
+            Width = 236
             Height = 71
             Align = alClient
             Lines.Strings = (
@@ -680,7 +672,7 @@ object formMain: TformMain
         AlignWithMargins = True
         Left = 5
         Top = 146
-        Width = 533
+        Width = 244
         Height = 32
         Align = alBottom
         Caption = 'Add Marker'
@@ -692,7 +684,7 @@ object formMain: TformMain
   object EdgeGoogleMapViewer: TEdgeGoogleMapViewer
     Left = 0
     Top = 185
-    Width = 1479
+    Width = 1190
     Height = 394
     Align = alClient
     TabOrder = 1
@@ -705,7 +697,7 @@ object formMain: TformMain
   object DBGrid: TDBGrid
     Left = 0
     Top = 582
-    Width = 1479
+    Width = 1190
     Height = 100
     Align = alBottom
     DataSource = dsCustomers
@@ -785,15 +777,26 @@ object formMain: TformMain
   object BottomPanel: TPanel
     Left = 0
     Top = 682
-    Width = 1479
+    Width = 1190
     Height = 47
     Align = alBottom
     TabOrder = 3
+    object ShowPrintUIButton: TButton
+      AlignWithMargins = True
+      Left = 90
+      Top = 4
+      Width = 80
+      Height = 39
+      Align = alLeft
+      Caption = 'Show Print UI'
+      TabOrder = 7
+      OnClick = ShowPrintUIButtonClick
+    end
     object ShowMapButton: TButton
       AlignWithMargins = True
-      Left = 109
+      Left = 176
       Top = 4
-      Width = 99
+      Width = 80
       Height = 39
       Align = alLeft
       Caption = 'Show Map'
@@ -802,9 +805,9 @@ object formMain: TformMain
     end
     object HideMapButton: TButton
       AlignWithMargins = True
-      Left = 214
+      Left = 262
       Top = 4
-      Width = 99
+      Width = 80
       Height = 39
       Align = alLeft
       Caption = 'Hide map'
@@ -813,7 +816,7 @@ object formMain: TformMain
     end
     object ButtonClearMarkers: TButton
       AlignWithMargins = True
-      Left = 1240
+      Left = 951
       Top = 4
       Width = 101
       Height = 39
@@ -824,7 +827,7 @@ object formMain: TformMain
     end
     object DBNavigator: TDBNavigator
       AlignWithMargins = True
-      Left = 1347
+      Left = 1058
       Top = 4
       Width = 128
       Height = 39
@@ -835,7 +838,7 @@ object formMain: TformMain
     end
     object LoadTableButton: TButton
       AlignWithMargins = True
-      Left = 1135
+      Left = 846
       Top = 4
       Width = 99
       Height = 39
@@ -848,7 +851,7 @@ object formMain: TformMain
       AlignWithMargins = True
       Left = 4
       Top = 4
-      Width = 99
+      Width = 80
       Height = 39
       Align = alLeft
       Caption = 'Show another form...'
@@ -857,9 +860,9 @@ object formMain: TformMain
       OnClick = Button1Click
     end
     object Panel1: TPanel
-      Left = 316
+      Left = 345
       Top = 1
-      Width = 816
+      Width = 498
       Height = 45
       Align = alClient
       BevelOuter = bvNone
@@ -867,17 +870,16 @@ object formMain: TformMain
       object Label7: TLabel
         Left = 0
         Top = 0
-        Width = 816
+        Width = 498
         Height = 13
         Align = alTop
         Caption = 'File'
-        ExplicitWidth = 16
       end
       object FileEdit: TEdit
         AlignWithMargins = True
         Left = 3
         Top = 16
-        Width = 810
+        Width = 492
         Height = 21
         Align = alTop
         TabOrder = 0
