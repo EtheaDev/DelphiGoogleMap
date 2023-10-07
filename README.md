@@ -22,8 +22,57 @@ begin
   
 //Setting Map View Mode
   EdgeGoogleMapViewer.MapTypeId := TGoogleMapTypeId(MapTypeIdComboBox.ItemIndex);
-  
 ```
+
+## How it works
+
+The component works in a simple way: creates an html file with some javascript functions inside it and load it from disk, so the Delphi component can call those javascript functions inside the component methods, calling ExecuteScript(ScriptCommand) method of the TEdgeBrowser. If you want to analyse the content of the file created, put a break-point into TEdgeGoogleMapViewer.ShowMap at this line to know the name of the file created:
+
+```pascal
+NavigateToURL('file:///'+LFileName);
+```
+If you want to see how the component calls a javascript function inside the page, look for example at the method "GotoAddress":
+
+```pascal
+procedure TEdgeGoogleMapViewer.GotoAddress(const Address: string);
+var
+  ScriptCommand: String;
+begin
+  FAddress := Address;
+  if FAddress = '' then
+    HideMap
+  else if not MapVisible then
+    ShowMap(FAddress)
+  else
+  begin
+    ScriptCommand := Format('codeAddress(%s)',[QuotedStr(ClearAddressText(Address))]);
+    ExecuteScript(ScriptCommand);
+  end;
+end;
+```
+You can extend the component with any functionality you can execute at javascipt level, adding the function into the code, in the method "GetHTMLScript" that collect all the Javascript functions, or you can add your personal javascript code in the event "OnGetJavascript".
+
+```pascal
+function TEdgeGoogleMapViewer.GetHTMLScript : string;
+var
+  LJSScript : string;
+begin
+  LJSScript := GetJSVariables +sLineBreak+
+  GetJSInitialize +sLineBreak+
+  (...)
+  GetJSRouteAddress + sLineBreak +
+  GetJSCalcRoute;
+  if Assigned(FOnGetJavascript) then
+    FOnGetJavascript(Self,LJSScript);
+  Result :=
+  '<script type="text/javascript"> '+sLineBreak+
+  LJSScript + sLineBreak +
+  '</script> '+ sLineBreak;
+end;
+```
+
+Look at the [GoogleAPI documentation](https://developers.google.com/maps/documentation/javascript?hl=it) if you need more functionality and please make a pull request to the project.
+ 
 ## A complete demo is available!
 
 Notice that in the same folder of the executable you must place the correct webview2loader.dll (32 or 64 bit) as you can see into Demo\GoogleMaps\Bin\Win32 and Demo\GoogleMaps\Bin\Win64.
