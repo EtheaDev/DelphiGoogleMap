@@ -65,6 +65,7 @@ Type
                         maBOUNCE,
                         maDROP);
 
+
 Const
   ABOUT_BLANK_PAGE = 'about:blank';
   AGoogleMapTypeId : Array[TGoogleMapTypeId] of string =
@@ -200,6 +201,9 @@ Type
     function StripCRLF(AValue: string; AReplaceWith: string = ' '): string;
     procedure CustomWebMessageReceived(ASender: TCustomEdgeBrowser; Args: TWebMessageReceivedEventArgs); virtual;
     function HandleWebMessageEvent(AEvent: string): boolean;
+    //Circle
+    function GetJSClearCircles: string; virtual;
+    function GetJSPutCircle: string; virtual;
   public
     class function TextToCoord(const Value: String): Extended;
     class function CoordToText(const Coord: double): string;
@@ -228,6 +232,13 @@ Type
       ALabel : string = ''; AInfoWindowContent : string = ''; ACustomMarkerJSON : string = '');
     procedure ClearMarkers;
     class property ApiKey: string read FApiKey;
+    //Circle
+    procedure PutCircle(LatLng: TLatLng; Radius: Double; Editable, Draggable, Visible, Clickable: Boolean;
+      StrokeColor: String; StrokeOpacity: Double; StrokeWeight: Integer; FillColor: String; FillOpacity: Double;
+      AInfoWindowContent : string = '');
+    procedure ClearCircles;
+
+
   published
     property Align;
     property Anchors;
@@ -510,7 +521,8 @@ begin
   '  var map;  '+sLineBreak+
   '  var trafficLayer;'+sLineBreak+
   '  var bikeLayer;'+sLineBreak+
-  '  var markersArray = [];';
+  '  var markersArray = [];'+sLineBreak+
+  '  var circlesArray = [];';
 end;
 
 function TEdgeGoogleMapViewer.GetJSInitialize : string;
@@ -534,6 +546,7 @@ begin
   '    map = new google.maps.Map(document.getElementById("map_canvas"), myOptions); '+sLineBreak+
   '    codeAddress(%s);'+sLineBreak+
   '    PutMarker(latlng.lat(), latlng.lng(), %s);'+sLineBreak+
+  '    PutCircle(latlng.lat(), latlng.lng(), 33333, false, false, true, true, "#FF0000", 0.80, 2, "#FF0000", 0.35, "");'+sLineBreak+
   '    trafficLayer = new google.maps.TrafficLayer();'+sLineBreak+
   '    Traffic(%s);'+sLineBreak+
   '    bikeLayer = new google.maps.BicyclingLayer();'+sLineBreak+
@@ -764,6 +777,8 @@ begin
   GetJSClearMakers + sLineBreak +
   GetJSPutMarker + sLineBreak +
   GetJSPutCustomMarker + sLineBreak +
+  GetJSPutCircle + sLineBreak +
+  GetJSClearCircles + sLineBreak +
   GetJSMapOptions + sLineBreak +
   GetJSMapShowDirectionsPanel + sLineBreak+
   GetJSRouteAddress + sLineBreak +
@@ -1333,6 +1348,87 @@ procedure TEdgeGoogleMapViewer.ShowFullScreenControl(Show: boolean);
 begin
   FFullScreenControl := Show;
   ExecuteScript(Format('fullscreenControl(%s)',[B2S(FFullScreenControl)]));
+end;
+
+
+//Circles
+
+procedure TEdgeGoogleMapViewer.ClearCircles;
+begin
+  ExecuteScript('ClearCircles()');
+end;
+
+procedure TEdgeGoogleMapViewer.PutCircle(LatLng: TLatLng; Radius: Double; Editable, Draggable, Visible, Clickable: Boolean;
+    StrokeColor: String; StrokeOpacity: Double; StrokeWeight: Integer; FillColor: String; FillOpacity: Double;
+    AInfoWindowContent : string = '');
+var
+  LScriptCommand: String;
+  LInfoWindowContent : string;
+begin
+  FormatSettings.DecimalSeparator := '.';
+  if not MapVisible then
+  begin
+    ShowMap(EmptyLatLng);
+    while MapIsBusy do
+      Sleep(10);
+  end;
+  LScriptCommand := Format('PutCircle(%s, %s, %f, %s, %s, %s, %s, %s, %f, %d, %s, %f,%s)',[
+    CoordToText(LatLng.Latitude),
+    CoordToText(LatLng.Longitude),
+    Radius,
+    LowerCase(BoolToStr(Editable, True)),
+    LowerCase(BoolToStr(Draggable, True)),
+    LowerCase(BoolToStr(Visible, True)),
+    LowerCase(BoolToStr(Clickable, True)),
+    QuotedStr(StripCRLF(StrokeColor)),
+    StrokeOpacity,
+    StrokeWeight,
+    QuotedStr(StripCRLF(FillColor)),
+    FillOpacity,
+    QuotedStr(StripCRLF(AInfoWindowContent))
+    ]);
+  ExecuteScript(LScriptCommand);
+end;
+
+function TEdgeGoogleMapViewer.GetJSPutCircle : string;
+begin
+  Result :=
+  '  function PutCircle(Lat, Lng, Radius, Editable, Draggable, Visible, Clickable, StrokeColor,StrokeOpacity, StrokeWeight, FillColor, FillOpacity, Info){'+sLineBreak+
+  '   var latlng = new google.maps.LatLng(Lat,Lng);'+sLineBreak+
+  '   var circle = new google.maps.Circle({'+sLineBreak+
+  '      center: latlng, '+sLineBreak+
+  '      map: map,'+sLineBreak+
+  '      radius: Radius,'+sLineBreak+
+  '      editable: Editable,'+sLineBreak+
+  '      draggable: Draggable,'+sLineBreak+
+  '      visible: Visible,'+sLineBreak+
+  '      clickable: Clickable,'+sLineBreak+
+  '      strokeColor: StrokeColor,'+sLineBreak+
+  '      strokeOpacity: StrokeOpacity,'+sLineBreak+
+  '      strokeWeight: StrokeWeight,'+sLineBreak+
+  '      fillColor: FillColor,'+sLineBreak+
+  '      fillOpacity: FillOpacity'+sLineBreak+
+  '   });'+sLineBreak+
+  '   circlesArray.push(circle); '+sLineBreak+
+  '   if (Info) { ' +sLineBreak+
+  '   circle.addListener("click", () => {'+sLineBreak+
+  '    infoWindow.setPosition(circle.getCenter());'+sLineBreak+
+  '    infoWindow.setContent(Info);'+sLineBreak+
+  '    infoWindow.open(circle.getMap(), circle);'+sLineBreak+
+  '    });'+sLineBreak+
+  '   }'+sLineBreak+
+  '}';
+end;
+
+function TEdgeGoogleMapViewer.GetJSClearCircles : string;
+begin
+   Result :=   'function ClearCircles() {  '+sLineBreak+
+  '  if (circlesArray) {        '+sLineBreak+
+  '    for (i in circlesArray) {  '+sLineBreak+
+  '      circlesArray[i].setMap(null); '+sLineBreak+
+  '    } '+sLineBreak+
+  '  } '+sLineBreak+
+  '}  '
 end;
 
 end.

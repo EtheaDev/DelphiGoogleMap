@@ -135,6 +135,42 @@ type
     CheckBoxZoom: TCheckBox;
     BottomPanel: TPanel;
     CheckBoxMapType: TCheckBox;
+    GroupBox3: TGroupBox;
+    btnAddCircle: TButton;
+    PageControl1: TPageControl;
+    TabSheet1: TTabSheet;
+    GridPanel3: TGridPanel;
+    GridPanel4: TGridPanel;
+    Panel4: TPanel;
+    Label15: TLabel;
+    eCircleLat: TEdit;
+    Panel8: TPanel;
+    Label16: TLabel;
+    eCircleLng: TEdit;
+    Panel9: TPanel;
+    TabSheet2: TTabSheet;
+    Panel10: TPanel;
+    TabSheet3: TTabSheet;
+    Label20: TLabel;
+    Label21: TLabel;
+    eCircleRadius: TEdit;
+    chkCircleEditable: TCheckBox;
+    chkCircleDraggable: TCheckBox;
+    chkCicleClickable: TCheckBox;
+    chkCircleVisible: TCheckBox;
+    eCircleInfo: TMemo;
+    TabSheet4: TTabSheet;
+    Label17: TLabel;
+    eCircleStrokeColor: TEdit;
+    Label18: TLabel;
+    eCircleStrokeOpacity: TEdit;
+    Label19: TLabel;
+    eCircleStrokeWeight: TEdit;
+    Label22: TLabel;
+    eCircleFillColor: TEdit;
+    eCircleFillOpacity: TEdit;
+    Label23: TLabel;
+    btnClearCircles: TButton;
     procedure FormCreate(Sender: TObject);
     procedure ButtonGotoAddressClick(Sender: TObject);
     procedure ButtonGotoLocationClick(Sender: TObject);
@@ -164,6 +200,8 @@ type
     procedure EdgeGoogleMapViewerContainsFullScreenElementChanged(
       Sender: TCustomEdgeBrowser; ContainsFullScreenElement: Boolean);
     procedure CheckBoxMapTypeClick(Sender: TObject);
+    procedure btnAddCircleClick(Sender: TObject);
+    procedure btnClearCirclesClick(Sender: TObject);
   private
     FRighClickLatLng : TLatLng;
     procedure OnMapClick(ASender: TObject; ALatLng : TLatLng);
@@ -193,6 +231,7 @@ end;
 
 procedure TformMain.FormCreate(Sender: TObject);
 begin
+  FormatSettings.DecimalSeparator := '.';
   Zoom.Value := EdgeGoogleMapViewer.MapZoom;
 
   //Init checkboxes based on Component Proprerties
@@ -211,6 +250,9 @@ begin
   editMarkerLng.Text  := TEdgeGoogleMapViewer.CoordToText(115.8613);
   editMarkerDescription.Text := 'Perth, Western Australia';
   editMarkerLabel.Text := 'Here';
+  eCircleLat.Text := TEdgeGoogleMapViewer.CoordToText(-31.9523);
+  eCircleLng.Text  := TEdgeGoogleMapViewer.CoordToText(115.8613);
+  eCircleRadius.text:='23';
   comboMarkerAnimation.ItemIndex := 0;
   memoMarkerCustomJSON.Lines.Text := EdgeGoogleMapViewer.DefaultCustomMarkerJSON;
   MapTypeIdComboBox.ItemIndex := Ord(EdgeGoogleMapViewer.MapTypeId);
@@ -360,6 +402,33 @@ begin
   EdgeGoogleMapViewer.RouteByLocations;
 end;
 
+
+procedure TformMain.btnAddCircleClick(Sender: TObject);
+var
+  LLatLng : TLatLng;
+  a:Double;
+  b: Integer;
+begin
+  LLatLng.Latitude := TEdgeGoogleMapViewer.TextToCoord(eCircleLat.Text);
+  LLatLng.Longitude := TEdgeGoogleMapViewer.TextToCoord(eCircleLng.Text);
+  a:=strtofloat(eCircleStrokeOpacity.text);
+  EdgeGoogleMapViewer.GotoLocation(LLatLng, false);
+  EdgeGoogleMapViewer.PutCircle(
+                            LLatLng,
+                            strtofloat(eCircleRadius.text),
+                            chkCircleEditable.Checked,
+                            chkCircleDraggable.Checked,
+                            chkCircleVisible.Checked,
+                            chkCicleClickable.Checked,
+                            eCircleStrokeColor.Text,
+                            strtofloat(eCircleStrokeOpacity.text),
+                            strtoint(eCircleStrokeWeight.text),
+                            eCircleFillColor.Text,
+                            strtofloat(eCircleFillOpacity.text),
+                            eCircleInfo.Text);
+end;
+
+
 procedure TformMain.btnAddMarkerClick(Sender: TObject);
 var
   LLatLng : TLatLng;
@@ -376,6 +445,11 @@ begin
     end;
   EdgeGoogleMapViewer.GotoLocation(LLatLng);
   EdgeGoogleMapViewer.PutMarker(LLatLng,editMarkerDescription.Text, LAnimation ,editMarkerLabel.Text, memoMarkerInformation.Lines.Text, LCustomJSON);
+end;
+
+procedure TformMain.btnClearCirclesClick(Sender: TObject);
+begin
+  EdgeGoogleMapViewer.ClearCircles;
 end;
 
 procedure TformMain.Button1Click(Sender: TObject);
