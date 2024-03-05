@@ -204,6 +204,9 @@ Type
     //Circle
     function GetJSClearCircles: string; virtual;
     function GetJSPutCircle: string; virtual;
+    //Polyline
+    function GetJSClearPolylines: string; virtual;
+    function GetJSPutPolyline: string; virtual;
   public
     class function TextToCoord(const Value: String): Extended;
     class function CoordToText(const Coord: double): string;
@@ -237,6 +240,11 @@ Type
       StrokeColor: String; StrokeOpacity: Double; StrokeWeight: Integer; FillColor: String; FillOpacity: Double;
       AInfoWindowContent : string = '');
     procedure ClearCircles;
+    //Polyline
+    procedure PutPolyline(Path:String; Geodesic, Editable, Visible, Clickable, FitBounds: Boolean;
+      StrokeColor: String; StrokeOpacity: Double; StrokeWeight: Integer;
+      AInfoWindowContent : string = '');
+    procedure ClearPolylines;
 
 
   published
@@ -522,7 +530,8 @@ begin
   '  var trafficLayer;'+sLineBreak+
   '  var bikeLayer;'+sLineBreak+
   '  var markersArray = [];'+sLineBreak+
-  '  var circlesArray = [];';
+  '  var circlesArray = [];'+sLineBreak+
+  '  var polylinesArray = [];';
 end;
 
 function TEdgeGoogleMapViewer.GetJSInitialize : string;
@@ -547,6 +556,7 @@ begin
   '    codeAddress(%s);'+sLineBreak+
   '    PutMarker(latlng.lat(), latlng.lng(), %s);'+sLineBreak+
   '    PutCircle(latlng.lat(), latlng.lng(), 33333, false, false, true, true, "#FF0000", 0.80, 2, "#FF0000", 0.35, "");'+sLineBreak+
+  '    PutPolyline([ { lat: 40.7128, lng: -74.0060 },{ lat: 34.0522, lng: -118.2437 },{ lat: 41.8781, lng: -87.6298 } ], false, true, true, true, false, "#FF0000", 0.80, 2, "Hola pero");'+sLineBreak+
   '    trafficLayer = new google.maps.TrafficLayer();'+sLineBreak+
   '    Traffic(%s);'+sLineBreak+
   '    bikeLayer = new google.maps.BicyclingLayer();'+sLineBreak+
@@ -779,6 +789,8 @@ begin
   GetJSPutCustomMarker + sLineBreak +
   GetJSPutCircle + sLineBreak +
   GetJSClearCircles + sLineBreak +
+  GetJSPutPolyline + sLineBreak +
+  GetJSClearPolylines + sLineBreak +
   GetJSMapOptions + sLineBreak +
   GetJSMapShowDirectionsPanel + sLineBreak+
   GetJSRouteAddress + sLineBreak +
@@ -1426,6 +1438,87 @@ begin
   '  if (circlesArray) {        '+sLineBreak+
   '    for (i in circlesArray) {  '+sLineBreak+
   '      circlesArray[i].setMap(null); '+sLineBreak+
+  '    } '+sLineBreak+
+  '  } '+sLineBreak+
+  '}  '
+end;
+
+//Polylines
+
+procedure TEdgeGoogleMapViewer.ClearPolylines;
+begin
+  ExecuteScript('ClearPolylines()');
+end;
+
+procedure TEdgeGoogleMapViewer.PutPolyline(Path:String; Geodesic, Editable, Visible, Clickable, FitBounds: Boolean;
+    StrokeColor: String; StrokeOpacity: Double; StrokeWeight: Integer;
+    AInfoWindowContent : string = '');
+var
+  LScriptCommand: String;
+  LInfoWindowContent : string;
+begin
+  FormatSettings.DecimalSeparator := '.';
+  if not MapVisible then
+  begin
+    ShowMap(EmptyLatLng);
+    while MapIsBusy do
+      Sleep(10);
+  end;
+  LScriptCommand := Format('PutPolyline(%s, %s, %s, %s, %s, %s, %s, %f, %d, %s)',[
+    Path,
+    LowerCase(BoolToStr(Geodesic, True)),
+    LowerCase(BoolToStr(Editable, True)),
+    LowerCase(BoolToStr(Visible, True)),
+    LowerCase(BoolToStr(Clickable, True)),
+    LowerCase(BoolToStr(FitBounds, True)),
+    QuotedStr(StripCRLF(StrokeColor)),
+    StrokeOpacity,
+    StrokeWeight,
+    QuotedStr(StripCRLF(AInfoWindowContent))
+    ]);
+  ExecuteScript(LScriptCommand);
+end;
+
+function TEdgeGoogleMapViewer.GetJSPutPolyline : string;
+begin
+  Result :=
+  '  function PutPolyline(Path, Geodesic, Editable, Visible, Clickable, FitBounds, StrokeColor,StrokeOpacity, StrokeWeight, Info){'+sLineBreak+
+  '   var polyline = new google.maps.Polyline({'+sLineBreak+
+  '      path: Path, '+sLineBreak+
+  '      map: map,'+sLineBreak+
+  '      geodesic: Geodesic,'+sLineBreak+
+  '      zIndex: 1,'+sLineBreak+
+  '      editable: Editable,'+sLineBreak+
+  '      clickable: Clickable,'+sLineBreak+
+  '      visible: Visible,'+sLineBreak+
+  '      strokeColor: StrokeColor,'+sLineBreak+
+  '      strokeOpacity: StrokeOpacity,'+sLineBreak+
+  '      strokeWeight: StrokeWeight,'+sLineBreak+
+  '   });'+sLineBreak+
+  '   polylinesArray.push(polyline); '+sLineBreak+
+  '   if (Info) { ' +sLineBreak+
+  '       google.maps.event.addListener(polyline, "click", function(event) {' +sLineBreak+
+  '         infoWindow.setPosition(event.latLng);'+sLineBreak+
+  '         infoWindow.setContent(Info);'+sLineBreak+
+  '         infoWindow.open(polyline.getMap(), polyline);'+sLineBreak+
+  '    });'+sLineBreak+
+  '   }'+sLineBreak+
+  '   if (FitBounds) { '+sLineBreak+
+  '       var bounds = new google.maps.LatLngBounds();'+sLineBreak+
+  '       polyline.getPath().forEach(function(latLng) {'+sLineBreak+
+  '           bounds.extend(latLng);'+sLineBreak+
+  '       });'+sLineBreak+
+  '       map.fitBounds(bounds);' +sLineBreak+
+  '   }'+sLineBreak+
+  '}';
+end;
+
+function TEdgeGoogleMapViewer.GetJSClearPolylines : string;
+begin
+   Result :=   'function ClearPolylines() {  '+sLineBreak+
+  '  if (polylinesArray) {        '+sLineBreak+
+  '    for (i in polylinesArray) {  '+sLineBreak+
+  '      polylinesArray[i].setMap(null); '+sLineBreak+
   '    } '+sLineBreak+
   '  } '+sLineBreak+
   '}  '

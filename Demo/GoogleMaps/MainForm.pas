@@ -90,7 +90,6 @@ type
     LoadTableButton: TButton;
     Splitter1: TSplitter;
     CheckBoxDirectionPanel: TCheckBox;
-    GroupBoxMarker: TGroupBox;
     Button1: TButton;
     Panel1: TPanel;
     FileEdit: TEdit;
@@ -135,9 +134,8 @@ type
     CheckBoxZoom: TCheckBox;
     BottomPanel: TPanel;
     CheckBoxMapType: TCheckBox;
-    GroupBox3: TGroupBox;
     btnAddCircle: TButton;
-    PageControl1: TPageControl;
+    PageControlCircle: TPageControl;
     TabSheet1: TTabSheet;
     GridPanel3: TGridPanel;
     GridPanel4: TGridPanel;
@@ -171,6 +169,33 @@ type
     eCircleFillOpacity: TEdit;
     Label23: TLabel;
     btnClearCircles: TButton;
+    btnClearPolylines: TButton;
+    PCDrawing: TPageControl;
+    TabMarkers: TTabSheet;
+    TabCircles: TTabSheet;
+    TabPolylines: TTabSheet;
+    btnAddPolyline: TButton;
+    PageControlPolyline: TPageControl;
+    TabSheet5: TTabSheet;
+    TabSheet6: TTabSheet;
+    Panel14: TPanel;
+    chkPolylineEditable: TCheckBox;
+    chkPolylineGeodesic: TCheckBox;
+    chkPolylineClickable: TCheckBox;
+    chkPolylineVisible: TCheckBox;
+    TabSheet7: TTabSheet;
+    Label27: TLabel;
+    Label29: TLabel;
+    ePolylineStrokeColor: TEdit;
+    ePolylineStrokeOpacity: TEdit;
+    ePolylineStrokeWeight: TEdit;
+    TabSheet8: TTabSheet;
+    Label32: TLabel;
+    ePolylineInfo: TMemo;
+    ePolylinesPath: TMemo;
+    Label28: TLabel;
+    chkPolylineFitBounds: TCheckBox;
+    GroupBoxDrawing: TGroupBox;
     procedure FormCreate(Sender: TObject);
     procedure ButtonGotoAddressClick(Sender: TObject);
     procedure ButtonGotoLocationClick(Sender: TObject);
@@ -202,6 +227,8 @@ type
     procedure CheckBoxMapTypeClick(Sender: TObject);
     procedure btnAddCircleClick(Sender: TObject);
     procedure btnClearCirclesClick(Sender: TObject);
+    procedure btnClearPolylinesClick(Sender: TObject);
+    procedure btnAddPolylineClick(Sender: TObject);
   private
     FRighClickLatLng : TLatLng;
     procedure OnMapClick(ASender: TObject; ALatLng : TLatLng);
@@ -447,9 +474,33 @@ begin
   EdgeGoogleMapViewer.PutMarker(LLatLng,editMarkerDescription.Text, LAnimation ,editMarkerLabel.Text, memoMarkerInformation.Lines.Text, LCustomJSON);
 end;
 
+procedure TformMain.btnAddPolylineClick(Sender: TObject);
+var
+  a:Double;
+  b: Integer;
+begin
+  a:=strtofloat(ePolylineStrokeOpacity.text);
+  EdgeGoogleMapViewer.PutPolyline(
+                      ePolylinesPath.lines.Text,
+                      chkPolylineGeodesic.Checked,
+                      chkPolylineEditable.Checked,
+                      chkPolylineVisible.Checked,
+                      chkPolylineClickable.Checked,
+                      chkPolylineFitBounds.Checked,
+                      eCircleStrokeColor.Text,
+                      strtofloat(ePolylineStrokeOpacity.text),
+                      strtoint(ePolylineStrokeWeight.text),
+                      ePolylineInfo.Text);
+end;
+
 procedure TformMain.btnClearCirclesClick(Sender: TObject);
 begin
   EdgeGoogleMapViewer.ClearCircles;
+end;
+
+procedure TformMain.btnClearPolylinesClick(Sender: TObject);
+begin
+  EdgeGoogleMapViewer.ClearPolylines;
 end;
 
 procedure TformMain.Button1Click(Sender: TObject);
