@@ -32,7 +32,7 @@ uses
   WebView2, System.SysUtils, Winapi.ActiveX, Vcl.Forms,
   Vcl.GoogleMap, Vcl.Edge, Data.DB, Datasnap.DBClient, Vcl.Menus, Vcl.ExtCtrls,
   Vcl.DBCtrls, Vcl.Grids, Vcl.DBGrids, Vcl.StdCtrls, Vcl.Samples.Spin,
-  Vcl.Controls, System.Classes, Vcl.Mask, Vcl.ComCtrls;
+  Vcl.Controls, System.Classes, Vcl.Mask, Vcl.ComCtrls, System.IOUtils;
 
 type
   TformMain = class(TForm)
@@ -192,10 +192,36 @@ type
     TabSheet8: TTabSheet;
     Label32: TLabel;
     ePolylineInfo: TMemo;
-    ePolylinesPath: TMemo;
+    ePolylinePath: TMemo;
     Label28: TLabel;
     chkPolylineFitBounds: TCheckBox;
     GroupBoxDrawing: TGroupBox;
+    btnClearPolygons: TButton;
+    Polygons: TTabSheet;
+    PageControlPolygon: TPageControl;
+    TabSheet9: TTabSheet;
+    ePolygonPath: TMemo;
+    TabSheet10: TTabSheet;
+    Panel11: TPanel;
+    chkPolygonEditable: TCheckBox;
+    chkPolygonClickable: TCheckBox;
+    chkPolygonVisible: TCheckBox;
+    chkPolygonFitBounds: TCheckBox;
+    TabSheet11: TTabSheet;
+    Label24: TLabel;
+    Label25: TLabel;
+    Label26: TLabel;
+    ePolygonStrokeColor: TEdit;
+    ePolygonStrokeOpacity: TEdit;
+    ePolygonStrokeWeight: TEdit;
+    TabSheet12: TTabSheet;
+    Label30: TLabel;
+    ePolygonInfo: TMemo;
+    btnAddPolygon: TButton;
+    Label31: TLabel;
+    ePolygonFillColor: TEdit;
+    Label33: TLabel;
+    ePolygonFillOpacity: TEdit;
     procedure FormCreate(Sender: TObject);
     procedure ButtonGotoAddressClick(Sender: TObject);
     procedure ButtonGotoLocationClick(Sender: TObject);
@@ -229,6 +255,8 @@ type
     procedure btnClearCirclesClick(Sender: TObject);
     procedure btnClearPolylinesClick(Sender: TObject);
     procedure btnAddPolylineClick(Sender: TObject);
+    procedure btnClearPolygonsClick(Sender: TObject);
+    procedure btnAddPolygonClick(Sender: TObject);
   private
     FRighClickLatLng : TLatLng;
     procedure OnMapClick(ASender: TObject; ALatLng : TLatLng);
@@ -433,12 +461,9 @@ end;
 procedure TformMain.btnAddCircleClick(Sender: TObject);
 var
   LLatLng : TLatLng;
-  a:Double;
-  b: Integer;
 begin
   LLatLng.Latitude := TEdgeGoogleMapViewer.TextToCoord(eCircleLat.Text);
   LLatLng.Longitude := TEdgeGoogleMapViewer.TextToCoord(eCircleLng.Text);
-  a:=strtofloat(eCircleStrokeOpacity.text);
   EdgeGoogleMapViewer.GotoLocation(LLatLng, false);
   EdgeGoogleMapViewer.PutCircle(
                             LLatLng,
@@ -474,20 +499,31 @@ begin
   EdgeGoogleMapViewer.PutMarker(LLatLng,editMarkerDescription.Text, LAnimation ,editMarkerLabel.Text, memoMarkerInformation.Lines.Text, LCustomJSON);
 end;
 
-procedure TformMain.btnAddPolylineClick(Sender: TObject);
-var
-  a:Double;
-  b: Integer;
+procedure TformMain.btnAddPolygonClick(Sender: TObject);
 begin
-  a:=strtofloat(ePolylineStrokeOpacity.text);
+  EdgeGoogleMapViewer.PutPolygon(
+                      ePolygonPath.lines.Text,
+                      chkPolygonEditable.Checked,
+                      chkPolygonVisible.Checked,
+                      chkPolygonClickable.Checked,
+                      chkPolygonFitBounds.Checked,
+                      ePolygonStrokeColor.Text,
+                      strtofloat(ePolygonStrokeOpacity.text),
+                      strtoint(ePolygonStrokeWeight.text),
+                      ePolygonFillColor.Text,
+                      strtofloat(ePolygonFillOpacity.text),
+                      ePolygonInfo.Text);
+end;
+procedure TformMain.btnAddPolylineClick(Sender: TObject);
+begin
   EdgeGoogleMapViewer.PutPolyline(
-                      ePolylinesPath.lines.Text,
+                      ePolylinePath.lines.Text,
                       chkPolylineGeodesic.Checked,
                       chkPolylineEditable.Checked,
                       chkPolylineVisible.Checked,
                       chkPolylineClickable.Checked,
                       chkPolylineFitBounds.Checked,
-                      eCircleStrokeColor.Text,
+                      ePolylineStrokeColor.Text,
                       strtofloat(ePolylineStrokeOpacity.text),
                       strtoint(ePolylineStrokeWeight.text),
                       ePolylineInfo.Text);
@@ -496,6 +532,11 @@ end;
 procedure TformMain.btnClearCirclesClick(Sender: TObject);
 begin
   EdgeGoogleMapViewer.ClearCircles;
+end;
+
+procedure TformMain.btnClearPolygonsClick(Sender: TObject);
+begin
+  EdgeGoogleMapViewer.ClearPolygons;
 end;
 
 procedure TformMain.btnClearPolylinesClick(Sender: TObject);
@@ -558,7 +599,7 @@ end;
 
 initialization
   //Setup UserDataFolder for Temp files
-  TEdgeGoogleMapViewer.RegisterUserDataFolder(ExtractFilePath(ParamStr(0))+'..\..\CacheTempFolder\');
+  TEdgeGoogleMapViewer.RegisterUserDataFolder(System.IOUtils.TPath.GetTempPath);
   //If you have a Google API Key it's time to setup
   //TEdgeGoogleMapViewer.RegisterGoogleMapsApiKey('xyz');
 

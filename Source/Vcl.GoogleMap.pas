@@ -207,6 +207,9 @@ Type
     //Polyline
     function GetJSClearPolylines: string; virtual;
     function GetJSPutPolyline: string; virtual;
+    //Polygon
+    function GetJSClearPolygons: string; virtual;
+    function GetJSPutPolygon: string; virtual;
   public
     class function TextToCoord(const Value: String): Extended;
     class function CoordToText(const Coord: double): string;
@@ -245,7 +248,11 @@ Type
       StrokeColor: String; StrokeOpacity: Double; StrokeWeight: Integer;
       AInfoWindowContent : string = '');
     procedure ClearPolylines;
-
+    //Polygon
+    procedure PutPolygon(Path:String; Editable, Visible, Clickable, FitBounds: Boolean;
+      StrokeColor: String; StrokeOpacity: Double; StrokeWeight: Integer; FillColor: String; FillOpacity: Double;
+      AInfoWindowContent : string = '');
+    procedure ClearPolygons;
 
   published
     property Align;
@@ -530,8 +537,9 @@ begin
   '  var trafficLayer;'+sLineBreak+
   '  var bikeLayer;'+sLineBreak+
   '  var markersArray = [];'+sLineBreak+
-  '  var circlesArray = [];'+sLineBreak+
-  '  var polylinesArray = [];';
+  '  var circlesArray = [];'+sLineBreak+  //Circle
+  '  var polylinesArray = [];'+sLineBreak+ //Polyline
+  '  var polygonsArray = [];';             //Polygon
 end;
 
 function TEdgeGoogleMapViewer.GetJSInitialize : string;
@@ -556,7 +564,8 @@ begin
   '    codeAddress(%s);'+sLineBreak+
   '    PutMarker(latlng.lat(), latlng.lng(), %s);'+sLineBreak+
   '    PutCircle(latlng.lat(), latlng.lng(), 33333, false, false, true, true, "#FF0000", 0.80, 2, "#FF0000", 0.35, "");'+sLineBreak+
-  '    PutPolyline([ { lat: 40.7128, lng: -74.0060 },{ lat: 34.0522, lng: -118.2437 },{ lat: 41.8781, lng: -87.6298 } ], false, true, true, true, false, "#FF0000", 0.80, 2, "Hola pero");'+sLineBreak+
+  '    PutPolyline([ { lat: 40.7128, lng: -74.0060 },{ lat: 34.0522, lng: -118.2437 },{ lat: 41.8781, lng: -87.6298 } ], false, true, true, true, false, "#FF0000", 0.80, 2, "Polyline Sample");'+sLineBreak+
+  '    PutPolygon([ { lat: 45.5868, lng: 9.2709}, { lat: 45.5876, lng: 9.2794 },{ lat: 45.5817, lng: 9.2809 },{ lat: 45.5815, lng: 9.2721 } ], true, true, true, false, "#FF0000", 0.80, 2, "#FFFF00", 0.80, "Poligon Sample");'+sLineBreak+
   '    trafficLayer = new google.maps.TrafficLayer();'+sLineBreak+
   '    Traffic(%s);'+sLineBreak+
   '    bikeLayer = new google.maps.BicyclingLayer();'+sLineBreak+
@@ -787,10 +796,12 @@ begin
   GetJSClearMakers + sLineBreak +
   GetJSPutMarker + sLineBreak +
   GetJSPutCustomMarker + sLineBreak +
-  GetJSPutCircle + sLineBreak +
+  GetJSPutCircle + sLineBreak +   //Circle
   GetJSClearCircles + sLineBreak +
-  GetJSPutPolyline + sLineBreak +
+  GetJSPutPolyline + sLineBreak +   //Polyline
   GetJSClearPolylines + sLineBreak +
+  GetJSPutPolygon + sLineBreak +    //Polygon
+  GetJSClearPolygons + sLineBreak +
   GetJSMapOptions + sLineBreak +
   GetJSMapShowDirectionsPanel + sLineBreak+
   GetJSRouteAddress + sLineBreak +
@@ -1524,5 +1535,88 @@ begin
   '}  '
 end;
 
+
+//Polygon
+
+procedure TEdgeGoogleMapViewer.ClearPolygons;
+begin
+  ExecuteScript('ClearPolygons()');
+end;
+
+procedure TEdgeGoogleMapViewer.PutPolygon(Path:String; Editable, Visible, Clickable, FitBounds: Boolean;
+    StrokeColor: String; StrokeOpacity: Double; StrokeWeight: Integer; FillColor: String; FillOpacity: Double;
+    AInfoWindowContent : string = '');
+var
+  LScriptCommand: String;
+  LInfoWindowContent : string;
+begin
+  FormatSettings.DecimalSeparator := '.';
+  if not MapVisible then
+  begin
+    ShowMap(EmptyLatLng);
+    while MapIsBusy do
+      Sleep(10);
+  end;
+  LScriptCommand := Format('PutPolygon(%s, %s, %s, %s, %s, %s, %f, %d, %s, %f, %s)',[
+    Path,
+    LowerCase(BoolToStr(Editable, True)),
+    LowerCase(BoolToStr(Visible, True)),
+    LowerCase(BoolToStr(Clickable, True)),
+    LowerCase(BoolToStr(FitBounds, True)),
+    QuotedStr(StripCRLF(StrokeColor)),
+    StrokeOpacity,
+    StrokeWeight,
+    QuotedStr(StripCRLF(FillColor)),
+    FillOpacity,
+    QuotedStr(StripCRLF(AInfoWindowContent))
+    ]);
+  ExecuteScript(LScriptCommand);
+end;
+
+function TEdgeGoogleMapViewer.GetJSPutPolygon : string;
+begin
+  Result :=
+  '  function PutPolygon(Path, Editable, Visible, Clickable, FitBounds, StrokeColor,StrokeOpacity, StrokeWeight, FillColor, FillOpacity, Info){'+sLineBreak+
+  '   var polygon = new google.maps.Polygon({'+sLineBreak+
+  '      path: Path, '+sLineBreak+
+  '      map: map,'+sLineBreak+
+  '      zIndex: 1,'+sLineBreak+
+  '      editable: Editable,'+sLineBreak+
+  '      clickable: Clickable,'+sLineBreak+
+  '      visible: Visible,'+sLineBreak+
+  '      strokeColor: StrokeColor,'+sLineBreak+
+  '      strokeOpacity: StrokeOpacity,'+sLineBreak+
+  '      strokeWeight: StrokeWeight,'+sLineBreak+
+  '      fillColor: FillColor,'+sLineBreak+
+  '      fillOpacity: FillOpacity,'+sLineBreak+
+  '   });'+sLineBreak+
+  '   polygonsArray.push(polygon); '+sLineBreak+
+  '   if (Info) { ' +sLineBreak+
+  '       google.maps.event.addListener(polygon, "click", function(event) {' +sLineBreak+
+  '         infoWindow.setPosition(event.latLng);'+sLineBreak+
+  '         infoWindow.setContent(Info);'+sLineBreak+
+  '         infoWindow.open(polygon.getMap(), polygon);'+sLineBreak+
+  '    });'+sLineBreak+
+  '   }'+sLineBreak+
+  '   if (FitBounds) { '+sLineBreak+
+  '       var bounds = new google.maps.LatLngBounds();'+sLineBreak+
+  '       polygon.getPath().forEach(function(latLng) {'+sLineBreak+
+  '           bounds.extend(latLng);'+sLineBreak+
+  '       });'+sLineBreak+
+  '       map.fitBounds(bounds);' +sLineBreak+
+  '   }'+sLineBreak+
+  '}';
+end;
+
+function TEdgeGoogleMapViewer.GetJSClearPolygons : string;
+begin
+   Result :=   'function ClearPolygons() {  '+sLineBreak+
+  '  if (polygonsArray) {        '+sLineBreak+
+  '    for (i in polygonsArray) {  '+sLineBreak+
+  '      polygonsArray[i].setMap(null); '+sLineBreak+
+  '    } '+sLineBreak+
+  '  } '+sLineBreak+
+  '}  '
+end;
 end.
 
