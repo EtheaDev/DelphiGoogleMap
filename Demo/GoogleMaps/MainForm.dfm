@@ -395,38 +395,74 @@ object formMain: TformMain
         ActivePage = TabMarkers
         Align = alClient
         TabOrder = 0
-        ExplicitLeft = 3
-        ExplicitTop = 12
         object TabMarkers: TTabSheet
           Caption = 'Markers'
-          object btnAddMarker: TButton
-            AlignWithMargins = True
-            Left = 3
-            Top = 127
-            Width = 491
-            Height = 32
+          object Panel12: TPanel
+            Left = 0
+            Top = 121
+            Width = 497
+            Height = 41
             Align = alBottom
-            Caption = 'Add Marker'
             TabOrder = 0
-            OnClick = btnAddMarkerClick
-            ExplicitWidth = 487
+            ExplicitTop = 122
+            DesignSize = (
+              497
+              41)
+            object btnAddMarker: TButton
+              AlignWithMargins = True
+              Left = 3
+              Top = 6
+              Width = 100
+              Height = 32
+              Caption = 'Add Marker'
+              TabOrder = 0
+              OnClick = btnAddMarkerClick
+            end
+            object ButtonClearMarkers: TButton
+              AlignWithMargins = True
+              Left = 392
+              Top = 4
+              Width = 101
+              Height = 33
+              Align = alRight
+              Caption = 'Clear Markers'
+              TabOrder = 1
+              OnClick = ButtonClearMarkersClick
+              ExplicitLeft = 881
+              ExplicitHeight = 39
+            end
+            object chMarkerShowHide: TCheckBox
+              Left = 286
+              Top = 12
+              Width = 97
+              Height = 17
+              Anchors = [akTop, akRight]
+              Caption = 'ShowMarkers'
+              Checked = True
+              State = cbChecked
+              TabOrder = 2
+              OnClick = chMarkerShowHideClick
+            end
           end
           object PageControlMarker: TPageControl
             Left = 0
             Top = 0
             Width = 497
-            Height = 124
+            Height = 121
             ActivePage = LatLongMarkerTabSheet
             Align = alClient
             TabOrder = 1
-            ExplicitWidth = 493
+            ExplicitLeft = 1
+            ExplicitTop = 1
+            ExplicitWidth = 495
+            ExplicitHeight = 39
             object LatLongMarkerTabSheet: TTabSheet
               Caption = 'Latitute/Longitude'
               object GridPanel1: TGridPanel
                 Left = 0
                 Top = 0
                 Width = 489
-                Height = 96
+                Height = 93
                 Align = alClient
                 BevelOuter = bvNone
                 ColumnCollection = <
@@ -452,12 +488,13 @@ object formMain: TformMain
                     Value = 50.000000000000000000
                   end>
                 TabOrder = 0
-                ExplicitWidth = 485
+                ExplicitWidth = 487
+                ExplicitHeight = 11
                 object GridPanel2: TGridPanel
                   Left = 0
                   Top = 0
                   Width = 489
-                  Height = 48
+                  Height = 46
                   Align = alClient
                   BevelOuter = bvNone
                   ColumnCollection = <
@@ -483,16 +520,17 @@ object formMain: TformMain
                       Value = 100.000000000000000000
                     end>
                   TabOrder = 0
-                  ExplicitWidth = 485
+                  ExplicitWidth = 487
+                  ExplicitHeight = 6
                   object Panel2: TPanel
                     Left = 0
                     Top = 0
                     Width = 244
-                    Height = 48
+                    Height = 46
                     Align = alClient
                     BevelOuter = bvNone
                     TabOrder = 0
-                    ExplicitWidth = 242
+                    ExplicitHeight = 6
                     object Label9: TLabel
                       AlignWithMargins = True
                       Left = 3
@@ -511,19 +549,18 @@ object formMain: TformMain
                       Height = 21
                       Align = alTop
                       TabOrder = 0
-                      ExplicitWidth = 236
                     end
                   end
                   object Panel3: TPanel
                     Left = 244
                     Top = 0
                     Width = 245
-                    Height = 48
+                    Height = 46
                     Align = alClient
                     BevelOuter = bvNone
                     TabOrder = 1
-                    ExplicitLeft = 242
                     ExplicitWidth = 243
+                    ExplicitHeight = 6
                     object Label10: TLabel
                       AlignWithMargins = True
                       Left = 3
@@ -548,13 +585,15 @@ object formMain: TformMain
                 end
                 object Panel5: TPanel
                   Left = 0
-                  Top = 48
+                  Top = 46
                   Width = 489
-                  Height = 48
+                  Height = 47
                   Align = alClient
                   BevelOuter = bvNone
                   TabOrder = 1
-                  ExplicitWidth = 485
+                  ExplicitTop = 6
+                  ExplicitWidth = 487
+                  ExplicitHeight = 5
                   object Label11: TLabel
                     AlignWithMargins = True
                     Left = 3
@@ -573,7 +612,7 @@ object formMain: TformMain
                     Height = 21
                     Align = alTop
                     TabOrder = 0
-                    ExplicitWidth = 479
+                    ExplicitWidth = 481
                   end
                 end
               end
@@ -664,7 +703,7 @@ object formMain: TformMain
                 Left = 3
                 Top = 22
                 Width = 483
-                Height = 71
+                Height = 68
                 Align = alClient
                 Lines.Strings = (
                   '<div id="content">'
@@ -703,7 +742,7 @@ object formMain: TformMain
                 Left = 3
                 Top = 26
                 Width = 483
-                Height = 67
+                Height = 64
                 Align = alClient
                 Lines.Strings = (
                   '')
@@ -715,32 +754,22 @@ object formMain: TformMain
         object TabCircles: TTabSheet
           Caption = 'Circles'
           ImageIndex = 1
-          object btnAddCircle: TButton
-            AlignWithMargins = True
-            Left = 3
-            Top = 127
-            Width = 491
-            Height = 32
-            Align = alBottom
-            Caption = 'Add Cicle'
-            TabOrder = 0
-            OnClick = btnAddCircleClick
-          end
           object PageControlCircle: TPageControl
             Left = 0
             Top = 0
             Width = 497
-            Height = 124
+            Height = 121
             ActivePage = TabSheet1
             Align = alClient
-            TabOrder = 1
+            TabOrder = 0
+            ExplicitHeight = 124
             object TabSheet1: TTabSheet
               Caption = 'Latitute/Longitude'
               object GridPanel3: TGridPanel
                 Left = 0
                 Top = 0
                 Width = 489
-                Height = 96
+                Height = 93
                 Align = alClient
                 BevelOuter = bvNone
                 ColumnCollection = <
@@ -771,11 +800,12 @@ object formMain: TformMain
                     SizeStyle = ssAuto
                   end>
                 TabOrder = 0
+                ExplicitHeight = 96
                 object GridPanel4: TGridPanel
                   Left = 0
                   Top = 0
                   Width = 489
-                  Height = 48
+                  Height = 46
                   Align = alClient
                   BevelOuter = bvNone
                   ColumnCollection = <
@@ -807,14 +837,16 @@ object formMain: TformMain
                       SizeStyle = ssAuto
                     end>
                   TabOrder = 0
+                  ExplicitHeight = 48
                   object Panel4: TPanel
                     Left = 0
                     Top = 0
                     Width = 244
-                    Height = 48
+                    Height = 46
                     Align = alClient
                     BevelOuter = bvNone
                     TabOrder = 0
+                    ExplicitHeight = 48
                     object Label15: TLabel
                       AlignWithMargins = True
                       Left = 3
@@ -839,10 +871,11 @@ object formMain: TformMain
                     Left = 244
                     Top = 0
                     Width = 245
-                    Height = 48
+                    Height = 46
                     Align = alClient
                     BevelOuter = bvNone
                     TabOrder = 1
+                    ExplicitHeight = 48
                     object Label16: TLabel
                       AlignWithMargins = True
                       Left = 3
@@ -866,12 +899,14 @@ object formMain: TformMain
                 end
                 object Panel9: TPanel
                   Left = 0
-                  Top = 48
+                  Top = 46
                   Width = 116
-                  Height = 48
+                  Height = 47
                   Align = alLeft
                   BevelOuter = bvNone
                   TabOrder = 1
+                  ExplicitTop = 48
+                  ExplicitHeight = 48
                   object Label21: TLabel
                     AlignWithMargins = True
                     Left = 3
@@ -1050,7 +1085,7 @@ object formMain: TformMain
                 Left = 3
                 Top = 22
                 Width = 483
-                Height = 71
+                Height = 68
                 Align = alClient
                 Lines.Strings = (
                   '<div id="content">'
@@ -1069,32 +1104,70 @@ object formMain: TformMain
                   '</div>')
                 TabOrder = 0
                 WordWrap = False
+                ExplicitHeight = 71
               end
+            end
+          end
+          object Panel13: TPanel
+            Left = 0
+            Top = 121
+            Width = 497
+            Height = 41
+            Align = alBottom
+            TabOrder = 1
+            ExplicitTop = 119
+            DesignSize = (
+              497
+              41)
+            object chCirclesShowHide: TCheckBox
+              Left = 286
+              Top = 12
+              Width = 97
+              Height = 17
+              Anchors = [akTop, akRight]
+              Caption = 'ShowCircles'
+              Checked = True
+              State = cbChecked
+              TabOrder = 0
+              OnClick = chCirclesShowHideClick
+            end
+            object btnAddCircle: TButton
+              AlignWithMargins = True
+              Left = 3
+              Top = 5
+              Width = 100
+              Height = 32
+              Caption = 'Add Cicle'
+              TabOrder = 1
+              OnClick = btnAddCircleClick
+            end
+            object btnClearCircles: TButton
+              AlignWithMargins = True
+              Left = 392
+              Top = 4
+              Width = 101
+              Height = 33
+              Align = alRight
+              Caption = 'Clear Circles'
+              TabOrder = 2
+              OnClick = btnClearCirclesClick
+              ExplicitLeft = 396
+              ExplicitTop = 8
             end
           end
         end
         object TabPolylines: TTabSheet
           Caption = 'Polylines'
           ImageIndex = 2
-          object btnAddPolyline: TButton
-            AlignWithMargins = True
-            Left = 3
-            Top = 127
-            Width = 491
-            Height = 32
-            Align = alBottom
-            Caption = 'Add Polyline'
-            TabOrder = 0
-            OnClick = btnAddPolylineClick
-          end
           object PageControlPolyline: TPageControl
             Left = 0
             Top = 0
             Width = 497
-            Height = 124
+            Height = 121
             ActivePage = TabSheet5
             Align = alClient
-            TabOrder = 1
+            TabOrder = 0
+            ExplicitHeight = 124
             object TabSheet5: TTabSheet
               Caption = 'Path'
               object ePolylinePath: TMemo
@@ -1102,7 +1175,7 @@ object formMain: TformMain
                 Left = 3
                 Top = 3
                 Width = 483
-                Height = 90
+                Height = 87
                 Align = alClient
                 Lines.Strings = (
                   '['
@@ -1112,6 +1185,7 @@ object formMain: TformMain
                   ']')
                 TabOrder = 0
                 WordWrap = False
+                ExplicitHeight = 90
               end
             end
             object TabSheet6: TTabSheet
@@ -1125,8 +1199,6 @@ object formMain: TformMain
                 Align = alTop
                 BevelOuter = bvNone
                 TabOrder = 0
-                ExplicitLeft = -181
-                ExplicitTop = -47
                 object chkPolylineEditable: TCheckBox
                   Left = 131
                   Top = 3
@@ -1248,7 +1320,7 @@ object formMain: TformMain
                 Left = 3
                 Top = 22
                 Width = 483
-                Height = 71
+                Height = 68
                 Align = alClient
                 Lines.Strings = (
                   '<div id="content">'
@@ -1267,7 +1339,55 @@ object formMain: TformMain
                   '</div>')
                 TabOrder = 0
                 WordWrap = False
+                ExplicitHeight = 71
               end
+            end
+          end
+          object Panel15: TPanel
+            Left = 0
+            Top = 121
+            Width = 497
+            Height = 41
+            Align = alBottom
+            TabOrder = 1
+            ExplicitTop = 119
+            DesignSize = (
+              497
+              41)
+            object chPolylinesShowHide: TCheckBox
+              Left = 286
+              Top = 12
+              Width = 97
+              Height = 17
+              Anchors = [akTop, akRight]
+              Caption = 'ShowPolylines'
+              Checked = True
+              State = cbChecked
+              TabOrder = 0
+              OnClick = chPolylinesShowHideClick
+            end
+            object btnAddPolyline: TButton
+              AlignWithMargins = True
+              Left = 0
+              Top = 4
+              Width = 100
+              Height = 32
+              Caption = 'Add Polyline'
+              TabOrder = 1
+              OnClick = btnAddPolylineClick
+            end
+            object btnClearPolylines: TButton
+              AlignWithMargins = True
+              Left = 392
+              Top = 4
+              Width = 101
+              Height = 33
+              Align = alRight
+              Caption = 'Clear Polylines'
+              TabOrder = 2
+              OnClick = btnClearPolylinesClick
+              ExplicitLeft = 396
+              ExplicitTop = 8
             end
           end
         end
@@ -1278,10 +1398,11 @@ object formMain: TformMain
             Left = 0
             Top = 0
             Width = 497
-            Height = 124
+            Height = 121
             ActivePage = TabSheet9
             Align = alClient
             TabOrder = 0
+            ExplicitHeight = 124
             object TabSheet9: TTabSheet
               Caption = 'Path'
               object ePolygonPath: TMemo
@@ -1289,7 +1410,7 @@ object formMain: TformMain
                 Left = 3
                 Top = 3
                 Width = 483
-                Height = 90
+                Height = 87
                 Align = alClient
                 Lines.Strings = (
                   '['
@@ -1301,7 +1422,7 @@ object formMain: TformMain
                   ']')
                 TabOrder = 0
                 WordWrap = False
-                ExplicitHeight = 128
+                ExplicitHeight = 90
               end
             end
             object TabSheet10: TTabSheet
@@ -1462,7 +1583,7 @@ object formMain: TformMain
                 Left = 3
                 Top = 22
                 Width = 483
-                Height = 71
+                Height = 68
                 Align = alClient
                 Lines.Strings = (
                   '<div id="content">'
@@ -1481,21 +1602,148 @@ object formMain: TformMain
                   '</div>')
                 TabOrder = 0
                 WordWrap = False
+                ExplicitHeight = 71
               end
             end
           end
-          object btnAddPolygon: TButton
-            AlignWithMargins = True
-            Left = 3
-            Top = 127
-            Width = 491
-            Height = 32
+          object Panel16: TPanel
+            Left = 0
+            Top = 121
+            Width = 497
+            Height = 41
             Align = alBottom
-            Caption = 'Add Polygon'
             TabOrder = 1
-            OnClick = btnAddPolygonClick
-            ExplicitLeft = 6
-            ExplicitTop = 130
+            ExplicitTop = 122
+            DesignSize = (
+              497
+              41)
+            object chPolygonsShowHide: TCheckBox
+              Left = 286
+              Top = 12
+              Width = 97
+              Height = 17
+              Anchors = [akTop, akRight]
+              Caption = 'ShowPolygons'
+              Checked = True
+              State = cbChecked
+              TabOrder = 0
+              OnClick = chPolygonsShowHideClick
+            end
+            object btnAddPolygon: TButton
+              AlignWithMargins = True
+              Left = 3
+              Top = 5
+              Width = 100
+              Height = 32
+              Caption = 'Add Polygon'
+              TabOrder = 1
+              OnClick = btnAddPolygonClick
+            end
+            object btnClearPolygons: TButton
+              AlignWithMargins = True
+              Left = 392
+              Top = 4
+              Width = 101
+              Height = 33
+              Align = alRight
+              Caption = 'Clear Polygons'
+              TabOrder = 2
+              OnClick = btnClearPolygonsClick
+              ExplicitLeft = 396
+              ExplicitTop = 8
+            end
+          end
+        end
+        object TabSheet13: TTabSheet
+          Caption = 'Geometry'
+          ImageIndex = 4
+          object GroupBox3: TGroupBox
+            Left = 0
+            Top = 0
+            Width = 497
+            Height = 162
+            Align = alClient
+            Caption = 'ComputeDistanceBetween'
+            TabOrder = 0
+            ExplicitTop = 1
+            object Label34: TLabel
+              AlignWithMargins = True
+              Left = 11
+              Top = 21
+              Width = 66
+              Height = 13
+              Caption = 'From Latitude'
+            end
+            object Label35: TLabel
+              AlignWithMargins = True
+              Left = 115
+              Top = 21
+              Width = 74
+              Height = 13
+              Caption = 'From Longitude'
+            end
+            object Label36: TLabel
+              AlignWithMargins = True
+              Left = 11
+              Top = 65
+              Width = 54
+              Height = 13
+              Caption = 'To Latitude'
+            end
+            object Label37: TLabel
+              AlignWithMargins = True
+              Left = 115
+              Top = 65
+              Width = 62
+              Height = 13
+              Caption = 'To Longitude'
+            end
+            object eGeometryFromLat: TEdit
+              AlignWithMargins = True
+              Left = 11
+              Top = 40
+              Width = 86
+              Height = 21
+              TabOrder = 0
+              Text = '40.7128'
+            end
+            object eGeometryFromLng: TEdit
+              AlignWithMargins = True
+              Left = 115
+              Top = 40
+              Width = 86
+              Height = 21
+              TabOrder = 1
+              Text = '-74.0060'
+            end
+            object eGeometryToLat: TEdit
+              AlignWithMargins = True
+              Left = 11
+              Top = 84
+              Width = 86
+              Height = 21
+              TabOrder = 2
+              Text = '32.0522'
+            end
+            object eGeometryToLng: TEdit
+              AlignWithMargins = True
+              Left = 115
+              Top = 84
+              Width = 86
+              Height = 21
+              TabOrder = 3
+              Text = '-118.2437'
+            end
+            object btnGeometryComputeDistanceBetween: TButton
+              AlignWithMargins = True
+              Left = 3
+              Top = 126
+              Width = 198
+              Height = 32
+              Caption = 'ComputeDistanceBetween'
+              TabOrder = 4
+              OnClick = btnGeometryComputeDistanceBetweenClick
+            end
           end
         end
       end
@@ -1613,7 +1861,7 @@ object formMain: TformMain
       Height = 39
       Align = alLeft
       Caption = 'Show Print UI'
-      TabOrder = 7
+      TabOrder = 6
       OnClick = ShowPrintUIButtonClick
     end
     object ShowMapButton: TButton
@@ -1638,18 +1886,6 @@ object formMain: TformMain
       TabOrder = 1
       OnClick = HideMapButtonClick
     end
-    object ButtonClearMarkers: TButton
-      AlignWithMargins = True
-      Left = 885
-      Top = 4
-      Width = 101
-      Height = 39
-      Align = alRight
-      Caption = 'Clear Markers'
-      TabOrder = 3
-      OnClick = ButtonClearMarkersClick
-      ExplicitLeft = 988
-    end
     object DBNavigator: TDBNavigator
       AlignWithMargins = True
       Left = 1313
@@ -1659,12 +1895,12 @@ object formMain: TformMain
       DataSource = dsCustomers
       VisibleButtons = [nbFirst, nbPrior, nbNext, nbLast]
       Align = alRight
-      TabOrder = 4
+      TabOrder = 3
       ExplicitLeft = 1309
     end
     object LoadTableButton: TButton
       AlignWithMargins = True
-      Left = 780
+      Left = 1208
       Top = 4
       Width = 99
       Height = 39
@@ -1672,7 +1908,7 @@ object formMain: TformMain
       Caption = 'Load Table'
       TabOrder = 2
       OnClick = LoadTableButtonClick
-      ExplicitLeft = 883
+      ExplicitLeft = 776
     end
     object Button1: TButton
       AlignWithMargins = True
@@ -1682,23 +1918,23 @@ object formMain: TformMain
       Height = 39
       Align = alLeft
       Caption = 'Show another form...'
-      TabOrder = 5
+      TabOrder = 4
       WordWrap = True
       OnClick = Button1Click
     end
     object Panel1: TPanel
       Left = 345
       Top = 1
-      Width = 432
+      Width = 860
       Height = 45
       Align = alClient
       BevelOuter = bvNone
-      TabOrder = 6
-      ExplicitWidth = 535
+      TabOrder = 5
+      ExplicitWidth = 428
       object Label7: TLabel
         Left = 0
         Top = 0
-        Width = 432
+        Width = 860
         Height = 13
         Align = alTop
         Caption = 'File'
@@ -1708,50 +1944,13 @@ object formMain: TformMain
         AlignWithMargins = True
         Left = 3
         Top = 16
-        Width = 426
+        Width = 854
         Height = 21
         Align = alTop
         TabOrder = 0
         Text = 'customer.xml'
-        ExplicitWidth = 529
+        ExplicitWidth = 422
       end
-    end
-    object btnClearCircles: TButton
-      AlignWithMargins = True
-      Left = 992
-      Top = 4
-      Width = 101
-      Height = 39
-      Align = alRight
-      Caption = 'Clear Circles'
-      TabOrder = 8
-      OnClick = btnClearCirclesClick
-      ExplicitLeft = 1095
-    end
-    object btnClearPolylines: TButton
-      AlignWithMargins = True
-      Left = 1099
-      Top = 4
-      Width = 101
-      Height = 39
-      Align = alRight
-      Caption = 'Clear Polylines'
-      TabOrder = 9
-      OnClick = btnClearPolylinesClick
-      ExplicitLeft = 1202
-    end
-    object btnClearPolygons: TButton
-      AlignWithMargins = True
-      Left = 1206
-      Top = 4
-      Width = 101
-      Height = 39
-      Align = alRight
-      Caption = 'Clear Polygons'
-      TabOrder = 10
-      OnClick = btnClearPolygonsClick
-      ExplicitLeft = 1227
-      ExplicitTop = 6
     end
   end
   object PopupMenu: TPopupMenu
