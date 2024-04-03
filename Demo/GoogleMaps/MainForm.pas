@@ -598,9 +598,9 @@ var
   Distance:Double;
 begin
   FromLatLng.Latitude := TEdgeGoogleMapViewer.TextToCoord(eGeometryFromLat.Text);
-  FromLatLng.Latitude := TEdgeGoogleMapViewer.TextToCoord(eGeometryFromLng.Text);
+  FromLatLng.Longitude := TEdgeGoogleMapViewer.TextToCoord(eGeometryFromLng.Text);
   ToLatLng.Latitude := TEdgeGoogleMapViewer.TextToCoord(eGeometryToLat.Text);
-  ToLatLng.Latitude := TEdgeGoogleMapViewer.TextToCoord(eGeometryToLng.Text);
+  ToLatLng.Longitude := TEdgeGoogleMapViewer.TextToCoord(eGeometryToLng.Text);
 
   Distance:=EdgeGoogleMapViewer.ComputeDistanceBetween(FromLatLng,ToLatLng);
   Showmessage(Format('Distance %8.2f mts',[Distance]));

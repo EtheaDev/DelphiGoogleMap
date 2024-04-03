@@ -1448,7 +1448,6 @@ procedure TEdgeGoogleMapViewer.PutCircle(LatLng: TLatLng; Radius: Double; Editab
     AInfoWindowContent : string = '');
 var
   LScriptCommand: String;
-  LInfoWindowContent : string;
 begin
   FormatSettings.DecimalSeparator := '.';
   if not MapVisible then
@@ -1552,7 +1551,6 @@ procedure TEdgeGoogleMapViewer.PutPolyline(Path:String; Geodesic, Editable, Visi
     AInfoWindowContent : string = '');
 var
   LScriptCommand: String;
-  LInfoWindowContent : string;
 begin
   FormatSettings.DecimalSeparator := '.';
   if not MapVisible then
@@ -1625,8 +1623,8 @@ End;
 
 function TEdgeGoogleMapViewer.ComputeDistanceBetween(Origin, Destination: TLatLng): Double;
 Const
-  MaxTimeResponse = 10000; //Miliseconds
-  Step = 100; //Miliseconds
+  MaxTimeResponse = 2000; //Miliseconds
+  Step = 1; //Miliseconds
 var
   LScriptCommand: String;
   i: Integer;
@@ -1700,7 +1698,6 @@ procedure TEdgeGoogleMapViewer.PutPolygon(Path:String; Editable, Visible, Clicka
     AInfoWindowContent : string = '');
 var
   LScriptCommand: String;
-  LInfoWindowContent : string;
 begin
   FormatSettings.DecimalSeparator := '.';
   if not MapVisible then
