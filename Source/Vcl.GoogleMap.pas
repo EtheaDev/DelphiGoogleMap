@@ -872,7 +872,7 @@ end;
 procedure TEdgeGoogleMapViewer.ShowMap(AMapCenter: TLatLng; const AAddress: string = '');
 var
   HTMLString  : String;
-  LAddress, MyAddress, LFileName: string;
+  LAddress, MyAddress: string;
   MyCenter: TLatLng;
 begin
   if csDesigning in ComponentState then Exit;
@@ -923,12 +923,11 @@ begin
       B2S(FTraffic), //Traffic
       B2S(FBicycling) //Bicycling
     ]);
-  LFileName := TPath.GetTempFileName+'.html';
-  TFile.AppendAllText(LFileName, HTMLString, TEncoding.UTF8);
-  LFileName := StringReplace(LFileName, '\', '/', [rfReplaceAll]);
   MapIsBusy := True;
   try
-    NavigateToURL('file:///'+LFileName);
+      Sleep(1000);
+      application.ProcessMessages;
+      NavigateToString(HTMLString);
   finally
     MapIsBusy := False;
   end;
