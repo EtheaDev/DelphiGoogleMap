@@ -32,12 +32,11 @@ uses
   WebView2, System.SysUtils, Winapi.ActiveX, Vcl.Forms,
   Vcl.GoogleMap, Vcl.Edge, Data.DB, Datasnap.DBClient, Vcl.Menus, Vcl.ExtCtrls,
   Vcl.DBCtrls, Vcl.Grids, Vcl.DBGrids, Vcl.StdCtrls, Vcl.Samples.Spin,
-  Vcl.Controls, System.Classes, Vcl.Mask, Vcl.ComCtrls;
+  Vcl.Controls, System.Classes, Vcl.Mask, Vcl.ComCtrls, System.IOUtils;
 
 type
   TformMain = class(TForm)
     PanelHeader: TPanel;
-    ButtonClearMarkers: TButton;
     ShowPrintUIButton: TButton;
     ShowMapButton: TButton;
     PopupMenu: TPopupMenu;
@@ -90,7 +89,6 @@ type
     LoadTableButton: TButton;
     Splitter1: TSplitter;
     CheckBoxDirectionPanel: TCheckBox;
-    GroupBoxMarker: TGroupBox;
     Button1: TButton;
     Panel1: TPanel;
     FileEdit: TEdit;
@@ -135,6 +133,114 @@ type
     CheckBoxZoom: TCheckBox;
     BottomPanel: TPanel;
     CheckBoxMapType: TCheckBox;
+    PageControlCircle: TPageControl;
+    TabSheet1: TTabSheet;
+    GridPanel3: TGridPanel;
+    GridPanel4: TGridPanel;
+    Panel4: TPanel;
+    Label15: TLabel;
+    eCircleLat: TEdit;
+    Panel8: TPanel;
+    Label16: TLabel;
+    eCircleLng: TEdit;
+    Panel9: TPanel;
+    TabSheet2: TTabSheet;
+    Panel10: TPanel;
+    TabSheet3: TTabSheet;
+    Label20: TLabel;
+    Label21: TLabel;
+    eCircleRadius: TEdit;
+    chkCircleEditable: TCheckBox;
+    chkCircleDraggable: TCheckBox;
+    chkCicleClickable: TCheckBox;
+    chkCircleVisible: TCheckBox;
+    eCircleInfo: TMemo;
+    TabSheet4: TTabSheet;
+    Label17: TLabel;
+    eCircleStrokeColor: TEdit;
+    Label18: TLabel;
+    eCircleStrokeOpacity: TEdit;
+    Label19: TLabel;
+    eCircleStrokeWeight: TEdit;
+    Label22: TLabel;
+    eCircleFillColor: TEdit;
+    eCircleFillOpacity: TEdit;
+    Label23: TLabel;
+    PCDrawing: TPageControl;
+    TabMarkers: TTabSheet;
+    TabCircles: TTabSheet;
+    TabPolylines: TTabSheet;
+    PageControlPolyline: TPageControl;
+    TabSheet5: TTabSheet;
+    TabSheet6: TTabSheet;
+    Panel14: TPanel;
+    chkPolylineEditable: TCheckBox;
+    chkPolylineGeodesic: TCheckBox;
+    chkPolylineClickable: TCheckBox;
+    chkPolylineVisible: TCheckBox;
+    TabSheet7: TTabSheet;
+    Label27: TLabel;
+    Label29: TLabel;
+    ePolylineStrokeColor: TEdit;
+    ePolylineStrokeOpacity: TEdit;
+    ePolylineStrokeWeight: TEdit;
+    TabSheet8: TTabSheet;
+    Label32: TLabel;
+    ePolylineInfo: TMemo;
+    ePolylinePath: TMemo;
+    Label28: TLabel;
+    chkPolylineFitBounds: TCheckBox;
+    GroupBoxDrawing: TGroupBox;
+    Polygons: TTabSheet;
+    PageControlPolygon: TPageControl;
+    TabSheet9: TTabSheet;
+    ePolygonPath: TMemo;
+    TabSheet10: TTabSheet;
+    Panel11: TPanel;
+    chkPolygonEditable: TCheckBox;
+    chkPolygonClickable: TCheckBox;
+    chkPolygonVisible: TCheckBox;
+    chkPolygonFitBounds: TCheckBox;
+    TabSheet11: TTabSheet;
+    Label24: TLabel;
+    Label25: TLabel;
+    Label26: TLabel;
+    ePolygonStrokeColor: TEdit;
+    ePolygonStrokeOpacity: TEdit;
+    ePolygonStrokeWeight: TEdit;
+    TabSheet12: TTabSheet;
+    Label30: TLabel;
+    ePolygonInfo: TMemo;
+    Label31: TLabel;
+    ePolygonFillColor: TEdit;
+    Label33: TLabel;
+    ePolygonFillOpacity: TEdit;
+    Panel12: TPanel;
+    ButtonClearMarkers: TButton;
+    chMarkerShowHide: TCheckBox;
+    Panel13: TPanel;
+    chCirclesShowHide: TCheckBox;
+    btnAddCircle: TButton;
+    Panel15: TPanel;
+    chPolylinesShowHide: TCheckBox;
+    Panel16: TPanel;
+    chPolygonsShowHide: TCheckBox;
+    btnClearCircles: TButton;
+    btnAddPolyline: TButton;
+    btnClearPolylines: TButton;
+    btnAddPolygon: TButton;
+    btnClearPolygons: TButton;
+    TabSheet13: TTabSheet;
+    GroupBox3: TGroupBox;
+    Label34: TLabel;
+    eGeometryFromLat: TEdit;
+    Label35: TLabel;
+    eGeometryFromLng: TEdit;
+    Label36: TLabel;
+    eGeometryToLat: TEdit;
+    Label37: TLabel;
+    eGeometryToLng: TEdit;
+    btnGeometryComputeDistanceBetween: TButton;
     procedure FormCreate(Sender: TObject);
     procedure ButtonGotoAddressClick(Sender: TObject);
     procedure ButtonGotoLocationClick(Sender: TObject);
@@ -164,6 +270,17 @@ type
     procedure EdgeGoogleMapViewerContainsFullScreenElementChanged(
       Sender: TCustomEdgeBrowser; ContainsFullScreenElement: Boolean);
     procedure CheckBoxMapTypeClick(Sender: TObject);
+    procedure btnAddCircleClick(Sender: TObject);
+    procedure btnClearCirclesClick(Sender: TObject);
+    procedure btnClearPolylinesClick(Sender: TObject);
+    procedure btnAddPolylineClick(Sender: TObject);
+    procedure btnClearPolygonsClick(Sender: TObject);
+    procedure btnAddPolygonClick(Sender: TObject);
+    procedure chMarkerShowHideClick(Sender: TObject);
+    procedure chCirclesShowHideClick(Sender: TObject);
+    procedure chPolylinesShowHideClick(Sender: TObject);
+    procedure chPolygonsShowHideClick(Sender: TObject);
+    procedure btnGeometryComputeDistanceBetweenClick(Sender: TObject);
   private
     FRighClickLatLng : TLatLng;
     procedure OnMapClick(ASender: TObject; ALatLng : TLatLng);
@@ -193,6 +310,7 @@ end;
 
 procedure TformMain.FormCreate(Sender: TObject);
 begin
+  FormatSettings.DecimalSeparator := '.';
   Zoom.Value := EdgeGoogleMapViewer.MapZoom;
 
   //Init checkboxes based on Component Proprerties
@@ -211,6 +329,9 @@ begin
   editMarkerLng.Text  := TEdgeGoogleMapViewer.CoordToText(115.8613);
   editMarkerDescription.Text := 'Perth, Western Australia';
   editMarkerLabel.Text := 'Here';
+  eCircleLat.Text := TEdgeGoogleMapViewer.CoordToText(-31.9523);
+  eCircleLng.Text  := TEdgeGoogleMapViewer.CoordToText(115.8613);
+  eCircleRadius.text:='23';
   comboMarkerAnimation.ItemIndex := 0;
   memoMarkerCustomJSON.Lines.Text := EdgeGoogleMapViewer.DefaultCustomMarkerJSON;
   MapTypeIdComboBox.ItemIndex := Ord(EdgeGoogleMapViewer.MapTypeId);
@@ -319,6 +440,30 @@ begin
     CheckBoxZoom.Checked;
 end;
 
+procedure TformMain.chMarkerShowHideClick(Sender: TObject);
+begin
+    if chMarkerShowHide.Checked then
+        EdgeGoogleMapViewer.ShowMarkers
+    else
+        EdgeGoogleMapViewer.HideMarkers;
+end;
+
+procedure TformMain.chPolygonsShowHideClick(Sender: TObject);
+begin
+    if chPolygonsShowHide.Checked then
+        EdgeGoogleMapViewer.ShowPolygons
+    else
+        EdgeGoogleMapViewer.HidePolygons;
+end;
+
+procedure TformMain.chPolylinesShowHideClick(Sender: TObject);
+begin
+    if chPolylinesShowHide.Checked then
+        EdgeGoogleMapViewer.ShowPolylines
+    else
+        EdgeGoogleMapViewer.HidePolylines;
+end;
+
 procedure TformMain.cbxTravelModeChange(Sender: TObject);
 begin
   EdgeGoogleMapViewer.MapRouteModeId := TGoogleRouteModeId(cbxTravelMode.ItemIndex);
@@ -360,6 +505,30 @@ begin
   EdgeGoogleMapViewer.RouteByLocations;
 end;
 
+
+procedure TformMain.btnAddCircleClick(Sender: TObject);
+var
+  LLatLng : TLatLng;
+begin
+  LLatLng.Latitude := TEdgeGoogleMapViewer.TextToCoord(eCircleLat.Text);
+  LLatLng.Longitude := TEdgeGoogleMapViewer.TextToCoord(eCircleLng.Text);
+  EdgeGoogleMapViewer.GotoLocation(LLatLng, false);
+  EdgeGoogleMapViewer.PutCircle(
+                            LLatLng,
+                            strtofloat(eCircleRadius.text),
+                            chkCircleEditable.Checked,
+                            chkCircleDraggable.Checked,
+                            chkCircleVisible.Checked,
+                            chkCicleClickable.Checked,
+                            eCircleStrokeColor.Text,
+                            strtofloat(eCircleStrokeOpacity.text),
+                            strtoint(eCircleStrokeWeight.text),
+                            eCircleFillColor.Text,
+                            strtofloat(eCircleFillOpacity.text),
+                            eCircleInfo.Text);
+end;
+
+
 procedure TformMain.btnAddMarkerClick(Sender: TObject);
 var
   LLatLng : TLatLng;
@@ -376,6 +545,65 @@ begin
     end;
   EdgeGoogleMapViewer.GotoLocation(LLatLng);
   EdgeGoogleMapViewer.PutMarker(LLatLng,editMarkerDescription.Text, LAnimation ,editMarkerLabel.Text, memoMarkerInformation.Lines.Text, LCustomJSON);
+end;
+
+procedure TformMain.btnAddPolygonClick(Sender: TObject);
+begin
+  EdgeGoogleMapViewer.PutPolygon(
+                      ePolygonPath.lines.Text,
+                      chkPolygonEditable.Checked,
+                      chkPolygonVisible.Checked,
+                      chkPolygonClickable.Checked,
+                      chkPolygonFitBounds.Checked,
+                      ePolygonStrokeColor.Text,
+                      strtofloat(ePolygonStrokeOpacity.text),
+                      strtoint(ePolygonStrokeWeight.text),
+                      ePolygonFillColor.Text,
+                      strtofloat(ePolygonFillOpacity.text),
+                      ePolygonInfo.Text);
+end;
+procedure TformMain.btnAddPolylineClick(Sender: TObject);
+begin
+  EdgeGoogleMapViewer.PutPolyline(
+                      ePolylinePath.lines.Text,
+                      chkPolylineGeodesic.Checked,
+                      chkPolylineEditable.Checked,
+                      chkPolylineVisible.Checked,
+                      chkPolylineClickable.Checked,
+                      chkPolylineFitBounds.Checked,
+                      ePolylineStrokeColor.Text,
+                      strtofloat(ePolylineStrokeOpacity.text),
+                      strtoint(ePolylineStrokeWeight.text),
+                      ePolylineInfo.Text);
+end;
+
+procedure TformMain.btnClearCirclesClick(Sender: TObject);
+begin
+  EdgeGoogleMapViewer.ClearCircles;
+end;
+
+procedure TformMain.btnClearPolygonsClick(Sender: TObject);
+begin
+  EdgeGoogleMapViewer.ClearPolygons;
+end;
+
+procedure TformMain.btnClearPolylinesClick(Sender: TObject);
+begin
+  EdgeGoogleMapViewer.ClearPolylines;
+end;
+
+procedure TformMain.btnGeometryComputeDistanceBetweenClick(Sender: TObject);
+var
+  FromLatLng, ToLatLng : TLatLng;
+  Distance:Double;
+begin
+  FromLatLng.Latitude := TEdgeGoogleMapViewer.TextToCoord(eGeometryFromLat.Text);
+  FromLatLng.Longitude := TEdgeGoogleMapViewer.TextToCoord(eGeometryFromLng.Text);
+  ToLatLng.Latitude := TEdgeGoogleMapViewer.TextToCoord(eGeometryToLat.Text);
+  ToLatLng.Longitude := TEdgeGoogleMapViewer.TextToCoord(eGeometryToLng.Text);
+
+  Distance:=EdgeGoogleMapViewer.ComputeDistanceBetween(FromLatLng,ToLatLng);
+  Showmessage(Format('Distance %8.2f mts',[Distance]));
 end;
 
 procedure TformMain.Button1Click(Sender: TObject);
@@ -398,6 +626,14 @@ end;
 procedure TformMain.CheckBoxStreeViewClick(Sender: TObject);
 begin
   EdgeGoogleMapViewer.ShowStreetViewControl(CheckBoxStreeView.Checked);
+end;
+
+procedure TformMain.chCirclesShowHideClick(Sender: TObject);
+begin
+    if chCirclesShowHide.Checked then
+        EdgeGoogleMapViewer.ShowCircles
+    else
+        EdgeGoogleMapViewer.HideCircles;
 end;
 
 procedure TformMain.CheckBoxBicyclingClick(Sender: TObject);
@@ -433,10 +669,10 @@ end;
 
 initialization
   //Setup UserDataFolder for Temp files
-  TEdgeGoogleMapViewer.RegisterUserDataFolder(ExtractFilePath(ParamStr(0))+'..\..\CacheTempFolder\');
+  TEdgeGoogleMapViewer.RegisterUserDataFolder(System.IOUtils.TPath.GetTempPath);
   //If you have a Google API Key it's time to setup
   //TEdgeGoogleMapViewer.RegisterGoogleMapsApiKey('xyz');
 
   {$WARN SYMBOL_PLATFORM OFF}
   ReportMemoryLeaksOnShutdown := DebugHook <> 0;
-end.
+end.                                                             `

@@ -65,6 +65,7 @@ Type
                         maBOUNCE,
                         maDROP);
 
+
 Const
   ABOUT_BLANK_PAGE = 'about:blank';
   AGoogleMapTypeId : Array[TGoogleMapTypeId] of string =
@@ -134,6 +135,10 @@ Type
     FOnMapClick: TEdgeGoogleMapViewMapClick;
     FOnMapRightClick: TEdgeGoogleMapViewMapClick;
     FOnMapZoom: TEdgeGoogleMapViewZoomChanged;
+
+    //variables for result functions
+    FDistance: Variant;
+
     function ClearAddressText(const Address: string): string;
     procedure SetAddress(const Value: string);
     procedure SetBicycling(const Value: boolean);
@@ -200,6 +205,17 @@ Type
     function StripCRLF(AValue: string; AReplaceWith: string = ' '): string;
     procedure CustomWebMessageReceived(ASender: TCustomEdgeBrowser; Args: TWebMessageReceivedEventArgs); virtual;
     function HandleWebMessageEvent(AEvent: string): boolean;
+    //Circle
+    function GetJSClearCircles: string; virtual;
+    function GetJSPutCircle: string; virtual;
+    //Polyline
+    function GetJSClearPolylines: string; virtual;
+    function GetJSPutPolyline: string; virtual;
+    function GetJSGeometry: String; virtual;
+
+    //Polygon
+    function GetJSClearPolygons: string; virtual;
+    function GetJSPutPolygon: string; virtual;
   public
     class function TextToCoord(const Value: String): Extended;
     class function CoordToText(const Coord: double): string;
@@ -227,7 +243,37 @@ Type
     procedure PutMarker(LatLng: TLatLng; ADescription : string; AAnimation : TGoogleMarkerAnimationId = maNONE;
       ALabel : string = ''; AInfoWindowContent : string = ''; ACustomMarkerJSON : string = '');
     procedure ClearMarkers;
+    procedure HideMarkers;
+    procedure ShowMarkers;
+
     class property ApiKey: string read FApiKey;
+    //Circle
+    procedure PutCircle(LatLng: TLatLng; Radius: Double; Editable, Draggable, Visible, Clickable: Boolean;
+      StrokeColor: String; StrokeOpacity: Double; StrokeWeight: Integer; FillColor: String; FillOpacity: Double;
+      AInfoWindowContent : string = '');
+    procedure ClearCircles;
+    procedure HideCircles;
+    procedure ShowCircles;
+
+    //Polyline
+    procedure PutPolyline(Path:String; Geodesic, Editable, Visible, Clickable, FitBounds: Boolean;
+      StrokeColor: String; StrokeOpacity: Double; StrokeWeight: Integer;
+      AInfoWindowContent : string = '');
+    procedure ClearPolylines;
+    procedure HidePolylines;
+    procedure ShowPolylines;
+
+    //Polygon
+    procedure PutPolygon(Path:String; Editable, Visible, Clickable, FitBounds: Boolean;
+      StrokeColor: String; StrokeOpacity: Double; StrokeWeight: Integer; FillColor: String; FillOpacity: Double;
+      AInfoWindowContent : string = '');
+    procedure ClearPolygons;
+    procedure HidePolygons;
+    procedure ShowPolygons;
+
+    //geometry
+    function ComputeDistanceBetween(Origin, Destination: TLatLng): Double;
+
   published
     property Align;
     property Anchors;
@@ -354,6 +400,7 @@ var
   LEventValue : TJSONObject;
   LEvent : string;
   LLatLng : TLatLng;
+  Field:String;
 begin
   Result := False;
   LEventValue := nil;
@@ -386,6 +433,12 @@ begin
           begin
             FOnMapZoom(Self,FZoom);
           end;
+      end;
+       if SameText(LEvent,'response_value') then
+      begin
+        Field := LEventValue.GetValue('field').GetValue<string>;
+        if Field='distance' then
+            FDistance:=LEventValue.GetValue('value').GetValue<Double>;
       end;
   except
 
@@ -470,6 +523,16 @@ begin
   ExecuteScript('ClearMarkers()');
 end;
 
+procedure TEdgeGoogleMapViewer.HideMarkers;
+begin
+  ExecuteScript('HideMarkers()');
+end;
+
+procedure TEdgeGoogleMapViewer.ShowMarkers;
+begin
+  ExecuteScript('ShowMarkers()');
+end;
+
 function TEdgeGoogleMapViewer.GetHTMLHEader : string;
 begin
     Result := '<html> '+sLineBreak+
@@ -510,7 +573,10 @@ begin
   '  var map;  '+sLineBreak+
   '  var trafficLayer;'+sLineBreak+
   '  var bikeLayer;'+sLineBreak+
-  '  var markersArray = [];';
+  '  var markersArray = [];'+sLineBreak+
+  '  var circlesArray = [];'+sLineBreak+  //Circle
+  '  var polylinesArray = [];'+sLineBreak+ //Polyline
+  '  var polygonsArray = [];';             //Polygon
 end;
 
 function TEdgeGoogleMapViewer.GetJSInitialize : string;
@@ -534,6 +600,9 @@ begin
   '    map = new google.maps.Map(document.getElementById("map_canvas"), myOptions); '+sLineBreak+
   '    codeAddress(%s);'+sLineBreak+
   '    PutMarker(latlng.lat(), latlng.lng(), %s);'+sLineBreak+
+  '    PutCircle(latlng.lat(), latlng.lng(), 33333, false, false, true, true, "#FF0000", 0.80, 2, "#FF0000", 0.35, "");'+sLineBreak+
+  '    PutPolyline([ { lat: 40.7128, lng: -74.0060 },{ lat: 34.0522, lng: -118.2437 },{ lat: 41.8781, lng: -87.6298 } ], false, true, true, true, false, "#FF0000", 0.80, 2, "Polyline Sample");'+sLineBreak+
+  '    PutPolygon([ { lat: 45.5868, lng: 9.2709}, { lat: 45.5876, lng: 9.2794 },{ lat: 45.5817, lng: 9.2809 },{ lat: 45.5815, lng: 9.2721 } ], true, true, true, false, "#FF0000", 0.80, 2, "#FFFF00", 0.80, "Poligon Sample");'+sLineBreak+
   '    trafficLayer = new google.maps.TrafficLayer();'+sLineBreak+
   '    Traffic(%s);'+sLineBreak+
   '    bikeLayer = new google.maps.BicyclingLayer();'+sLineBreak+
@@ -582,13 +651,27 @@ end;
 
 function TEdgeGoogleMapViewer.GetJSClearMakers : string;
 begin
-   Result :=   'function ClearMarkers() {  '+sLineBreak+
+   Result :=   '  function ClearMarkers() {  '+sLineBreak+
+  '  if (markersArray) {        '+sLineBreak+
+  '     HideMarkers(); '+sLineBreak+
+  '     markersArray=[];        '+sLineBreak+
+  '  } '+sLineBreak+
+  '}  '+sLineBreak+
+  '  function HideMarkers() {  '+sLineBreak+
   '  if (markersArray) {        '+sLineBreak+
   '    for (i in markersArray) {  '+sLineBreak+
   '      markersArray[i].setMap(null); '+sLineBreak+
   '    } '+sLineBreak+
   '  } '+sLineBreak+
-  '}  '
+  '}  '+sLineBreak+
+  '  function ShowMarkers() {  '+sLineBreak+
+  '  if (markersArray) {        '+sLineBreak+
+  '    for (i in markersArray) {  '+sLineBreak+
+  '      markersArray[i].setMap(map); '+sLineBreak+
+  '    } '+sLineBreak+
+  '  } '+sLineBreak+
+  '}  ';
+
 end;
 
 function TEdgeGoogleMapViewer.GetJSPutMarker : string;
@@ -764,9 +847,16 @@ begin
   GetJSClearMakers + sLineBreak +
   GetJSPutMarker + sLineBreak +
   GetJSPutCustomMarker + sLineBreak +
+  GetJSPutCircle + sLineBreak +   //Circle
+  GetJSClearCircles + sLineBreak +
+  GetJSPutPolyline + sLineBreak +   //Polyline
+  GetJSClearPolylines + sLineBreak +
+  GetJSPutPolygon + sLineBreak +    //Polygon
+  GetJSClearPolygons + sLineBreak +
   GetJSMapOptions + sLineBreak +
   GetJSMapShowDirectionsPanel + sLineBreak+
   GetJSRouteAddress + sLineBreak +
+  GetJSGeometry + sLineBreak +
   GetJSCalcRoute;
   if Assigned(FOnGetJavascript) then
     FOnGetJavascript(Self,LJSScript);
@@ -782,7 +872,7 @@ end;
 procedure TEdgeGoogleMapViewer.ShowMap(AMapCenter: TLatLng; const AAddress: string = '');
 var
   HTMLString  : String;
-  LAddress, MyAddress, LFileName: string;
+  LAddress, MyAddress: string;
   MyCenter: TLatLng;
 begin
   if csDesigning in ComponentState then Exit;
@@ -833,12 +923,11 @@ begin
       B2S(FTraffic), //Traffic
       B2S(FBicycling) //Bicycling
     ]);
-  LFileName := TPath.GetTempFileName+'.html';
-  TFile.AppendAllText(LFileName, HTMLString, TEncoding.UTF8);
-  LFileName := StringReplace(LFileName, '\', '/', [rfReplaceAll]);
   MapIsBusy := True;
   try
-    NavigateToURL('file:///'+LFileName);
+      Sleep(1000);
+      application.ProcessMessages;
+      NavigateToString(HTMLString);
   finally
     MapIsBusy := False;
   end;
@@ -1335,5 +1424,360 @@ begin
   ExecuteScript(Format('fullscreenControl(%s)',[B2S(FFullScreenControl)]));
 end;
 
+
+//Circles
+
+procedure TEdgeGoogleMapViewer.ClearCircles;
+begin
+  ExecuteScript('ClearCircles()');
+end;
+
+procedure TEdgeGoogleMapViewer.HideCircles;
+begin
+  ExecuteScript('HideCircles()');
+end;
+
+procedure TEdgeGoogleMapViewer.ShowCircles;
+begin
+  ExecuteScript('ShowCircles()');
+end;
+
+procedure TEdgeGoogleMapViewer.PutCircle(LatLng: TLatLng; Radius: Double; Editable, Draggable, Visible, Clickable: Boolean;
+    StrokeColor: String; StrokeOpacity: Double; StrokeWeight: Integer; FillColor: String; FillOpacity: Double;
+    AInfoWindowContent : string = '');
+var
+  LScriptCommand: String;
+begin
+  FormatSettings.DecimalSeparator := '.';
+  if not MapVisible then
+  begin
+    ShowMap(EmptyLatLng);
+    while MapIsBusy do
+      Sleep(10);
+  end;
+  LScriptCommand := Format('PutCircle(%s, %s, %f, %s, %s, %s, %s, %s, %f, %d, %s, %f,%s)',[
+    CoordToText(LatLng.Latitude),
+    CoordToText(LatLng.Longitude),
+    Radius,
+    LowerCase(BoolToStr(Editable, True)),
+    LowerCase(BoolToStr(Draggable, True)),
+    LowerCase(BoolToStr(Visible, True)),
+    LowerCase(BoolToStr(Clickable, True)),
+    QuotedStr(StripCRLF(StrokeColor)),
+    StrokeOpacity,
+    StrokeWeight,
+    QuotedStr(StripCRLF(FillColor)),
+    FillOpacity,
+    QuotedStr(StripCRLF(AInfoWindowContent))
+    ]);
+  ExecuteScript(LScriptCommand);
+end;
+
+function TEdgeGoogleMapViewer.GetJSPutCircle : string;
+begin
+  Result :=
+  '  function PutCircle(Lat, Lng, Radius, Editable, Draggable, Visible, Clickable, StrokeColor,StrokeOpacity, StrokeWeight, FillColor, FillOpacity, Info){'+sLineBreak+
+  '   var latlng = new google.maps.LatLng(Lat,Lng);'+sLineBreak+
+  '   var circle = new google.maps.Circle({'+sLineBreak+
+  '      center: latlng, '+sLineBreak+
+  '      map: map,'+sLineBreak+
+  '      radius: Radius,'+sLineBreak+
+  '      editable: Editable,'+sLineBreak+
+  '      draggable: Draggable,'+sLineBreak+
+  '      visible: Visible,'+sLineBreak+
+  '      clickable: Clickable,'+sLineBreak+
+  '      strokeColor: StrokeColor,'+sLineBreak+
+  '      strokeOpacity: StrokeOpacity,'+sLineBreak+
+  '      strokeWeight: StrokeWeight,'+sLineBreak+
+  '      fillColor: FillColor,'+sLineBreak+
+  '      fillOpacity: FillOpacity'+sLineBreak+
+  '   });'+sLineBreak+
+  '   circlesArray.push(circle); '+sLineBreak+
+  '   if (Info) { ' +sLineBreak+
+  '   circle.addListener("click", () => {'+sLineBreak+
+  '    infoWindow.setPosition(circle.getCenter());'+sLineBreak+
+  '    infoWindow.setContent(Info);'+sLineBreak+
+  '    infoWindow.open(circle.getMap(), circle);'+sLineBreak+
+  '    });'+sLineBreak+
+  '   }'+sLineBreak+
+  '}';
+end;
+
+function TEdgeGoogleMapViewer.GetJSClearCircles : string;
+begin
+   Result :=   '  function ClearCircles() {  '+sLineBreak+
+  '  if (circlesArray) {        '+sLineBreak+
+  '     HideCircles(); '+sLineBreak+
+  '     circlesArray=[];        '+sLineBreak+
+  '  } '+sLineBreak+
+  '}  '+sLineBreak+
+  '  function HideCircles() {  '+sLineBreak+
+  '  if (circlesArray) {        '+sLineBreak+
+  '    for (i in circlesArray) {  '+sLineBreak+
+  '      circlesArray[i].setMap(null); '+sLineBreak+
+  '    } '+sLineBreak+
+  '  } '+sLineBreak+
+  '}  '+sLineBreak+
+  '  function ShowCircles() {  '+sLineBreak+
+  '  if (circlesArray) {        '+sLineBreak+
+  '    for (i in circlesArray) {  '+sLineBreak+
+  '      circlesArray[i].setMap(map); '+sLineBreak+
+  '    } '+sLineBreak+
+  '  } '+sLineBreak+
+  '}  ';
+
+end;
+
+//Polylines
+
+procedure TEdgeGoogleMapViewer.ClearPolylines;
+begin
+  ExecuteScript('ClearPolylines()');
+end;
+
+procedure TEdgeGoogleMapViewer.HidePolylines;
+begin
+  ExecuteScript('HidePolylines()');
+end;
+
+procedure TEdgeGoogleMapViewer.ShowPolylines;
+begin
+  ExecuteScript('ShowPolylines()');
+end;
+
+procedure TEdgeGoogleMapViewer.PutPolyline(Path:String; Geodesic, Editable, Visible, Clickable, FitBounds: Boolean;
+    StrokeColor: String; StrokeOpacity: Double; StrokeWeight: Integer;
+    AInfoWindowContent : string = '');
+var
+  LScriptCommand: String;
+begin
+  FormatSettings.DecimalSeparator := '.';
+  if not MapVisible then
+  begin
+    ShowMap(EmptyLatLng);
+    while MapIsBusy do
+      Sleep(10);
+  end;
+  LScriptCommand := Format('PutPolyline(%s, %s, %s, %s, %s, %s, %s, %f, %d, %s)',[
+    Path,
+    LowerCase(BoolToStr(Geodesic, True)),
+    LowerCase(BoolToStr(Editable, True)),
+    LowerCase(BoolToStr(Visible, True)),
+    LowerCase(BoolToStr(Clickable, True)),
+    LowerCase(BoolToStr(FitBounds, True)),
+    QuotedStr(StripCRLF(StrokeColor)),
+    StrokeOpacity,
+    StrokeWeight,
+    QuotedStr(StripCRLF(AInfoWindowContent))
+    ]);
+  ExecuteScript(LScriptCommand);
+end;
+
+function TEdgeGoogleMapViewer.GetJSPutPolyline : string;
+begin
+  Result :=
+  '  function PutPolyline(Path, Geodesic, Editable, Visible, Clickable, FitBounds, StrokeColor,StrokeOpacity, StrokeWeight, Info){'+sLineBreak+
+  '   var polyline = new google.maps.Polyline({'+sLineBreak+
+  '      path: Path, '+sLineBreak+
+  '      map: map,'+sLineBreak+
+  '      geodesic: Geodesic,'+sLineBreak+
+  '      zIndex: 1,'+sLineBreak+
+  '      editable: Editable,'+sLineBreak+
+  '      clickable: Clickable,'+sLineBreak+
+  '      visible: Visible,'+sLineBreak+
+  '      strokeColor: StrokeColor,'+sLineBreak+
+  '      strokeOpacity: StrokeOpacity,'+sLineBreak+
+  '      strokeWeight: StrokeWeight,'+sLineBreak+
+  '   });'+sLineBreak+
+  '   polylinesArray.push(polyline); '+sLineBreak+
+  '   if (Info) { ' +sLineBreak+
+  '       google.maps.event.addListener(polyline, "click", function(event) {' +sLineBreak+
+  '         infoWindow.setPosition(event.latLng);'+sLineBreak+
+  '         infoWindow.setContent(Info);'+sLineBreak+
+  '         infoWindow.open(polyline.getMap(), polyline);'+sLineBreak+
+  '    });'+sLineBreak+
+  '   }'+sLineBreak+
+  '   if (FitBounds) { '+sLineBreak+
+  '       var bounds = new google.maps.LatLngBounds();'+sLineBreak+
+  '       polyline.getPath().forEach(function(latLng) {'+sLineBreak+
+  '           bounds.extend(latLng);'+sLineBreak+
+  '       });'+sLineBreak+
+  '       map.fitBounds(bounds);' +sLineBreak+
+  '   }'+sLineBreak+
+  '}';
+end;
+
+function TEdgeGoogleMapViewer.GetJSGeometry: String;
+Begin
+  Result :=
+  '  function ComputeDistanceBetween(FromLat, FromLng, ToLat, ToLng){'+sLineBreak+
+  '   var From = new  google.maps.LatLng(FromLat, FromLng);'+sLineBreak+
+  '   var To = new  google.maps.LatLng(ToLat, ToLng);'+sLineBreak+
+  '   var distance = google.maps.geometry.spherical.computeDistanceBetween(From, To);'+sLineBreak+
+  '   window.chrome.webview.postMessage(JSON.stringify({"event" : "response_value",'+sLineBreak+
+  '     "field": "distance", "value" :  distance} , null, 2));'+sLineBreak+
+  '  }'+sLineBreak;
+
+End;
+
+function TEdgeGoogleMapViewer.ComputeDistanceBetween(Origin, Destination: TLatLng): Double;
+Const
+  MaxTimeResponse = 2000; //Miliseconds
+  Step = 1; //Miliseconds
+var
+  LScriptCommand: String;
+  i: Integer;
+Begin
+    Result:=0;
+    LScriptCommand := Format('ComputeDistanceBetween(%s, %s, %s, %s)',[
+      CoordToText(Origin.Latitude),
+      CoordToText(Origin.Longitude),
+      CoordToText(Destination.Latitude),
+      CoordToText(Destination.Longitude)
+    ]);
+    FDistance:=Null;
+    ExecuteScript(LScriptCommand);
+    //Wait for response
+    i:=0;
+    while (FDistance=Null) and (I<MaxTimeResponse)do
+    Begin
+        Application.ProcessMessages;
+        Sleep(Step);
+        I:=I+Step;
+    End;
+    if FDistance<>Null then
+      Result:=FDistance
+    Else
+      raise EGoogleMapError.Create('ComputeDistanceBetween timeout');
+End;
+function TEdgeGoogleMapViewer.GetJSClearPolylines : string;
+begin
+   Result :=   '  function ClearPolylines() {  '+sLineBreak+
+  '  if (polylinesArray) {        '+sLineBreak+
+  '     HidePolylines(); '+sLineBreak+
+  '     polylinesArray=[];        '+sLineBreak+
+  '  } '+sLineBreak+
+  '}  '+sLineBreak+
+  '  function HidePolylines() {  '+sLineBreak+
+  '  if (polylinesArray) {        '+sLineBreak+
+  '    for (i in polylinesArray) {  '+sLineBreak+
+  '      polylinesArray[i].setMap(null); '+sLineBreak+
+  '    } '+sLineBreak+
+  '  } '+sLineBreak+
+  '}  '+sLineBreak+
+  '  function ShowPolylines() {  '+sLineBreak+
+  '  if (polylinesArray) {        '+sLineBreak+
+  '    for (i in polylinesArray) {  '+sLineBreak+
+  '      polylinesArray[i].setMap(map); '+sLineBreak+
+  '    } '+sLineBreak+
+  '  } '+sLineBreak+
+  '}  ';
+end;
+
+
+//Polygon
+
+procedure TEdgeGoogleMapViewer.ClearPolygons;
+begin
+  ExecuteScript('ClearPolygons()');
+end;
+
+procedure TEdgeGoogleMapViewer.HidePolygons;
+begin
+  ExecuteScript('HidePolygons()');
+end;
+
+procedure TEdgeGoogleMapViewer.ShowPolygons;
+begin
+  ExecuteScript('ShowPolygons()');
+end;
+
+procedure TEdgeGoogleMapViewer.PutPolygon(Path:String; Editable, Visible, Clickable, FitBounds: Boolean;
+    StrokeColor: String; StrokeOpacity: Double; StrokeWeight: Integer; FillColor: String; FillOpacity: Double;
+    AInfoWindowContent : string = '');
+var
+  LScriptCommand: String;
+begin
+  FormatSettings.DecimalSeparator := '.';
+  if not MapVisible then
+  begin
+    ShowMap(EmptyLatLng);
+    while MapIsBusy do
+      Sleep(10);
+  end;
+  LScriptCommand := Format('PutPolygon(%s, %s, %s, %s, %s, %s, %f, %d, %s, %f, %s)',[
+    Path,
+    LowerCase(BoolToStr(Editable, True)),
+    LowerCase(BoolToStr(Visible, True)),
+    LowerCase(BoolToStr(Clickable, True)),
+    LowerCase(BoolToStr(FitBounds, True)),
+    QuotedStr(StripCRLF(StrokeColor)),
+    StrokeOpacity,
+    StrokeWeight,
+    QuotedStr(StripCRLF(FillColor)),
+    FillOpacity,
+    QuotedStr(StripCRLF(AInfoWindowContent))
+    ]);
+  ExecuteScript(LScriptCommand);
+end;
+
+function TEdgeGoogleMapViewer.GetJSPutPolygon : string;
+begin
+  Result :=
+  '  function PutPolygon(Path, Editable, Visible, Clickable, FitBounds, StrokeColor,StrokeOpacity, StrokeWeight, FillColor, FillOpacity, Info){'+sLineBreak+
+  '   var polygon = new google.maps.Polygon({'+sLineBreak+
+  '      path: Path, '+sLineBreak+
+  '      map: map,'+sLineBreak+
+  '      zIndex: 1,'+sLineBreak+
+  '      editable: Editable,'+sLineBreak+
+  '      clickable: Clickable,'+sLineBreak+
+  '      visible: Visible,'+sLineBreak+
+  '      strokeColor: StrokeColor,'+sLineBreak+
+  '      strokeOpacity: StrokeOpacity,'+sLineBreak+
+  '      strokeWeight: StrokeWeight,'+sLineBreak+
+  '      fillColor: FillColor,'+sLineBreak+
+  '      fillOpacity: FillOpacity,'+sLineBreak+
+  '   });'+sLineBreak+
+  '   polygonsArray.push(polygon); '+sLineBreak+
+  '   if (Info) { ' +sLineBreak+
+  '       google.maps.event.addListener(polygon, "click", function(event) {' +sLineBreak+
+  '         infoWindow.setPosition(event.latLng);'+sLineBreak+
+  '         infoWindow.setContent(Info);'+sLineBreak+
+  '         infoWindow.open(polygon.getMap(), polygon);'+sLineBreak+
+  '    });'+sLineBreak+
+  '   }'+sLineBreak+
+  '   if (FitBounds) { '+sLineBreak+
+  '       var bounds = new google.maps.LatLngBounds();'+sLineBreak+
+  '       polygon.getPath().forEach(function(latLng) {'+sLineBreak+
+  '           bounds.extend(latLng);'+sLineBreak+
+  '       });'+sLineBreak+
+  '       map.fitBounds(bounds);' +sLineBreak+
+  '   }'+sLineBreak+
+  '}';
+end;
+
+function TEdgeGoogleMapViewer.GetJSClearPolygons : string;
+begin
+   Result :=   '  function ClearPolygons() {  '+sLineBreak+
+  '  if (polygonsArray) {        '+sLineBreak+
+  '     HidePolygons(); '+sLineBreak+
+  '     polygonsArray=[];        '+sLineBreak+
+  '  } '+sLineBreak+
+  '}  '+sLineBreak+
+  '  function HidePolygons() {  '+sLineBreak+
+  '  if (polygonsArray) {        '+sLineBreak+
+  '    for (i in polygonsArray) {  '+sLineBreak+
+  '      polygonsArray[i].setMap(null); '+sLineBreak+
+  '    } '+sLineBreak+
+  '  } '+sLineBreak+
+  '}  '+sLineBreak+
+  '  function ShowPolygons() {  '+sLineBreak+
+  '  if (polygonsArray) {        '+sLineBreak+
+  '    for (i in polygonsArray) {  '+sLineBreak+
+  '      polygonsArray[i].setMap(map); '+sLineBreak+
+  '    } '+sLineBreak+
+  '  } '+sLineBreak+
+  '}  ';
+end;
 end.
 
