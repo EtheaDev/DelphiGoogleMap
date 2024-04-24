@@ -2,10 +2,11 @@
 {                                                                              }
 {       Delphi Google Map Viewer Demo                                          }
 {                                                                              }
-{       Copyright (c) 2021-2023 (Ethea S.r.l.)                                 }
+{       Copyright (c) 2021-2024 (Ethea S.r.l.)                                 }
 {       Author: Carlo Barazzetta                                               }
 {       Contributors:                                                          }
 {         littleearth (https://github.com/littleearth)                         }
+{         chaupero (https://github.com/chaupero)                               }
 {                                                                              }
 {       https://github.com/EtheaDev/DelphiGoogleMap                            }
 {                                                                              }
@@ -32,7 +33,7 @@ uses
   WebView2, System.SysUtils, Winapi.ActiveX, Vcl.Forms,
   Vcl.GoogleMap, Vcl.Edge, Data.DB, Datasnap.DBClient, Vcl.Menus, Vcl.ExtCtrls,
   Vcl.DBCtrls, Vcl.Grids, Vcl.DBGrids, Vcl.StdCtrls, Vcl.Samples.Spin,
-  Vcl.Controls, System.Classes, Vcl.Mask, Vcl.ComCtrls, System.IOUtils;
+  Vcl.Controls, System.Classes, Vcl.Mask, Vcl.ComCtrls, Vcl.Buttons;
 
 type
   TformMain = class(TForm)
@@ -296,7 +297,7 @@ var
 implementation
 
 uses
-  Vcl.Dialogs, SecondaryForm;
+  System.IOUtils, Vcl.Dialogs, SecondaryForm;
 
 {$R *.dfm}
 
@@ -310,7 +311,6 @@ end;
 
 procedure TformMain.FormCreate(Sender: TObject);
 begin
-  FormatSettings.DecimalSeparator := '.';
   Zoom.Value := EdgeGoogleMapViewer.MapZoom;
 
   //Init checkboxes based on Component Proprerties
@@ -515,16 +515,16 @@ begin
   EdgeGoogleMapViewer.GotoLocation(LLatLng, false);
   EdgeGoogleMapViewer.PutCircle(
                             LLatLng,
-                            strtofloat(eCircleRadius.text),
+                            TEdgeGoogleMapViewer.TextToCoord(eCircleRadius.text),
                             chkCircleEditable.Checked,
                             chkCircleDraggable.Checked,
                             chkCircleVisible.Checked,
                             chkCicleClickable.Checked,
                             eCircleStrokeColor.Text,
-                            strtofloat(eCircleStrokeOpacity.text),
+                            TEdgeGoogleMapViewer.TextToCoord(eCircleStrokeOpacity.text),
                             strtoint(eCircleStrokeWeight.text),
                             eCircleFillColor.Text,
-                            strtofloat(eCircleFillOpacity.text),
+                            TEdgeGoogleMapViewer.TextToCoord(eCircleFillOpacity.text),
                             eCircleInfo.Text);
 end;
 
@@ -602,8 +602,8 @@ begin
   ToLatLng.Latitude := TEdgeGoogleMapViewer.TextToCoord(eGeometryToLat.Text);
   ToLatLng.Longitude := TEdgeGoogleMapViewer.TextToCoord(eGeometryToLng.Text);
 
-  Distance:=EdgeGoogleMapViewer.ComputeDistanceBetween(FromLatLng,ToLatLng);
-  Showmessage(Format('Distance %8.2f mts',[Distance]));
+  Distance := EdgeGoogleMapViewer.ComputeDistanceBetween(FromLatLng,ToLatLng);
+  ShowMessageFmt('Distance %8.2f mts',[Distance]);
 end;
 
 procedure TformMain.Button1Click(Sender: TObject);
@@ -669,10 +669,11 @@ end;
 
 initialization
   //Setup UserDataFolder for Temp files
-  TEdgeGoogleMapViewer.RegisterUserDataFolder(System.IOUtils.TPath.GetTempPath);
+  TEdgeGoogleMapViewer.RegisterUserDataFolder(System.IOUtils.TPath.GetTempPath+ExtractFileName(ParamStr(0)));
   //If you have a Google API Key it's time to setup
   //TEdgeGoogleMapViewer.RegisterGoogleMapsApiKey('xyz');
 
   {$WARN SYMBOL_PLATFORM OFF}
   ReportMemoryLeaksOnShutdown := DebugHook <> 0;
-end.                                                             `
+
+end.

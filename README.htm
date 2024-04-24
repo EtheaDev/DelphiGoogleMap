@@ -1,0 +1,178 @@
+<style type="text/css">
+code{
+  font-family: "Consolas", monospace;
+}
+pre{
+  border: 1px solid #ddd;
+  border-left: 3px solid #f36d33;
+  overflow: auto;
+  padding: 1em 1.5em;
+  display: block;
+}
+Blockquote{
+  border-left: 3px solid #d0d0d0;
+  padding-left: 0.5em;
+  margin-left:1em;
+}
+Blockquote p{
+  margin: 0;
+}
+table{
+  border:1px solid;
+  border-collapse:collapse;
+}
+th{  padding:5px;
+  border:1px solid;
+}
+td{
+  padding:5px;
+  border:1px solid;
+}
+</style>
+<h1>DelphiGoogleMap  <a href="https://opensource.org/licenses/Apache-2.0"><img src="https://img.shields.io/badge/License-Apache%202.0-yellowgreen.svg" alt="License"/></a></h1>
+<p><strong>TEdgeGoogleMapViewer</strong>: a Delphi &ldquo;WebView2&rdquo; Component to View Google Map with integrated Routing and Markers Support</p>
+<h3>Actual official version 1.6.0 (VCL)</h3>
+<p>This component is based on <a href="https://docwiki.embarcadero.com/RADStudio/Alexandria/en/Using_TEdgeBrowser_Component_and_Changes_to_the_TWebBrowser_Component">TEdgeBrowser Component</a> (available from Delphi 10.4)</p>
+<p>It's very easy to use Google Maps API directly from Delphi Code, settings Component properties or invoking methods, for example:</p>
+<pre><code class="pascal">//Goto Address Example
+EdgeGoogleMapViewer.GotoAddress(MemoAddress.Lines.Text);
+
+//Goto Latitude/Longitude Example
+var
+  Location: TLatLng;
+begin
+  Location.Latitude := TEdgeGoogleMapViewer.TextToCoord(Latitude.Text);
+  Location.Longitude := TEdgeGoogleMapViewer.TextToCoord(Longitude.Text);
+  EdgeGoogleMapViewer.GotoLocation(Location);
+
+//Setting Map View Mode
+  EdgeGoogleMapViewer.MapTypeId := TGoogleMapTypeId(MapTypeIdComboBox.ItemIndex);
+</code></pre>
+<h2>How it works</h2>
+<p>The component works in a simple way: creates an html file with some javascript functions inside it and load it from disk, so the Delphi component can call those javascript functions inside the component methods, calling ExecuteScript(ScriptCommand) method of the TEdgeBrowser. If you want to analyse the content of the file created, put a break-point into TEdgeGoogleMapViewer.ShowMap at this line to know the name of the file created:</p>
+<pre><code class="pascal">NavigateToURL('file:///'+LFileName);
+</code></pre>
+<p>If you want to see how the component calls a javascript function inside the page, look for example at the method &ldquo;GotoAddress&rdquo;:</p>
+<pre><code class="pascal">procedure TEdgeGoogleMapViewer.GotoAddress(const Address: string);
+var
+  ScriptCommand: String;
+begin
+  FAddress := Address;
+  if FAddress = '' then
+    HideMap
+  else if not MapVisible then
+    ShowMap(FAddress)
+  else
+  begin
+    ScriptCommand := Format('codeAddress(%s)',[QuotedStr(ClearAddressText(Address))]);
+    ExecuteScript(ScriptCommand);
+  end;
+end;
+</code></pre>
+<p>You can extend the component with any functionality you can execute at javascipt level, adding the function into the code, in the method &ldquo;GetHTMLScript&rdquo; that collect all the Javascript functions, or you can add your personal javascript code in the event &ldquo;OnGetJavascript&rdquo;.</p>
+<pre><code class="pascal">function TEdgeGoogleMapViewer.GetHTMLScript : string;
+var
+  LJSScript : string;
+begin
+  LJSScript := GetJSVariables +sLineBreak+
+  GetJSInitialize +sLineBreak+
+  (...)
+  GetJSRouteAddress + sLineBreak +
+  GetJSCalcRoute;
+  if Assigned(FOnGetJavascript) then
+    FOnGetJavascript(Self,LJSScript);
+  Result :=
+  '&lt;script type="text/javascript"&gt; '+sLineBreak+
+  LJSScript + sLineBreak +
+  '&lt;/script&gt; '+ sLineBreak;
+end;
+</code></pre>
+<p>Look at the <a href="https://developers.google.com/maps/documentation/javascript?hl=it">GoogleAPI documentation</a> if you need more functionality and please make a pull request to the project.</p>
+<h2>A complete demo is available!</h2>
+<p>Notice that in the same folder of the executable you must place the correct webview2loader.dll (32 or 64 bit) as you can see into Demo\GoogleMaps\Bin\Win32 and Demo\GoogleMaps\Bin\Win64.</p>
+<h3>Available for Delphi 10.4.2, Delphi 11 and Delphi 12 (VCL 32bit and 64bit platforms)</h3>
+<p><img src="./Images/SupportingDelphi.jpg" alt="Delphi Support"/></p>
+<p>Related links: https://www.embarcadero.com/ - https://learndelphi.org/</p>
+<h2>INSTALLATION</h2>
+<ul>
+<li>Open {DelphiGoogleMapFolder}\Packages\DelphiGoogleMapsPackages.groupproj from Delphi IDE</li>
+<li>Build Run-Time Package: DelphiGoogleMap</li>
+<li>Build and Install Design-Time Package:</li>
+<li>Add {DelphiGoogleMapFolder}\Source to Delphi source path</li>
+</ul>
+<h1>The Demo in action</h1>
+<p>Open \Demo\GoogleMaps\GoogleMapsTest.dproj: Build (32 or 64 bit) and Run.</p>
+<p><strong>Notice: you need a Google API key to activate the navigation</strong>: by default the Demo request to input API before using the component, or you can edit TformMain.EdgeGoogleMapViewerBeforeShowMap event to add your API KEY to the component.</p>
+<h3>Goto Address: Via S.Cecilia 4, Carugate, Milano</h3>
+<p>Input Address and click to &ldquo;Goto Address&rdquo;:</p>
+<p><img src="./Images/GoToAddress.jpg" alt="GoTo Address"/></p>
+<h3>Goto Latitude/Longitude (25.767314 / -80.135694)</h3>
+<p>Input Latutude and Longitude and click to &ldquo;Goto Latitude/Longitude&rdquo;</p>
+<p><img src="./Images/GoToLatitudeLongitude.jpg" alt="GoTo Latitude"/></p>
+<h3>Route Bicycling - RoadMap View Style</h3>
+<p>Select Routing Mode &ldquo;Bicycling&rdquo;, Select &ldquo;RoadMap&rdquo; View Mode, click to &ldquo;Route by Location&rdquo;:</p>
+<p><img src="./Images/RouteBicyclingRoadMap.jpg" alt="Route Bicycling RoadMap"/></p>
+<h3>Route By Addresses - Hybrid and Traffic from Satellite View Style</h3>
+<p>Select Select &ldquo;Hybrid&rdquo; View Mode, Activate Traffic and click to &ldquo;Route by Addreess&rdquo;:</p>
+<p><img src="./Images/RouteByAddressHybridTraffic.jpg" alt="RouteByAddressHybridTraffic"/></p>
+<h3>Route showing &ldquo;Direction Panel&rdquo;</h3>
+<p>Check &ldquo;Direction Panel&rdquo; and and click to &ldquo;Route by Addresses&rdquo;:</p>
+<p><img src="./Images/RouteWithDirectionPanel.jpg" alt="RouteWithDirectionPanel"/></p>
+<h3>Showing &ldquo;Print Panel&rdquo; embedded into Browser</h3>
+<p>Click on &ldquo;Show Print UI&rdquo; button:</p>
+<p><img src="./Images/ShowPrintUI.jpg" alt="ShowPrintUI"/></p>
+<h3>Markers from Customer Table (customers.xml)</h3>
+<p>Load Customer Table, scroll down the table: for every record a Marker is added to the Map. Zoom out map to see all Markers.</p>
+<p><img src="./Images/MarkersOfCustomers.jpg" alt="Markers Of Customers"/></p>
+<h3>DOCUMENTATION</h3>
+<p>No documentation available, but the Demo explain very well the use of the component.</p>
+<h3>RELEASE NOTES</h3>
+<p>24 Apr 2024 - Version 1.6.0</p>
+<ul>
+<li>Added Circles, Polylines and Polygons to map</li>
+<li>Added function ComputeDistanceBetween</li>
+<li>Enabled component into IDE using Win64 Platform</li>
+</ul>
+<p>21 Aug 2023 - Version 1.5.0</p>
+<ul>
+<li>Changed Packages: separated Run-Time and Design-Time Packages</li>
+<li>Added &ldquo;Show Print UI&rdquo; Panel command</li>
+<li>Added support for Delphi 12</li>
+</ul>
+<p>29 Nov 2022 - Version 1.4.0</p>
+<ul>
+<li>FullScreen Control showing switch</li>
+<li>Zoom Control showing switch</li>
+<li>MapType Control showing switch</li>
+<li>Update Demo to implement &ldquo;fullscreen&rdquo; request</li>
+</ul>
+<p>15 Sep 2022 - Version 1.3.1</p>
+<ul>
+<li>Added 64bit platform to package and demo</li>
+</ul>
+<p>09 Apr 2022 - Version 1.3.0</p>
+<ul>
+<li>Fixed problem building package for Delphi 10.4.2</li>
+</ul>
+<p>07 Dec 2021 - Version 1.2.0</p>
+<ul>
+<li>Change base object to TCustomEdgeBrowser</li>
+<li>inherit properies to allow the hiding of OnWebMessageReceived and presenting new event OnWebUnhandledMessageReceived</li>
+<li>Map onclick, onzoom listener events</li>
+<li>New property OnMapClick and OnMapRightClick</li>
+<li>Demo to show right click menu and adding a marker</li>
+<li>Demo to have option on center on mouse click</li>
+<li>Demo updated to change zoom edit value on map zoom event</li>
+<li>GotoLocation changed to have option to place marker.</li>
+</ul>
+<p>02 Nov 2021 - Version 1.1.0</p>
+<ul>
+<li>Added method to register UserDataFolder: TEdgeGoogleMapViewer.RegisterUserDataFolder</li>
+<li>Added Event Handler BeforeInitMap</li>
+<li>Added a secondary form to Demo (to test multiple instance of component)</li>
+</ul>
+<p>24 Sep 2021 - Version 1.0.0</p>
+<ul>
+<li>Google Map Viewer Component based on TEdgeBrowser</li>
+<li>Full Demo available</li>
+</ul>

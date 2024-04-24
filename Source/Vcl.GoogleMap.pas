@@ -2,11 +2,12 @@
 {                                                                              }
 {       Delphi Google Map Viewer                                               }
 {                                                                              }
-{       Copyright (c) 2021-2023 (Ethea S.r.l.)                                 }
+{       Copyright (c) 2021-2024 (Ethea S.r.l.)                                 }
 {       Author: Carlo Barazzetta                                               }
 {       Contributors:                                                          }
 {         littleearth (https://github.com/littleearth)                         }
 {         tbegsr (https://github.com/tbegsr)                                   }
+{         chaupero (https://github.com/chaupero)                               }
 {                                                                              }
 {       https://github.com/EtheaDev/DelphiGoogleMap                            }
 {                                                                              }
@@ -65,7 +66,6 @@ Type
                         maBOUNCE,
                         maDROP);
 
-
 Const
   ABOUT_BLANK_PAGE = 'about:blank';
   AGoogleMapTypeId : Array[TGoogleMapTypeId] of string =
@@ -98,12 +98,14 @@ Type
   TEdgeGoogleMapViewZoomChanged = procedure(ASender : TObject;  AZoom : integer) of object;
 
   { TEdgeGoogleMapViewer }
+  [ComponentPlatforms(pidWin32 or pidWin64)]
   TEdgeGoogleMapViewer = class(TCustomEdgeBrowser)
   strict private
     class var FApiKey: string;
     class var FUserDataFolder: string;
   private
-    MapIsBusy: boolean;
+    FMapIsBusy: boolean;
+    FViewerReady: boolean;
     FAddress: string;
     FOverviewMapControl: boolean;
     FTypeControl: boolean;
@@ -371,7 +373,9 @@ procedure TEdgeGoogleMapViewer.CustomWebViewCreateComplete(
   Sender: TCustomEdgeBrowser; AResult: HResult);
 begin
   if not self.WebViewCreated then
-    raise EGoogleMapError.Create('Error: cannot initilize Google Map Viewer! Check if webview2loader.dll is present');
+    raise EGoogleMapError.Create('Error: cannot initilize Google Map Viewer! Check if webview2loader.dll is present')
+  else
+    FViewerReady := True;
   if Assigned(FOnCreateWebViewCompleted) then
     FOnCreateWebViewCompleted(Sender, AResult);
 end;
@@ -875,7 +879,14 @@ var
   LAddress, MyAddress: string;
   MyCenter: TLatLng;
 begin
-  if csDesigning in ComponentState then Exit;
+  if csDesigning in ComponentState then
+    Exit;
+
+  while not FViewerReady do
+  begin
+    application.ProcessMessages;
+    Sleep(10);
+  end;
 
   if Assigned(FBeforeShowMap) then
     FBeforeShowMap(Self);
@@ -923,13 +934,18 @@ begin
       B2S(FTraffic), //Traffic
       B2S(FBicycling) //Bicycling
     ]);
-  MapIsBusy := True;
+  FMapIsBusy := True;
   try
-      Sleep(1000);
-      application.ProcessMessages;
-      NavigateToString(HTMLString);
+    {$IFDEF DEBUG}
+    var LFileName := TPath.GetTempFileName+'.html';
+    TFile.AppendAllText(LFileName, HTMLString, TEncoding.UTF8);
+    LFileName := StringReplace(LFileName, '\', '/', [rfReplaceAll]);
+    NavigateToURL('file:///'+LFileName);
+    {$ELSE}
+    NavigateToString(HTMLString);
+    {$ENDIF}
   finally
-    MapIsBusy := False;
+    FMapIsBusy := False;
   end;
   FMapVisible := True;
 end;
@@ -1115,7 +1131,7 @@ begin
   if not MapVisible then
   begin
     ShowMap(EmptyLatLng);
-    while MapIsBusy do
+    while FMapIsBusy do
       Sleep(10);
   end;
   LInfoWindowContent := AInfoWindowContent;
@@ -1155,7 +1171,7 @@ begin
   if not MapVisible then
   begin
     ShowMap(EmptyLatLng);
-    while MapIsBusy do
+    while FMapIsBusy do
       Sleep(10);
   end;
   ScriptCommand := Format('routeByAddress(%s, %s, %s, %s)',[
@@ -1320,7 +1336,7 @@ begin
   if not MapVisible then
   begin
     ShowMap(EmptyLatLng);
-    while MapIsBusy do
+    while FMapIsBusy do
       Sleep(10);
   end;
   ScriptCommand := Format('calcRoute(%s, %s, %s, %s, %s, %s,%s, %s)',[
@@ -1380,7 +1396,7 @@ begin
   if not MapVisible then
   begin
     ShowMap(EmptyLatLng);
-    while MapIsBusy do
+    while FMapIsBusy do
       Sleep(10);
   end;
   if (FStartAddress <> '') and (FDestinationAddress <> '') then
@@ -1392,7 +1408,7 @@ begin
   if not MapVisible then
   begin
     ShowMap(EmptyLatLng);
-    while MapIsBusy do
+    while FMapIsBusy do
       Sleep(10);
   end;
   if (FMapStart.Latitude <> 0) and (FMapStart.Longitude <> 0) and
@@ -1452,7 +1468,7 @@ begin
   if not MapVisible then
   begin
     ShowMap(EmptyLatLng);
-    while MapIsBusy do
+    while FMapIsBusy do
       Sleep(10);
   end;
   LScriptCommand := Format('PutCircle(%s, %s, %f, %s, %s, %s, %s, %s, %f, %d, %s, %f,%s)',[
@@ -1555,7 +1571,7 @@ begin
   if not MapVisible then
   begin
     ShowMap(EmptyLatLng);
-    while MapIsBusy do
+    while FMapIsBusy do
       Sleep(10);
   end;
   LScriptCommand := Format('PutPolyline(%s, %s, %s, %s, %s, %s, %s, %f, %d, %s)',[
@@ -1621,38 +1637,38 @@ Begin
 End;
 
 function TEdgeGoogleMapViewer.ComputeDistanceBetween(Origin, Destination: TLatLng): Double;
-Const
+const
   MaxTimeResponse = 2000; //Miliseconds
   Step = 1; //Miliseconds
 var
   LScriptCommand: String;
   i: Integer;
-Begin
-    Result:=0;
-    LScriptCommand := Format('ComputeDistanceBetween(%s, %s, %s, %s)',[
-      CoordToText(Origin.Latitude),
-      CoordToText(Origin.Longitude),
-      CoordToText(Destination.Latitude),
-      CoordToText(Destination.Longitude)
-    ]);
-    FDistance:=Null;
-    ExecuteScript(LScriptCommand);
-    //Wait for response
-    i:=0;
-    while (FDistance=Null) and (I<MaxTimeResponse)do
-    Begin
-        Application.ProcessMessages;
-        Sleep(Step);
-        I:=I+Step;
-    End;
-    if FDistance<>Null then
-      Result:=FDistance
-    Else
-      raise EGoogleMapError.Create('ComputeDistanceBetween timeout');
-End;
+begin
+  LScriptCommand := Format('ComputeDistanceBetween(%s, %s, %s, %s)',[
+    CoordToText(Origin.Latitude),
+    CoordToText(Origin.Longitude),
+    CoordToText(Destination.Latitude),
+    CoordToText(Destination.Longitude)
+  ]);
+  FDistance := Null;
+  ExecuteScript(LScriptCommand);
+  //Wait for response
+  i := 0;
+  while (FDistance = Null) and (I < MaxTimeResponse) do
+  begin
+      Application.ProcessMessages;
+      Sleep(Step);
+      I:= I + Step;
+  end;
+  if FDistance <> Null then
+    Result := FDistance
+  else
+    raise EGoogleMapError.Create('ComputeDistanceBetween timeout');
+end;
+
 function TEdgeGoogleMapViewer.GetJSClearPolylines : string;
 begin
-   Result :=   '  function ClearPolylines() {  '+sLineBreak+
+   Result := '  function ClearPolylines() {  '+sLineBreak+
   '  if (polylinesArray) {        '+sLineBreak+
   '     HidePolylines(); '+sLineBreak+
   '     polylinesArray=[];        '+sLineBreak+
@@ -1702,7 +1718,7 @@ begin
   if not MapVisible then
   begin
     ShowMap(EmptyLatLng);
-    while MapIsBusy do
+    while FMapIsBusy do
       Sleep(10);
   end;
   LScriptCommand := Format('PutPolygon(%s, %s, %s, %s, %s, %s, %f, %d, %s, %f, %s)',[
@@ -1779,5 +1795,6 @@ begin
   '  } '+sLineBreak+
   '}  ';
 end;
+
 end.
 

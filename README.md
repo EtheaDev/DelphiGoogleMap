@@ -2,7 +2,7 @@
 
 **TEdgeGoogleMapViewer**: a Delphi "WebView2" Component to View Google Map with integrated Routing and Markers Support
 
-### Actual official version 1.5.0 (VCL)
+### Actual official version 1.6.0 (VCL)
 
 This component is based on [TEdgeBrowser Component](https://docwiki.embarcadero.com/RADStudio/Alexandria/en/Using_TEdgeBrowser_Component_and_Changes_to_the_TWebBrowser_Component) (available from Delphi 10.4)
 
@@ -143,6 +143,11 @@ Load Customer Table, scroll down the table: for every record a Marker is added t
 No documentation available, but the Demo explain very well the use of the component.
 
 ### RELEASE NOTES
+24 Apr 2024 - Version 1.6.0
+- Added functions to add Circles, Polylines or Polygons to map
+- Added function ComputeDistanceBetween
+- Enabled component into IDE using Win64 Platform
+
 21 Aug 2023 - Version 1.5.0
 - Changed Packages: separated Run-Time and Design-Time Packages
 - Added "Show Print UI" Panel command

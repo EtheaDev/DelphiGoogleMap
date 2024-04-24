@@ -24,11 +24,10 @@ object formMain: TformMain
   object Splitter1: TSplitter
     Left = 0
     Top = 579
-    Width = 1445
+    Width = 1190
     Height = 3
     Cursor = crVSplit
     Align = alBottom
-    ExplicitWidth = 1190
   end
   object PanelHeader: TPanel
     Left = 0
@@ -37,7 +36,6 @@ object formMain: TformMain
     Height = 209
     Align = alTop
     TabOrder = 0
-    ExplicitWidth = 1441
     object gbMapAttributes: TGroupBox
       Left = 1
       Top = 1
@@ -386,7 +384,6 @@ object formMain: TformMain
       Align = alClient
       Caption = 'Drawing'
       TabOrder = 3
-      ExplicitWidth = 505
       object PCDrawing: TPageControl
         Left = 2
         Top = 15
@@ -395,7 +392,6 @@ object formMain: TformMain
         ActivePage = TabMarkers
         Align = alClient
         TabOrder = 0
-        ExplicitWidth = 501
         object TabMarkers: TTabSheet
           Caption = 'Markers'
           object Panel12: TPanel
@@ -405,7 +401,6 @@ object formMain: TformMain
             Height = 41
             Align = alBottom
             TabOrder = 0
-            ExplicitWidth = 493
             DesignSize = (
               497
               41)
@@ -429,7 +424,6 @@ object formMain: TformMain
               Caption = 'Clear Markers'
               TabOrder = 1
               OnClick = ButtonClearMarkersClick
-              ExplicitLeft = 388
             end
             object chMarkerShowHide: TCheckBox
               Left = 282
@@ -442,7 +436,6 @@ object formMain: TformMain
               State = cbChecked
               TabOrder = 2
               OnClick = chMarkerShowHideClick
-              ExplicitLeft = 278
             end
           end
           object PageControlMarker: TPageControl
@@ -453,7 +446,6 @@ object formMain: TformMain
             ActivePage = LatLongMarkerTabSheet
             Align = alClient
             TabOrder = 1
-            ExplicitWidth = 493
             object LatLongMarkerTabSheet: TTabSheet
               Caption = 'Latitute/Longitude'
               object GridPanel1: TGridPanel
@@ -486,7 +478,6 @@ object formMain: TformMain
                     Value = 50.000000000000000000
                   end>
                 TabOrder = 0
-                ExplicitWidth = 485
                 object GridPanel2: TGridPanel
                   Left = 0
                   Top = 0
@@ -517,7 +508,6 @@ object formMain: TformMain
                       Value = 100.000000000000000000
                     end>
                   TabOrder = 0
-                  ExplicitWidth = 485
                   object Panel2: TPanel
                     Left = 0
                     Top = 0
@@ -526,7 +516,6 @@ object formMain: TformMain
                     Align = alClient
                     BevelOuter = bvNone
                     TabOrder = 0
-                    ExplicitWidth = 242
                     object Label9: TLabel
                       AlignWithMargins = True
                       Left = 3
@@ -545,7 +534,6 @@ object formMain: TformMain
                       Height = 21
                       Align = alTop
                       TabOrder = 0
-                      ExplicitWidth = 236
                     end
                   end
                   object Panel3: TPanel
@@ -556,8 +544,6 @@ object formMain: TformMain
                     Align = alClient
                     BevelOuter = bvNone
                     TabOrder = 1
-                    ExplicitLeft = 242
-                    ExplicitWidth = 243
                     object Label10: TLabel
                       AlignWithMargins = True
                       Left = 3
@@ -576,7 +562,6 @@ object formMain: TformMain
                       Height = 21
                       Align = alTop
                       TabOrder = 0
-                      ExplicitWidth = 237
                     end
                   end
                 end
@@ -588,7 +573,6 @@ object formMain: TformMain
                   Align = alClient
                   BevelOuter = bvNone
                   TabOrder = 1
-                  ExplicitWidth = 485
                   object Label11: TLabel
                     AlignWithMargins = True
                     Left = 3
@@ -607,7 +591,8 @@ object formMain: TformMain
                     Height = 21
                     Align = alTop
                     TabOrder = 0
-                    ExplicitWidth = 479
+                    ExplicitLeft = 88
+                    ExplicitWidth = 398
                   end
                 end
               end
@@ -1732,8 +1717,6 @@ object formMain: TformMain
     MapLatitude = 25.767314000000000000
     MapLongitude = -80.135694000000000000
     BeforeShowMap = EdgeGoogleMapViewerBeforeShowMap
-    ExplicitWidth = 1441
-    ExplicitHeight = 369
   end
   object DBGrid: TDBGrid
     Left = 0
@@ -1822,8 +1805,6 @@ object formMain: TformMain
     Height = 47
     Align = alBottom
     TabOrder = 3
-    ExplicitTop = 681
-    ExplicitWidth = 1441
     object ShowPrintUIButton: TButton
       AlignWithMargins = True
       Left = 90
@@ -1867,7 +1848,6 @@ object formMain: TformMain
       VisibleButtons = [nbFirst, nbPrior, nbNext, nbLast]
       Align = alRight
       TabOrder = 3
-      ExplicitLeft = 1309
     end
     object LoadTableButton: TButton
       AlignWithMargins = True
@@ -1879,7 +1859,6 @@ object formMain: TformMain
       Caption = 'Load Table'
       TabOrder = 2
       OnClick = LoadTableButtonClick
-      ExplicitLeft = 1204
     end
     object Button1: TButton
       AlignWithMargins = True
@@ -1901,7 +1880,6 @@ object formMain: TformMain
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 5
-      ExplicitWidth = 856
       object Label7: TLabel
         Left = 0
         Top = 0
@@ -1920,7 +1898,6 @@ object formMain: TformMain
         Align = alTop
         TabOrder = 0
         Text = 'customer.xml'
-        ExplicitWidth = 850
       end
     end
   end
