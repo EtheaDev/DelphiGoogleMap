@@ -10,7 +10,7 @@
 
 ## New Setup for automatic installation of components
 
-From 4.4.0 version a new "Installer" read-to-use is located in the Release area: [Download the Installer](https://github.com/EtheaDev/DelphiGoogleMap/releases/latest/download/DelphiGoogleMaps_Setup.exe).
+From 1.6.1 version a new "Installer" read-to-use is located in the Release area: [Download the Installer](https://github.com/EtheaDev/DelphiGoogleMap/releases/latest/download/DelphiGoogleMaps_Setup.exe).
 
 The Installer automatically detect your Delphi versions, install sources, build and install packages and add source paths.
 
