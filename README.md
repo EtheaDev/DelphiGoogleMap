@@ -2,9 +2,21 @@
 
 **TEdgeGoogleMapViewer**: a Delphi "WebView2" Component to View Google Map with integrated Routing and Markers Support
 
-### Actual official version 1.6.0 (VCL)
+### Actual official version 1.6.1 (VCL)
 
-This component is based on [TEdgeBrowser Component](https://docwiki.embarcadero.com/RADStudio/Alexandria/en/Using_TEdgeBrowser_Component_and_Changes_to_the_TWebBrowser_Component) (available from Delphi 10.4)
+| Component | Description |
+| - | - |
+| ![google-maps-128.png](./Images/google-maps-128.png) | **TEdgeGoogleMapViewer** is a Delphi wrapper on "WebView2" Component that adds many Google Maps features like Routing and Markers Support (only for VCL). You can setup attributes of the components to see the Google Maps reacts to your changes. |
+
+## New Setup for automatic installation of components
+
+From 4.4.0 version a new "Installer" read-to-use is located in the Release area: [Download the Installer](https://github.com/EtheaDev/DelphiGoogleMap/releases/latest/download/DelphiGoogleMaps_Setup.exe).
+
+The Installer automatically detect your Delphi versions, install sources, build and install packages and add source paths.
+
+![Setup](./Images/Setup.png)
+
+## Simple to use
 
 It's very easy to use Google Maps API directly from Delphi Code, settings Component properties or invoking methods, for example:
 
@@ -83,9 +95,11 @@ Notice that in the same folder of the executable you must place the correct webv
 
 Related links: https://www.embarcadero.com/ - https://learndelphi.org/
 
-## INSTALLATION
+## MANUAL INSTALLATION
 
-- Open {DelphiGoogleMapFolder}\Packages\DelphiGoogleMapsPackages.groupproj from Delphi IDE
+If you don't want to use the installer, you can build the packages:
+
+- Open {DelphiGoogleMapFolder}\Packages\{DelphiVer}\DelphiGoogleMapsPackages.groupproj from Delphi IDE
 - Build Run-Time Package: DelphiGoogleMap
 - Build and Install Design-Time Package:
 - Add {DelphiGoogleMapFolder}\Source to Delphi source path
@@ -143,6 +157,10 @@ Load Customer Table, scroll down the table: for every record a Marker is added t
 No documentation available, but the Demo explain very well the use of the component.
 
 ### RELEASE NOTES
+12 Mar 2025 - Version 1.6.1
+- Added support for Delphi 12 64bit IDE
+- Added easy DelphiGoogleMaps_Setup.exe
+
 24 Apr 2024 - Version 1.6.0
 - Added functions to add Circles, Polylines or Polygons to map
 - Added function ComputeDistanceBetween

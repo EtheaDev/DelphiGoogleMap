@@ -2,7 +2,7 @@
 {                                                                              }
 {       Delphi Google Map Viewer                                               }
 {                                                                              }
-{       Copyright (c) 2021-2024 (Ethea S.r.l.)                                 }
+{       Copyright (c) 2021-2025 (Ethea S.r.l.)                                 }
 {       Author: Carlo Barazzetta                                               }
 {       Contributors:                                                          }
 {         littleearth (https://github.com/littleearth)                         }
@@ -47,7 +47,7 @@ uses
 
 const
   DEFAULT_ZOOM_FACTOR = 15;
-  DelphiGoogleMapViewerVersion = '1.5.0';
+  DelphiGoogleMapViewerVersion = '1.6.1';
 
 Type
   EGoogleMapError = Exception;
@@ -159,7 +159,6 @@ Type
     procedure SetVisible(const Value: boolean);
     function GetVisible: boolean;
     procedure InitMap;
-    procedure NavigateToURL(const URL: string);
     procedure CustomDocumentComplete(Sender: TCustomEdgeBrowser;
       IsSuccess: Boolean; WebErrorStatus: COREWEBVIEW2_WEB_ERROR_STATUS);
     procedure CustomWebViewCreateComplete(Sender: TCustomEdgeBrowser; AResult: HResult);
@@ -225,6 +224,7 @@ Type
     class procedure RegisterUserDataFolder(const ATempFolder: string);
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    procedure NavigateToURL(const URL: string);
     procedure ShowPrintUI;
     function DefaultCustomMarkerJSON: string;
     procedure ShowMap(const AAddress: string) overload;
@@ -936,8 +936,8 @@ begin
     ]);
   FMapIsBusy := True;
   try
-    {$IFDEF DEBUG}
-    var LFileName := TPath.GetTempFileName+'.html';
+    {$IFDEF DEBUG2}
+    LFileName := TPath.GetTempFileName+'.html';
     TFile.AppendAllText(LFileName, HTMLString, TEncoding.UTF8);
     LFileName := StringReplace(LFileName, '\', '/', [rfReplaceAll]);
     NavigateToURL('file:///'+LFileName);
@@ -1637,38 +1637,37 @@ Begin
 End;
 
 function TEdgeGoogleMapViewer.ComputeDistanceBetween(Origin, Destination: TLatLng): Double;
-const
+Const
   MaxTimeResponse = 2000; //Miliseconds
   Step = 1; //Miliseconds
 var
   LScriptCommand: String;
   i: Integer;
-begin
-  LScriptCommand := Format('ComputeDistanceBetween(%s, %s, %s, %s)',[
-    CoordToText(Origin.Latitude),
-    CoordToText(Origin.Longitude),
-    CoordToText(Destination.Latitude),
-    CoordToText(Destination.Longitude)
-  ]);
-  FDistance := Null;
-  ExecuteScript(LScriptCommand);
-  //Wait for response
-  i := 0;
-  while (FDistance = Null) and (I < MaxTimeResponse) do
-  begin
-      Application.ProcessMessages;
-      Sleep(Step);
-      I:= I + Step;
-  end;
-  if FDistance <> Null then
-    Result := FDistance
-  else
-    raise EGoogleMapError.Create('ComputeDistanceBetween timeout');
-end;
-
+Begin
+    LScriptCommand := Format('ComputeDistanceBetween(%s, %s, %s, %s)',[
+      CoordToText(Origin.Latitude),
+      CoordToText(Origin.Longitude),
+      CoordToText(Destination.Latitude),
+      CoordToText(Destination.Longitude)
+    ]);
+    FDistance:=Null;
+    ExecuteScript(LScriptCommand);
+    //Wait for response
+    i:=0;
+    while (FDistance=Null) and (I<MaxTimeResponse)do
+    Begin
+        Application.ProcessMessages;
+        Sleep(Step);
+        I:=I+Step;
+    End;
+    if FDistance<>Null then
+      Result:=FDistance
+    Else
+      raise EGoogleMapError.Create('ComputeDistanceBetween timeout');
+End;
 function TEdgeGoogleMapViewer.GetJSClearPolylines : string;
 begin
-   Result := '  function ClearPolylines() {  '+sLineBreak+
+   Result :=   '  function ClearPolylines() {  '+sLineBreak+
   '  if (polylinesArray) {        '+sLineBreak+
   '     HidePolylines(); '+sLineBreak+
   '     polylinesArray=[];        '+sLineBreak+

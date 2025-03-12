@@ -2,7 +2,7 @@
 {                                                                              }
 {       Delphi Google Map Viewer Demo                                          }
 {                                                                              }
-{       Copyright (c) 2021-2024 (Ethea S.r.l.)                                 }
+{       Copyright (c) 2021-2025 (Ethea S.r.l.)                                 }
 {       Author: Carlo Barazzetta                                               }
 {       Contributors:                                                          }
 {         littleearth (https://github.com/littleearth)                         }
@@ -670,7 +670,7 @@ end;
 initialization
   //Setup UserDataFolder for Temp files
   TEdgeGoogleMapViewer.RegisterUserDataFolder(System.IOUtils.TPath.GetTempPath+ExtractFileName(ParamStr(0)));
-  //If you have a Google API Key it's time to setup
+  //Use your Google API Key to setup the viewer
   //TEdgeGoogleMapViewer.RegisterGoogleMapsApiKey('xyz');
 
   {$WARN SYMBOL_PLATFORM OFF}

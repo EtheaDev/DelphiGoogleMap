@@ -45,4 +45,18 @@
         <CallTarget Targets="DelphiGoogleMap:Make;dclDelphiGoogleMap:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+    <ItemGroup Condition="'$(BuildGroup)'=='ALL'">
+        <BuildGroupProject Include="DelphiGoogleMap.dproj">
+            <ProjectGuid>{9C4225F1-765F-43B6-A40F-64C405F91FB5}</ProjectGuid>
+            <Configurations>Release</Configurations>
+            <Platforms>Win32;Win64</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="dclDelphiGoogleMap.dproj">
+            <ProjectGuid>{30641010-7F19-4BC6-A345-5657EDB9F0B3}</ProjectGuid>
+            <Configurations>Release</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+    </ItemGroup>
 </Project>

@@ -31,8 +31,22 @@ td{
 </style>
 <h1>DelphiGoogleMap  <a href="https://opensource.org/licenses/Apache-2.0"><img src="https://img.shields.io/badge/License-Apache%202.0-yellowgreen.svg" alt="License"/></a></h1>
 <p><strong>TEdgeGoogleMapViewer</strong>: a Delphi &ldquo;WebView2&rdquo; Component to View Google Map with integrated Routing and Markers Support</p>
-<h3>Actual official version 1.6.0 (VCL)</h3>
-<p>This component is based on <a href="https://docwiki.embarcadero.com/RADStudio/Alexandria/en/Using_TEdgeBrowser_Component_and_Changes_to_the_TWebBrowser_Component">TEdgeBrowser Component</a> (available from Delphi 10.4)</p>
+<h3>Actual official version 1.6.1 (VCL)</h3>
+<table>
+  <tr>
+    <th>Component</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td><img src="./Images/google-maps-128.png" alt="google-maps-128.png"/></td>
+    <td><strong>TEdgeGoogleMapViewer</strong> is a Delphi wrapper on &ldquo;WebView2&rdquo; Component that adds many Google Maps features like Routing and Markers Support (only for VCL). You can setup attributes of the components to see the Google Maps reacts to your changes.</td>
+  </tr>
+</table>
+<h2>New Setup for automatic installation of components</h2>
+<p>From 4.4.0 version a new &ldquo;Installer&rdquo; read-to-use is located in the Release area: <a href="https://github.com/EtheaDev/DelphiGoogleMap/releases/latest/download/DelphiGoogleMaps_Setup.exe">Download the Installer</a>.</p>
+<p>The Installer automatically detect your Delphi versions, install sources, build and install packages and add source paths.</p>
+<p><img src="./Images/Setup.png" alt="Setup"/></p>
+<h2>Simple to use</h2>
 <p>It's very easy to use Google Maps API directly from Delphi Code, settings Component properties or invoking methods, for example:</p>
 <pre><code class="pascal">//Goto Address Example
 EdgeGoogleMapViewer.GotoAddress(MemoAddress.Lines.Text);
@@ -93,9 +107,10 @@ end;
 <h3>Available for Delphi 10.4.2, Delphi 11 and Delphi 12 (VCL 32bit and 64bit platforms)</h3>
 <p><img src="./Images/SupportingDelphi.jpg" alt="Delphi Support"/></p>
 <p>Related links: https://www.embarcadero.com/ - https://learndelphi.org/</p>
-<h2>INSTALLATION</h2>
+<h2>MANUAL INSTALLATION</h2>
+<p>If you don't want to use the installer, you can build the packages:</p>
 <ul>
-<li>Open {DelphiGoogleMapFolder}\Packages\DelphiGoogleMapsPackages.groupproj from Delphi IDE</li>
+<li>Open {DelphiGoogleMapFolder}\Packages{DelphiVer}\DelphiGoogleMapsPackages.groupproj from Delphi IDE</li>
 <li>Build Run-Time Package: DelphiGoogleMap</li>
 <li>Build and Install Design-Time Package:</li>
 <li>Add {DelphiGoogleMapFolder}\Source to Delphi source path</li>
@@ -127,9 +142,14 @@ end;
 <h3>DOCUMENTATION</h3>
 <p>No documentation available, but the Demo explain very well the use of the component.</p>
 <h3>RELEASE NOTES</h3>
+<p>12 Mar 2025 - Version 1.6.1</p>
+<ul>
+<li>Added support for Delphi 12 64bit IDE</li>
+<li>Added easy DelphiGoogleMaps_Setup.exe</li>
+</ul>
 <p>24 Apr 2024 - Version 1.6.0</p>
 <ul>
-<li>Added Circles, Polylines and Polygons to map</li>
+<li>Added functions to add Circles, Polylines or Polygons to map</li>
 <li>Added function ComputeDistanceBetween</li>
 <li>Enabled component into IDE using Win64 Platform</li>
 </ul>

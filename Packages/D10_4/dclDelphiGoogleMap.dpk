@@ -2,7 +2,7 @@
 {                                                                              }
 {       Delphi Google Map Viewer                                               }
 {                                                                              }
-{       Copyright (c) 2021-2023 (Ethea S.r.l.)                                 }
+{       Copyright (c) 2021-2025 (Ethea S.r.l.)                                 }
 {       Author: Carlo Barazzetta                                               }
 {       Contributors:                                                          }
 {         littleearth (https://github.com/littleearth)                         }
@@ -28,7 +28,7 @@
 package dclDelphiGoogleMap;
 
 {$R *.res}
-{$R 'Vcl.EdgeGoogleMap.dcr'}
+{$R '..\Vcl.EdgeGoogleMap.dcr'}
 {$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
 {$ALIGN 8}
 {$ASSERTIONS ON}
@@ -53,7 +53,7 @@ package dclDelphiGoogleMap;
 {$IMAGEBASE $400000}
 {$DEFINE RELEASE}
 {$ENDIF IMPLICITBUILDING}
-{$DESCRIPTION 'Delphi Google Maps Components - (c) Ethea S.r.l. - OpenSource Apache 2.0'}
+{$DESCRIPTION 'Ethea Google Maps Viewer Component'}
 {$LIBSUFFIX AUTO}
 {$DESIGNONLY}
 {$IMPLICITBUILD OFF}
@@ -63,6 +63,6 @@ requires
   DelphiGoogleMap;
 
 contains
-  Vcl.GoogleMapRegister in '..\Source\Vcl.GoogleMapRegister.pas';
+  Vcl.GoogleMapRegister in '..\..\Source\Vcl.GoogleMapRegister.pas';
 
 end.
