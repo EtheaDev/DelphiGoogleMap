@@ -96,6 +96,7 @@ Type
   TEdgeGoogleMapViewJavascript = procedure(ASender : TObject; var AJavascript : string) of object;
   TEdgeGoogleMapViewMapClick = procedure(ASender : TObject;  ALatLng : TLatLng) of object;
   TEdgeGoogleMapViewZoomChanged = procedure(ASender : TObject;  AZoom : integer) of object;
+  TEdgeGoogleMapViewerReadyWait =procedure(ASender : TObject; var AWait : boolean) of object;
 
   { TEdgeGoogleMapViewer }
   [ComponentPlatforms(pidWin32 or pidWin64)]
@@ -105,6 +106,7 @@ Type
     class var FUserDataFolder: string;
   private
     FMapIsBusy: boolean;
+    FInitComplete : boolean;
     FViewerReady: boolean;
     FAddress: string;
     FOverviewMapControl: boolean;
@@ -137,7 +139,7 @@ Type
     FOnMapClick: TEdgeGoogleMapViewMapClick;
     FOnMapRightClick: TEdgeGoogleMapViewMapClick;
     FOnMapZoom: TEdgeGoogleMapViewZoomChanged;
-
+    FOnViewerReadyWait: TEdgeGoogleMapViewerReadyWait;
     //variables for result functions
     FDistance: Variant;
 
@@ -185,6 +187,8 @@ Type
     procedure SetOnMapClick(const Value: TEdgeGoogleMapViewMapClick);
     procedure SetOnMapRightClick(const Value: TEdgeGoogleMapViewMapClick);
     procedure SetOnMapZoom(const Value: TEdgeGoogleMapViewZoomChanged);
+    procedure WaitUntilInitialized;
+    procedure SetOnViewerReadyWait(const Value: TEdgeGoogleMapViewerReadyWait);
   protected
     procedure Loaded; override;
     procedure ShowMap(AMapCenter: TLatLng; const AAddress: string = ''); overload;
@@ -338,6 +342,7 @@ Type
     property OnMapClick : TEdgeGoogleMapViewMapClick read FOnMapClick write SetOnMapClick;
     property OnMapRightClick : TEdgeGoogleMapViewMapClick read FOnMapRightClick write SetOnMapRightClick;
     property OnMapZoom : TEdgeGoogleMapViewZoomChanged read FOnMapZoom write SetOnMapZoom;
+    property OnViewerReadyWait : TEdgeGoogleMapViewerReadyWait read FOnViewerReadyWait write SetOnViewerReadyWait;
   end;
 
 implementation
@@ -492,6 +497,7 @@ begin
   Self.UserDataFolder := FUserDataFolder;
   if WebViewCreated then
     DefaultScriptDialogsEnabled := False;
+  FInitComplete := false;
   FMapVisible := false;
   FPanControl := true;
   FZoomControl := true;
@@ -871,7 +877,33 @@ begin
 end;
 
 
+procedure TEdgeGoogleMapViewer.WaitUntilInitialized;
+var
+  LLoop: integer;
+  LWait : boolean;
+begin
+  Sleep(1000);
+  LLoop := 0;
+  while (not FViewerReady) and (LLoop < 1000) do
+  begin
+    sleep(10);
+    Application.ProcessMessages;
+    Inc(LLoop);
+  end;
 
+  if not FViewerReady then
+  begin
+     LWait := False;
+     if Assigned(FOnViewerReadyWait) then
+     begin
+      FOnViewerReadyWait(Self,LWait)
+     end;
+     if LWait then
+     begin
+        WaitUntilInitialized;
+     end;
+  end;
+end;
 
 procedure TEdgeGoogleMapViewer.ShowMap(AMapCenter: TLatLng; const AAddress: string = '');
 var
@@ -882,11 +914,10 @@ begin
   if csDesigning in ComponentState then
     Exit;
 
-  while not FViewerReady do
-  begin
-    application.ProcessMessages;
-    Sleep(10);
-  end;
+  if not FInitComplete then
+    InitMap;
+
+  WaitUntilInitialized;
 
   if Assigned(FBeforeShowMap) then
     FBeforeShowMap(Self);
@@ -1064,6 +1095,7 @@ begin
 
   Self.UserDataFolder := FUserDataFolder;
   Self.Navigate(ABOUT_BLANK_PAGE);
+  FInitComplete := True;
 end;
 
 procedure TEdgeGoogleMapViewer.Loaded;
@@ -1224,6 +1256,12 @@ procedure TEdgeGoogleMapViewer.SetOnMapZoom(
   const Value: TEdgeGoogleMapViewZoomChanged);
 begin
   FOnMapZoom := Value;
+end;
+
+procedure TEdgeGoogleMapViewer.SetOnViewerReadyWait(
+  const Value: TEdgeGoogleMapViewerReadyWait);
+begin
+  FOnViewerReadyWait := Value;
 end;
 
 procedure TEdgeGoogleMapViewer.SetOnWebUnhandledMessageReceived(
