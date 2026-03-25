@@ -31,7 +31,7 @@ td{
 </style>
 <h1>DelphiGoogleMap  <a href="https://opensource.org/licenses/Apache-2.0"><img src="https://img.shields.io/badge/License-Apache%202.0-yellowgreen.svg" alt="License"/></a></h1>
 <p><strong>TEdgeGoogleMapViewer</strong>: a Delphi &ldquo;WebView2&rdquo; Component to View Google Map with integrated Routing and Markers Support</p>
-<h3>Actual official version 1.6.4 (VCL)</h3>
+<h3>Actual official version 2.0.0 (VCL)</h3>
 <table>
   <tr>
     <th>Component</th>
@@ -102,9 +102,18 @@ begin
 end;
 </code></pre>
 <p>Look at the <a href="https://developers.google.com/maps/documentation/javascript?hl=it">GoogleAPI documentation</a> if you need more functionality and please make a pull request to the project.</p>
+<h2>What's new in v2.0</h2>
+<ul>
+<li><strong>AdvancedMarkerElement</strong> — Uses the new Google Maps marker API with automatic fallback to legacy <code>google.maps.Marker</code></li>
+<li><strong>Color Scheme</strong> — New <code>MapColorScheme</code> property (<code>csLIGHT</code>, <code>csDARK</code>) to switch between light and dark map themes</li>
+<li><strong>InfoWindow header</strong> — New <code>PutMarker</code> overload with <code>AInfoTitle</code> parameter for bold header in InfoWindow (uses <code>setHeaderContent</code> API)</li>
+<li><strong>PutMarkerByAddress</strong> — New method for geocoding-based marker placement with built-in throttling (batch 5, delay 300ms)</li>
+<li><strong>Async API loading</strong> — Google Maps JavaScript API loaded dynamically with <code>loading=async</code> and callback for optimal performance</li>
+<li><strong>HideMap fix</strong> — <code>HideMap</code> now navigates to <code>about:blank</code>, properly clearing the map view</li>
+</ul>
 <h2>A complete demo is available!</h2>
 <p>Notice that in the same folder of the executable you must place the correct webview2loader.dll (32 or 64 bit) as you can see into Demo\GoogleMaps\Bin\Win32 and Demo\GoogleMaps\Bin\Win64.</p>
-<h3>Available for Delphi 10.4.2, Delphi 11 and Delphi 12 (VCL 32bit and 64bit platforms)</h3>
+<h3>Available for Delphi 10.4.2, Delphi 11, Delphi 12 and Delphi 13 (VCL 32bit and 64bit platforms)</h3>
 <p><img src="./Images/SupportingDelphi.jpg" alt="Delphi Support"/></p>
 <p>Related links: https://www.embarcadero.com/ - https://learndelphi.org/</p>
 <h2>MANUAL INSTALLATION</h2>
@@ -128,7 +137,7 @@ end;
 <p>Select Routing Mode &ldquo;Bicycling&rdquo;, Select &ldquo;RoadMap&rdquo; View Mode, click to &ldquo;Route by Location&rdquo;:</p>
 <p><img src="./Images/RouteBicyclingRoadMap.jpg" alt="Route Bicycling RoadMap"/></p>
 <h3>Route By Addresses - Hybrid and Traffic from Satellite View Style</h3>
-<p>Select Select &ldquo;Hybrid&rdquo; View Mode, Activate Traffic and click to &ldquo;Route by Addreess&rdquo;:</p>
+<p>Select &ldquo;Hybrid&rdquo; View Mode, Activate Traffic and click to &ldquo;Route by Addreess&rdquo;:</p>
 <p><img src="./Images/RouteByAddressHybridTraffic.jpg" alt="RouteByAddressHybridTraffic"/></p>
 <h3>Route showing &ldquo;Direction Panel&rdquo;</h3>
 <p>Check &ldquo;Direction Panel&rdquo; and and click to &ldquo;Route by Addresses&rdquo;:</p>
@@ -142,6 +151,18 @@ end;
 <h3>DOCUMENTATION</h3>
 <p>No documentation available, but the Demo explain very well the use of the component.</p>
 <h3>RELEASE NOTES</h3>
+<p>25 Mar 2026 - Version 2.0.0</p>
+<ul>
+<li>Added Support for Delphi 13.1</li>
+<li>Extracted all JavaScript to external file (Vcl.GoogleMap.js) embedded as RCDATA resource</li>
+<li>Added AdvancedMarkerElement support with automatic fallback to legacy Marker</li>
+<li>Added MapColorScheme property (csLIGHT, csDARK) for light/dark map themes</li>
+<li>Added PutMarker overload with AInfoTitle for InfoWindow header (setHeaderContent API)</li>
+<li>Added PutMarkerByAddress method with geocoding throttling (batch 5, delay 300ms)</li>
+<li>Google Maps API now loaded dynamically with loading=async and callback</li>
+<li>Fixed HideMap to properly clear the map view (navigates to about:blank)</li>
+<li>Updated Demo with Color Scheme selector and &ldquo;By Address&rdquo; marker tab</li>
+</ul>
 <p>05 Nov 2025 - Version 1.6.4</p>
 <ul>
 <li>Fixed Setup</li>

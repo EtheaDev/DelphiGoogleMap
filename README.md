@@ -2,7 +2,7 @@
 
 **TEdgeGoogleMapViewer**: a Delphi "WebView2" Component to View Google Map with integrated Routing and Markers Support
 
-### Actual official version 1.6.4 (VCL)
+### Actual official version 2.0.0 (VCL)
 
 | Component | Description |
 | - | - |
@@ -84,12 +84,21 @@ end;
 ```
 
 Look at the [GoogleAPI documentation](https://developers.google.com/maps/documentation/javascript?hl=it) if you need more functionality and please make a pull request to the project.
+
+## What's new in v2.0
+
+- **AdvancedMarkerElement** — Uses the new Google Maps marker API with automatic fallback to legacy `google.maps.Marker`
+- **Color Scheme** — New `MapColorScheme` property (`csLIGHT`, `csDARK`) to switch between light and dark map themes
+- **InfoWindow header** — New `PutMarker` overload with `AInfoTitle` parameter for bold header in InfoWindow (uses `setHeaderContent` API)
+- **PutMarkerByAddress** — New method for geocoding-based marker placement with built-in throttling (batch 5, delay 300ms)
+- **Async API loading** — Google Maps JavaScript API loaded dynamically with `loading=async` and callback for optimal performance
+- **HideMap fix** — `HideMap` now navigates to `about:blank`, properly clearing the map view
  
 ## A complete demo is available!
 
 Notice that in the same folder of the executable you must place the correct webview2loader.dll (32 or 64 bit) as you can see into Demo\GoogleMaps\Bin\Win32 and Demo\GoogleMaps\Bin\Win64.
 
-### Available for Delphi 10.4.2, Delphi 11 and Delphi 12 (VCL 32bit and 64bit platforms)
+### Available for Delphi 10.4.2, Delphi 11, Delphi 12 and Delphi 13 (VCL 32bit and 64bit platforms)
 
 ![Delphi Support](./Images/SupportingDelphi.jpg)
 
@@ -130,7 +139,7 @@ Select Routing Mode "Bicycling", Select "RoadMap" View Mode, click to "Route by 
 
 ### Route By Addresses - Hybrid and Traffic from Satellite View Style
 
-Select Select "Hybrid" View Mode, Activate Traffic and click to "Route by Addreess":
+Select "Hybrid" View Mode, Activate Traffic and click to "Route by Addreess":
 
 ![RouteByAddressHybridTraffic](./Images/RouteByAddressHybridTraffic.jpg)
 
@@ -157,6 +166,17 @@ Load Customer Table, scroll down the table: for every record a Marker is added t
 No documentation available, but the Demo explain very well the use of the component.
 
 ### RELEASE NOTES
+25 Mar 2026 - Version 2.0.0
+- Added Support for Delphi 13.1
+- Extracted all JavaScript to external file (Vcl.GoogleMap.js) embedded as RCDATA resource
+- Added AdvancedMarkerElement support with automatic fallback to legacy Marker
+- Added MapColorScheme property (csLIGHT, csDARK) for light/dark map themes
+- Added PutMarker overload with AInfoTitle for InfoWindow header (setHeaderContent API)
+- Added PutMarkerByAddress method with geocoding throttling (batch 5, delay 300ms)
+- Google Maps API now loaded dynamically with loading=async and callback
+- Fixed HideMap to properly clear the map view (navigates to about:blank)
+- Updated Demo with Color Scheme selector and "By Address" marker tab
+
 05 Nov 2025 - Version 1.6.4
 - Fixed Setup
 

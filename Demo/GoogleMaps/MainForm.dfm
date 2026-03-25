@@ -42,7 +42,7 @@ object formMain: TformMain
       Width = 198
       Height = 207
       Align = alLeft
-      Caption = 'Map Attributes'
+      Caption = 'Map Attributes v2.0'
       TabOrder = 0
       object lbZoom: TLabel
         Left = 135
@@ -155,6 +155,27 @@ object formMain: TformMain
           TabOrder = 5
           OnClick = CheckBoxMapTypeClick
         end
+      end
+      object LabelColorScheme: TLabel
+        Left = 6
+        Top = 182
+        Width = 68
+        Height = 13
+        Caption = 'Color Scheme'
+      end
+      object ColorSchemeComboBox: TComboBox
+        Left = 80
+        Top = 179
+        Width = 112
+        Height = 22
+        Style = csOwnerDrawFixed
+        ItemIndex = 0
+        TabOrder = 4
+        Text = 'LIGHT'
+        OnChange = ColorSchemeComboBoxChange
+        Items.Strings = (
+          'LIGHT'
+          'DARK')
       end
     end
     object GroupBox1: TGroupBox
@@ -724,6 +745,49 @@ object formMain: TformMain
                 Lines.Strings = (
                   '')
                 TabOrder = 1
+              end
+            end
+            object TabSheetByAddress: TTabSheet
+              Caption = 'By Address'
+              ImageIndex = 4
+              object LabelMarkerByAddress: TLabel
+                Left = 8
+                Top = 8
+                Width = 39
+                Height = 13
+                Caption = 'Address'
+              end
+              object LabelMarkerByAddressTitle: TLabel
+                Left = 8
+                Top = 44
+                Width = 20
+                Height = 13
+                Caption = 'Title'
+              end
+              object editMarkerByAddress: TEdit
+                Left = 58
+                Top = 5
+                Width = 310
+                Height = 21
+                TabOrder = 0
+                Text = 'Via Roma 1, Milano, Italy'
+              end
+              object editMarkerByAddressTitle: TEdit
+                Left = 58
+                Top = 41
+                Width = 310
+                Height = 21
+                TabOrder = 1
+                Text = 'Milano'
+              end
+              object btnAddMarkerByAddress: TButton
+                Left = 380
+                Top = 5
+                Width = 100
+                Height = 57
+                Caption = 'Add Marker'
+                TabOrder = 2
+                OnClick = btnAddMarkerByAddressClick
               end
             end
           end

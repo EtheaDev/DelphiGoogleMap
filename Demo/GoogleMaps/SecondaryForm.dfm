@@ -325,6 +325,7 @@ object FormSecondary: TFormSecondary
     MapAddress = 'Via Santa Cecilia 4, Carugate, Milano'
     MapLatitude = 25.767314000000000000
     MapLongitude = -80.135694000000000000
+    MapVisible = True
     BeforeShowMap = EdgeGoogleMapViewerBeforeShowMap
   end
 end

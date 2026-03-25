@@ -2,7 +2,7 @@
 {                                                                              }
 {       Delphi Google Map Viewer Demo                                          }
 {                                                                              }
-{       Copyright (c) 2021-2025 (Ethea S.r.l.)                                 }
+{       Copyright (c) 2021-2026 (Ethea S.r.l.)                                 }
 {       Author: Carlo Barazzetta                                               }
 {       Contributors:                                                          }
 {         littleearth (https://github.com/littleearth)                         }
@@ -242,6 +242,14 @@ type
     Label37: TLabel;
     eGeometryToLng: TEdit;
     btnGeometryComputeDistanceBetween: TButton;
+    ColorSchemeComboBox: TComboBox;
+    LabelColorScheme: TLabel;
+    TabSheetByAddress: TTabSheet;
+    editMarkerByAddress: TEdit;
+    LabelMarkerByAddress: TLabel;
+    btnAddMarkerByAddress: TButton;
+    editMarkerByAddressTitle: TEdit;
+    LabelMarkerByAddressTitle: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure ButtonGotoAddressClick(Sender: TObject);
     procedure ButtonGotoLocationClick(Sender: TObject);
@@ -281,6 +289,8 @@ type
     procedure chPolylinesShowHideClick(Sender: TObject);
     procedure chPolygonsShowHideClick(Sender: TObject);
     procedure btnGeometryComputeDistanceBetweenClick(Sender: TObject);
+    procedure ColorSchemeComboBoxChange(Sender: TObject);
+    procedure btnAddMarkerByAddressClick(Sender: TObject);
   private
     FRighClickLatLng : TLatLng;
     procedure OnMapClick(ASender: TObject; ALatLng : TLatLng);
@@ -342,6 +352,7 @@ begin
   DestinationAddressMemo.Lines.Text := 'Via San Francesco 5, 20061 Carugate, Milano';
   FileEdit.Text := ExtractFilePath(Application.ExeName)+'..\..\Data\customer.xml';
   PageControlMarker.ActivePageIndex := 0;
+  ColorSchemeComboBox.ItemIndex := Ord(EdgeGoogleMapViewer.MapColorScheme);
   EdgeGoogleMapViewer.OnMapClick := OnMapClick;
   EdgeGoogleMapViewer.OnMapRightClick := OnMapRightClick;
   EdgeGoogleMapViewer.OnMapZoom := OnMapZoom;
@@ -603,6 +614,18 @@ begin
 
   Distance := EdgeGoogleMapViewer.ComputeDistanceBetween(FromLatLng,ToLatLng);
   ShowMessageFmt('Distance %8.2f mts',[Distance]);
+end;
+
+procedure TformMain.ColorSchemeComboBoxChange(Sender: TObject);
+begin
+  EdgeGoogleMapViewer.MapColorScheme := TGoogleMapColorScheme(ColorSchemeComboBox.ItemIndex);
+end;
+
+procedure TformMain.btnAddMarkerByAddressClick(Sender: TObject);
+begin
+  EdgeGoogleMapViewer.PutMarkerByAddress(
+    editMarkerByAddress.Text,
+    editMarkerByAddressTitle.Text);
 end;
 
 procedure TformMain.Button1Click(Sender: TObject);
