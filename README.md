@@ -168,7 +168,6 @@ No documentation available, but the Demo explain very well the use of the compon
 ### RELEASE NOTES
 25 Mar 2026 - Version 2.0.0
 - Added Support for Delphi 13.1
-- Extracted all JavaScript to external file (Vcl.GoogleMap.js) embedded as RCDATA resource
 - Added AdvancedMarkerElement support with automatic fallback to legacy Marker
 - Added MapColorScheme property (csLIGHT, csDARK) for light/dark map themes
 - Added PutMarker overload with AInfoTitle for InfoWindow header (setHeaderContent API)
