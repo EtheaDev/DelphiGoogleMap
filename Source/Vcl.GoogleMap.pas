@@ -1051,7 +1051,8 @@ end;
 
 function TEdgeGoogleMapViewer.GetHTMLScript : string;
 var
-  LJSScript : string;
+  LJSScript, LBuiltInScript : string;
+  LPos : Integer;
 begin
   LJSScript := GetJSVariables + sLineBreak +
   GetJSInitialize + sLineBreak +
@@ -1074,7 +1075,17 @@ begin
   GetJSGeometry + sLineBreak +
   GetJSCalcRoute;
   if Assigned(FOnGetJavascript) then
+  begin
+    LBuiltInScript := LJSScript;
     FOnGetJavascript(Self, LJSScript);
+    //The built-in script is a Format template: escape '%' only in the text added around it
+    LPos := Pos(LBuiltInScript, LJSScript);
+    if LPos > 0 then
+      LJSScript :=
+        StringReplace(Copy(LJSScript, 1, LPos - 1),'%','%%',[rfReplaceAll]) +
+        LBuiltInScript +
+        StringReplace(Copy(LJSScript, LPos + Length(LBuiltInScript), MaxInt),'%','%%',[rfReplaceAll]);
+  end;
   Result :=
   '<script type="text/javascript"> '+sLineBreak+
   LJSScript + sLineBreak +
