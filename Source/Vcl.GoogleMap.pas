@@ -440,11 +440,8 @@ begin
 end;
 
 class function TEdgeGoogleMapViewer.TextToCoord(const Value: String): Extended;
-var
-  LFormatSettinga: TFormatSettings;
 begin
-  LFormatSettinga.DecimalSeparator := '.';
-  Result := StrToFloat(Value, LFormatSettinga);
+  Result := StrToFloat(Value, TFormatSettings.Invariant);
 end;
 
 function TEdgeGoogleMapViewer.HandleWebMessageEvent(AEvent : string) : boolean;
@@ -521,9 +518,8 @@ end;
 
 class function TEdgeGoogleMapViewer.CoordToText(const Coord: double): string;
 begin
-  //Format Coordinates to String
-  Result := FloatToStrF(Coord, ffFixed, 8, 6);
-  Result := StringReplace(Result, ',','.',[]);
+  //Format Coordinates to String (always 6 decimals and '.' as separator)
+  Result := FloatToStrF(Coord, ffFixed, 15, 6, TFormatSettings.Invariant);
 end;
 
 function TEdgeGoogleMapViewer.B2S(value: boolean): string;
