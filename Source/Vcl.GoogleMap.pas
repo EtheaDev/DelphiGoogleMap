@@ -449,6 +449,7 @@ end;
 
 function TEdgeGoogleMapViewer.HandleWebMessageEvent(AEvent : string) : boolean;
 var
+  LJSONValue : TJSONValue;
   LEventValue : TJSONObject;
   LEvent : string;
   LLatLng : TLatLng;
@@ -457,7 +458,13 @@ begin
   Result := False;
   LEventValue := nil;
   try
-    LEventValue := TJSONObject.ParseJSONValue(AEvent) as TJSONObject;
+    LJSONValue := TJSONObject.ParseJSONValue(AEvent);
+    if not (LJSONValue is TJSONObject) then
+    begin
+      LJSONValue.Free;
+      Exit;
+    end;
+    LEventValue := TJSONObject(LJSONValue);
     LEvent := LEventValue.GetValue('event').GetValue<string>;
     if SameText(LEvent,'click') then
       begin
@@ -467,6 +474,7 @@ begin
           LLatLng.Longitude := LEventValue.GetValue('lng').GetValue<double>;
 
           FOnMapClick(Self,LLatLng);
+          Result := True;
         end;
       end;
      if SameText(LEvent,'rightclick') then
@@ -476,6 +484,7 @@ begin
           LLatLng.Latitude := LEventValue.GetValue('lat').GetValue<double>;
           LLatLng.Longitude := LEventValue.GetValue('lng').GetValue<double>;
           FOnMapRightClick(Self,LLatLng);
+          Result := True;
         end;
       end;
        if SameText(LEvent,'zoom_changed') then
@@ -485,12 +494,16 @@ begin
           begin
             FOnMapZoom(Self,FZoom);
           end;
+        Result := True;
       end;
        if SameText(LEvent,'response_value') then
       begin
         Field := LEventValue.GetValue('field').GetValue<string>;
         if Field='distance' then
+          begin
             FDistance:=LEventValue.GetValue('value').GetValue<Double>;
+            Result := True;
+          end;
       end;
   except
 
