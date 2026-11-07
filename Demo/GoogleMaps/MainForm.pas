@@ -30,7 +30,7 @@ unit MainForm;
 interface
 
 uses
-  Winapi.WebView2, System.SysUtils, Winapi.ActiveX, Vcl.Forms,
+  WebView2 {Winapi.WebView2 from Delphi 11}, System.SysUtils, Winapi.ActiveX, Vcl.Forms,
   Vcl.GoogleMap, Vcl.Edge, Data.DB, Datasnap.DBClient, Vcl.Menus, Vcl.ExtCtrls,
   Vcl.DBCtrls, Vcl.Grids, Vcl.DBGrids, Vcl.StdCtrls, Vcl.Samples.Spin,
   Vcl.Controls, System.Classes, Vcl.Mask, Vcl.ComCtrls, Vcl.Buttons;

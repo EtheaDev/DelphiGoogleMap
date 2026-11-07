@@ -31,7 +31,7 @@ td{
 </style>
 <h1>DelphiGoogleMap  <a href="https://opensource.org/licenses/Apache-2.0"><img src="https://img.shields.io/badge/License-Apache%202.0-yellowgreen.svg" alt="License"/></a></h1>
 <p><strong>TEdgeGoogleMapViewer</strong>: a Delphi &ldquo;WebView2&rdquo; Component to View Google Map with integrated Routing and Markers Support</p>
-<h3>Actual official version 2.0.0 (VCL)</h3>
+<h3>Actual official version 2.1.0 (VCL)</h3>
 <table>
   <tr>
     <th>Component</th>
@@ -46,6 +46,11 @@ td{
 <p>From 1.6.1 version a new &ldquo;Installer&rdquo; read-to-use is located in the Release area: <a href="https://github.com/EtheaDev/DelphiGoogleMap/releases/latest/download/DelphiGoogleMaps_Setup.exe">Download the Installer</a>.</p>
 <p>The Installer automatically detect your Delphi versions, install sources, build and install packages and add source paths.</p>
 <p><img src="./Images/Setup.png" alt="Setup"/></p>
+<h2>Installation with DPM (Delphi Package Manager)</h2>
+<p>The library is also published on <a href="https://delphi.dev/packages/etheadev.delphigooglemap">delphi.dev</a> as the package <strong>EtheaDev.DelphiGoogleMap</strong> (Delphi 10.4 to 13, Win32 and Win64): you can install it with <a href="https://delphi.dev">DPM, the Delphi Package Manager</a>, as an alternative to the Setup. From the IDE, right click on your project in the Project Manager and choose <em>Manage DPM Packages</em>, or from the command line:</p>
+<pre><code>dpm install EtheaDev.DelphiGoogleMap &lt;path of your project&gt;.dproj
+</code></pre>
+<p>DPM downloads the package, builds it for the Delphi version and the platforms of your project and adds it to the project. DPM also copies <code>WebView2Loader.dll</code> (Win32 or Win64) next to the executable of your project.</p>
 <h2>Simple to use</h2>
 <p>It's very easy to use Google Maps API directly from Delphi Code, settings Component properties or invoking methods, for example:</p>
 <pre><code class="pascal">//Goto Address Example
@@ -63,10 +68,10 @@ begin
   EdgeGoogleMapViewer.MapTypeId := TGoogleMapTypeId(MapTypeIdComboBox.ItemIndex);
 </code></pre>
 <h2>How it works</h2>
-<p>The component works in a simple way: creates an html file with some javascript functions inside it and load it from disk, so the Delphi component can call those javascript functions inside the component methods, calling ExecuteScript(ScriptCommand) method of the TEdgeBrowser. If you want to analyse the content of the file created, put a break-point into TEdgeGoogleMapViewer.ShowMap at this line to know the name of the file created:</p>
-<pre><code class="pascal">NavigateToURL('file:///'+LFileName);
+<p>The component works in a simple way: builds an html page with some javascript functions inside it and loads it into the browser (NavigateToString), so the Delphi component can call those javascript functions inside the component methods, calling ExecuteScript(ScriptCommand) method of the TEdgeBrowser. If you want to analyse the content of the page, put a break-point into TEdgeGoogleMapViewer.ShowMap at this line:</p>
+<pre><code class="pascal">NavigateToString(HTMLString);
 </code></pre>
-<p>If you want to see how the component calls a javascript function inside the page, look for example at the method &ldquo;GotoAddress&rdquo;:</p>
+<p>If you want to see how the component calls a javascript function inside the page, look for example at the method &ldquo;GotoAddress&rdquo; (strings passed to javascript must always be encoded with <code>JSQuotedStr</code>):</p>
 <pre><code class="pascal">procedure TEdgeGoogleMapViewer.GotoAddress(const Address: string);
 var
   ScriptCommand: String;
@@ -78,27 +83,17 @@ begin
     ShowMap(FAddress)
   else
   begin
-    ScriptCommand := Format('codeAddress(%s)',[QuotedStr(ClearAddressText(Address))]);
+    ScriptCommand := Format('codeAddress(%s)',[JSQuotedStr(ClearAddressText(Address))]);
     ExecuteScript(ScriptCommand);
   end;
 end;
 </code></pre>
-<p>You can extend the component with any functionality you can execute at javascipt level, adding the function into the code, in the method &ldquo;GetHTMLScript&rdquo; that collect all the Javascript functions, or you can add your personal javascript code in the event &ldquo;OnGetJavascript&rdquo;.</p>
-<pre><code class="pascal">function TEdgeGoogleMapViewer.GetHTMLScript : string;
-var
-  LJSScript : string;
+<p>You can extend the component with any functionality you can execute at javascipt level, adding the function into the code, in the method &ldquo;GetHTMLScript&rdquo; that collect all the Javascript functions, or you can add your personal javascript code in the event &ldquo;OnGetJavascript&rdquo;. The event receives the final javascript code (no Format placeholders), so write it as plain javascript (a <code>%</code> is written as <code>%</code>, not <code>%%</code>):</p>
+<pre><code class="pascal">procedure TformMain.EdgeGoogleMapViewerGetJavascript(ASender: TObject;
+  var AJavascript: string);
 begin
-  LJSScript := GetJSVariables +sLineBreak+
-  GetJSInitialize +sLineBreak+
-  (...)
-  GetJSRouteAddress + sLineBreak +
-  GetJSCalcRoute;
-  if Assigned(FOnGetJavascript) then
-    FOnGetJavascript(Self,LJSScript);
-  Result :=
-  '&lt;script type="text/javascript"&gt; '+sLineBreak+
-  LJSScript + sLineBreak +
-  '&lt;/script&gt; '+ sLineBreak;
+  AJavascript := AJavascript + sLineBreak +
+    '  function IsEven(n) { return n % 2 === 0; }';
 end;
 </code></pre>
 <p>Look at the <a href="https://developers.google.com/maps/documentation/javascript?hl=it">GoogleAPI documentation</a> if you need more functionality and please make a pull request to the project.</p>
@@ -151,6 +146,25 @@ end;
 <h3>DOCUMENTATION</h3>
 <p>No documentation available, but the Demo explain very well the use of the component.</p>
 <h3>RELEASE NOTES</h3>
+<p>07 Nov 2026 - Version 2.1.0</p>
+<ul>
+<li>Fixed CoordToText: longitudes &gt;= 100 lost the last decimals (e.g. 151.209296 became 151.209300)</li>
+<li>Fixed TextToCoord: uses invariant format settings (no uninitialized TFormatSettings fields)</li>
+<li>Fixed texts passed to javascript (addresses, descriptions, labels, info windows): apostrophes, newlines, backslashes and quotes no longer break the script (e.g. &ldquo;Via dell'Industria&rdquo;). New class function JSQuotedStr</li>
+<li>Fixed Put* methods and routing called with the map hidden: they now wait until the page and the Google Maps API are loaded (the first overlay or route was lost)</li>
+<li>Fixed OnCreateWebViewCompleted, OnNavigationCompleted and OnWebMessageReceived assigned at design-time: they no longer replace the internal handlers (map never shown, OnMapClick/OnMapZoom/ComputeDistanceBetween not working)</li>
+<li>Fixed PutCircle, PutPolyline and PutPolygon changing the global FormatSettings.DecimalSeparator of the application; opacities keep all the decimals</li>
+<li>Fixed RouteByLocations: points on the Equator or on the Greenwich meridian are valid, an unassigned start point is no longer accepted</li>
+<li>Fixed '%' in the javascript added by OnGetJavascript (e.g. &ldquo;7 % 2&rdquo; was truncated)</li>
+<li>Fixed web messages: map events are reported as handled (no more duplicated OnWebUnhandledMessageReceived), memory leaks with non-object JSON messages and COM strings, access violation with messages that are not strings</li>
+<li>Fixed exceptions raised in OnMapClick, OnMapRightClick and OnMapZoom: no longer silently swallowed</li>
+<li>Fixed ComputeDistanceBetween: the 2 seconds timeout is real elapsed time (was about 30 seconds), the map is shown if needed, re-entrant calls are rejected</li>
+<li>Fixed WebView2 initialization failure (e.g. missing WebView2Loader.dll): ShowMap raises the error instead of hanging the application</li>
+<li>Fixed Demo compilation with Delphi 10.4 (Winapi.WebView2 unit not found)</li>
+<li>Added Demo build scripts (Demo\BuildDemo.ps1, BuildAllDemos.ps1, BuildDemoD10.4/D11/D12/D13.ps1)</li>
+<li>Breaking change: OnGetJavascript receives the final javascript (no %s/%d placeholders): write '%' instead of '%%'</li>
+<li>Breaking change: a user OnWebMessageReceived handler is called for every message, in addition to the internal handling</li>
+</ul>
 <p>25 Mar 2026 - Version 2.0.0</p>
 <ul>
 <li>Added Support for Delphi 13.1</li>

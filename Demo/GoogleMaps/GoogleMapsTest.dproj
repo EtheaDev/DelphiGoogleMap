@@ -65,14 +65,15 @@
         <VerInfo_Locale>1033</VerInfo_Locale>
         <DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;Winapi;$(DCC_Namespace)</DCC_Namespace>
         <SanitizedProjectName>GoogleMapsTest</SanitizedProjectName>
-        <VerInfo_Keys>CompanyName=Ethea S.r.l.;FileDescription=Edge GoogleMap Viewer Demo;FileVersion=1.6.2.0;InternalName=;LegalCopyright=CopyRight (c) 2021-2025 - Ethea S.r.l.;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.6;Comments=</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=Ethea S.r.l.;FileDescription=Edge GoogleMap Viewer Demo;FileVersion=2.1.0.0;InternalName=;LegalCopyright=CopyRight (c) 2021-2026 - Ethea S.r.l.;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=2.1;Comments=</VerInfo_Keys>
         <DCC_DependencyCheckOutputName>GoogleMapsTest.exe</DCC_DependencyCheckOutputName>
         <DCC_UnitSearchPath>..\Source;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <DCC_ExeOutput>.\Bin\$(Platform)</DCC_ExeOutput>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <DCC_DcuOutput>.\Dcu\$(Platform)</DCC_DcuOutput>
-        <VerInfo_MinorVer>6</VerInfo_MinorVer>
-        <VerInfo_Release>2</VerInfo_Release>
+        <VerInfo_MajorVer>2</VerInfo_MajorVer>
+        <VerInfo_MinorVer>1</VerInfo_MinorVer>
+        <VerInfo_Release>0</VerInfo_Release>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
@@ -121,33 +122,6 @@
                     <Parameters Name="LoadAllSymbols">True</Parameters>
                     <Parameters Name="LoadUnspecifiedSymbols">False</Parameters>
                 </Parameters>
-                <VersionInfo>
-                    <VersionInfo Name="IncludeVerInfo">False</VersionInfo>
-                    <VersionInfo Name="AutoIncBuild">False</VersionInfo>
-                    <VersionInfo Name="MajorVer">1</VersionInfo>
-                    <VersionInfo Name="MinorVer">0</VersionInfo>
-                    <VersionInfo Name="Release">0</VersionInfo>
-                    <VersionInfo Name="Build">0</VersionInfo>
-                    <VersionInfo Name="Debug">False</VersionInfo>
-                    <VersionInfo Name="PreRelease">False</VersionInfo>
-                    <VersionInfo Name="Special">False</VersionInfo>
-                    <VersionInfo Name="Private">False</VersionInfo>
-                    <VersionInfo Name="DLL">False</VersionInfo>
-                    <VersionInfo Name="Locale">13322</VersionInfo>
-                    <VersionInfo Name="CodePage">1252</VersionInfo>
-                </VersionInfo>
-                <VersionInfoKeys>
-                    <VersionInfoKeys Name="CompanyName"/>
-                    <VersionInfoKeys Name="FileDescription"/>
-                    <VersionInfoKeys Name="FileVersion">1.0.0.0</VersionInfoKeys>
-                    <VersionInfoKeys Name="InternalName"/>
-                    <VersionInfoKeys Name="LegalCopyright"/>
-                    <VersionInfoKeys Name="LegalTrademarks"/>
-                    <VersionInfoKeys Name="OriginalFilename"/>
-                    <VersionInfoKeys Name="ProductName"/>
-                    <VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys>
-                    <VersionInfoKeys Name="Comments"/>
-                </VersionInfoKeys>
                 <Source>
                     <Source Name="MainSource">GoogleMapsTest.dpr</Source>
                 </Source>

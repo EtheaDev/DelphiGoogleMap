@@ -1,171 +1,83 @@
-﻿# DelphiGoogleMap  [![License](https://img.shields.io/badge/License-Apache%202.0-yellowgreen.svg)](https://opensource.org/licenses/Apache-2.0)
+﻿# DelphiGoogleMap
+
+<!-- badges -->
+[![License: Apache](https://img.shields.io/badge/License-Apache%202.0-green.svg)](LICENSE)
+[![Latest release](https://img.shields.io/github/v/release/EtheaDev/DelphiGoogleMap?label=release&color=blue)](https://github.com/EtheaDev/DelphiGoogleMap/releases)
+[![Delphi 10.4.2+](https://img.shields.io/badge/Delphi-10.4.2%2B-e62329.svg)](https://www.embarcadero.com/products/delphi)
+[![Platform: VCL](https://img.shields.io/badge/Platform-VCL-8a2be2.svg)](https://docwiki.embarcadero.com/RADStudio/en/Main_Page)
+[![Microsoft Edge WebView2](https://img.shields.io/badge/WebView2-Edge-0078d4.svg)](https://developer.microsoft.com/microsoft-edge/webview2/)
+[![Google Maps JavaScript API](https://img.shields.io/badge/Google%20Maps-JavaScript%20API-4285f4.svg)](https://developers.google.com/maps/documentation/javascript)
+[![Windows 10 and 11](https://img.shields.io/badge/Windows-10%20%7C%2011-0078d6.svg)](https://www.microsoft.com/windows)
 
 **TEdgeGoogleMapViewer**: a Delphi "WebView2" Component to View Google Map with integrated Routing and Markers Support
 
-### Actual official version 2.0.0 (VCL)
+### Actual official version 2.1.0 (VCL)
 
 | Component | Description |
 | - | - |
 | ![google-maps-128.png](./Images/google-maps-128.png) | **TEdgeGoogleMapViewer** is a Delphi wrapper on "WebView2" Component that adds many Google Maps features like Routing and Markers Support (only for VCL). You can setup attributes of the components to see the Google Maps reacts to your changes. |
 
-## New Setup for automatic installation of components
+## Installation
 
-From 1.6.1 version a new "Installer" read-to-use is located in the Release area: [Download the Installer](https://github.com/EtheaDev/DelphiGoogleMap/releases/latest/download/DelphiGoogleMaps_Setup.exe).
+Run the [Installer](https://github.com/EtheaDev/DelphiGoogleMap/releases/latest/download/DelphiGoogleMaps_Setup.exe): it detects your Delphi versions, installs the sources, builds and installs the packages and adds the source paths.
 
-The Installer automatically detect your Delphi versions, install sources, build and install packages and add source paths.
+Or install the package with [DPM, the Delphi Package Manager](https://delphi.dev/packages/etheadev.delphigooglemap) (Delphi 10.4 to 13, Win32 and Win64), which also copies `WebView2Loader.dll` next to the executable of your project:
 
-![Setup](./Images/Setup.png)
+```
+dpm install EtheaDev.DelphiGoogleMap <path of your project>.dproj
+```
+
+Without the installer, open `Packages\<Delphi version>\DelphiGoogleMapsPackages.groupproj`, build the run-time package, build and install the design-time one and add the `Source` folder to the Delphi source path.
+
+If you do not use DPM, `WebView2Loader.dll` (32 or 64 bit) has to be in the same folder as the executable: see `Demo\GoogleMaps\Bin\Win32` and `Win64`.
 
 ## Simple to use
 
-It's very easy to use Google Maps API directly from Delphi Code, settings Component properties or invoking methods, for example:
+You need a [Google Maps API key](https://developers.google.com/maps/documentation/javascript/get-api-key). Register it once, then set properties and call methods:
 
 ```pascal
+TEdgeGoogleMapViewer.RegisterGoogleMapsApiKey('<your Google Maps API key>');
+
 //Goto Address Example
 EdgeGoogleMapViewer.GotoAddress(MemoAddress.Lines.Text);
 
-//Goto Latitude/Longitude Example
-var
-  Location: TLatLng;
-begin
-  Location.Latitude := TEdgeGoogleMapViewer.TextToCoord(Latitude.Text);
-  Location.Longitude := TEdgeGoogleMapViewer.TextToCoord(Longitude.Text);
-  EdgeGoogleMapViewer.GotoLocation(Location);
-
 //Setting Map View Mode
-  EdgeGoogleMapViewer.MapTypeId := TGoogleMapTypeId(MapTypeIdComboBox.ItemIndex);
+EdgeGoogleMapViewer.MapTypeId := mtHYBRID;
+
+//Route between two addresses, with the directions panel
+EdgeGoogleMapViewer.MapShowDirectionsPanel := True;
+EdgeGoogleMapViewer.MapStartAddress := 'Via Santa Cecilia 4, Carugate, Milano';
+EdgeGoogleMapViewer.MapDestinationAddress := 'Via San Francesco 5, Carugate, Milano';
+EdgeGoogleMapViewer.RouteByAddresses;
 ```
 
-## How it works
+![The demo showing a route with the directions panel](./Images/RouteWithDirectionPanel.jpg)
 
-The component works in a simple way: creates an html file with some javascript functions inside it and load it from disk, so the Delphi component can call those javascript functions inside the component methods, calling ExecuteScript(ScriptCommand) method of the TEdgeBrowser. If you want to analyse the content of the file created, put a break-point into TEdgeGoogleMapViewer.ShowMap at this line to know the name of the file created:
+Open `Demo\GoogleMaps\GoogleMapsTest.dproj` to see every feature at work: markers, circles, polylines and polygons, routing, light and dark maps, map events.
 
-```pascal
-NavigateToURL('file:///'+LFileName);
-```
-If you want to see how the component calls a javascript function inside the page, look for example at the method "GotoAddress":
+## Documentation
 
-```pascal
-procedure TEdgeGoogleMapViewer.GotoAddress(const Address: string);
-var
-  ScriptCommand: String;
-begin
-  FAddress := Address;
-  if FAddress = '' then
-    HideMap
-  else if not MapVisible then
-    ShowMap(FAddress)
-  else
-  begin
-    ScriptCommand := Format('codeAddress(%s)',[QuotedStr(ClearAddressText(Address))]);
-    ExecuteScript(ScriptCommand);
-  end;
-end;
-```
-You can extend the component with any functionality you can execute at javascipt level, adding the function into the code, in the method "GetHTMLScript" that collect all the Javascript functions, or you can add your personal javascript code in the event "OnGetJavascript".
-
-```pascal
-function TEdgeGoogleMapViewer.GetHTMLScript : string;
-var
-  LJSScript : string;
-begin
-  LJSScript := GetJSVariables +sLineBreak+
-  GetJSInitialize +sLineBreak+
-  (...)
-  GetJSRouteAddress + sLineBreak +
-  GetJSCalcRoute;
-  if Assigned(FOnGetJavascript) then
-    FOnGetJavascript(Self,LJSScript);
-  Result :=
-  '<script type="text/javascript"> '+sLineBreak+
-  LJSScript + sLineBreak +
-  '</script> '+ sLineBreak;
-end;
-```
-
-Look at the [GoogleAPI documentation](https://developers.google.com/maps/documentation/javascript?hl=it) if you need more functionality and please make a pull request to the project.
-
-## What's new in v2.0
-
-- **AdvancedMarkerElement** — Uses the new Google Maps marker API with automatic fallback to legacy `google.maps.Marker`
-- **Color Scheme** — New `MapColorScheme` property (`csLIGHT`, `csDARK`) to switch between light and dark map themes
-- **InfoWindow header** — New `PutMarker` overload with `AInfoTitle` parameter for bold header in InfoWindow (uses `setHeaderContent` API)
-- **PutMarkerByAddress** — New method for geocoding-based marker placement with built-in throttling (batch 5, delay 300ms)
-- **Async API loading** — Google Maps JavaScript API loaded dynamically with `loading=async` and callback for optimal performance
-- **HideMap fix** — `HideMap` now navigates to `about:blank`, properly clearing the map view
- 
-## A complete demo is available!
-
-Notice that in the same folder of the executable you must place the correct webview2loader.dll (32 or 64 bit) as you can see into Demo\GoogleMaps\Bin\Win32 and Demo\GoogleMaps\Bin\Win64.
-
-### Available for Delphi 10.4.2, Delphi 11, Delphi 12 and Delphi 13 (VCL 32bit and 64bit platforms)
-
-![Delphi Support](./Images/SupportingDelphi.jpg)
-
-Related links: https://www.embarcadero.com/ - https://learndelphi.org/
-
-## MANUAL INSTALLATION
-
-If you don't want to use the installer, you can build the packages:
-
-- Open {DelphiGoogleMapFolder}\Packages\{DelphiVer}\DelphiGoogleMapsPackages.groupproj from Delphi IDE
-- Build Run-Time Package: DelphiGoogleMap
-- Build and Install Design-Time Package:
-- Add {DelphiGoogleMapFolder}\Source to Delphi source path
-
-# The Demo in action
-
-Open \Demo\GoogleMaps\GoogleMapsTest.dproj: Build (32 or 64 bit) and Run.
-
-**Notice: you need a Google API key to activate the navigation**: by default the Demo request to input API before using the component, or you can edit TformMain.EdgeGoogleMapViewerBeforeShowMap event to add your API KEY to the component.
-
-### Goto Address: Via S.Cecilia 4, Carugate, Milano
-
-Input Address and click to "Goto Address":
-
-![GoTo Address](./Images/GoToAddress.jpg)
-
-### Goto Latitude/Longitude (25.767314 / -80.135694)
-
-Input Latutude and Longitude and click to "Goto Latitude/Longitude"
-
-![GoTo Latitude](./Images/GoToLatitudeLongitude.jpg)
-
-### Route Bicycling - RoadMap View Style
-
-Select Routing Mode "Bicycling", Select "RoadMap" View Mode, click to "Route by Location":
-
-![Route Bicycling RoadMap](./Images/RouteBicyclingRoadMap.jpg)
-
-### Route By Addresses - Hybrid and Traffic from Satellite View Style
-
-Select "Hybrid" View Mode, Activate Traffic and click to "Route by Addreess":
-
-![RouteByAddressHybridTraffic](./Images/RouteByAddressHybridTraffic.jpg)
-
-### Route showing "Direction Panel"
-
-Check "Direction Panel" and and click to "Route by Addresses":
-
-![RouteWithDirectionPanel](./Images/RouteWithDirectionPanel.jpg)
-
-### Showing "Print Panel" embedded into Browser
-
-Click on "Show Print UI" button:
-
-![ShowPrintUI](./Images/ShowPrintUI.jpg)
-
-### Markers from Customer Table (customers.xml)
-
-Load Customer Table, scroll down the table: for every record a Marker is added to the Map. Zoom out map to see all Markers.
-
-![Markers Of Customers](./Images/MarkersOfCustomers.jpg)
-
-### DOCUMENTATION
-
-No documentation available, but the Demo explain very well the use of the component.
+Full documentation, with the Quick Start, every feature explained and the walkthrough of the demo, is on the [Project Site](https://ethea.it/docs/delphigooglemap/).
 
 ### RELEASE NOTES
+07 Nov 2026 - Version 2.1.0
+- Fixed CoordToText: longitudes >= 100 lost the last decimals (e.g. 151.209296 became 151.209300)
+- Fixed TextToCoord: uses invariant format settings (no uninitialized TFormatSettings fields)
+- Fixed texts passed to javascript (addresses, descriptions, labels, info windows): apostrophes, newlines, backslashes and quotes no longer break the script (e.g. "Via dell'Industria"). New class function JSQuotedStr
+- Fixed Put* methods and routing called with the map hidden: they now wait until the page and the Google Maps API are loaded (the first overlay or route was lost)
+- Fixed OnCreateWebViewCompleted, OnNavigationCompleted and OnWebMessageReceived assigned at design-time: they no longer replace the internal handlers (map never shown, OnMapClick/OnMapZoom/ComputeDistanceBetween not working)
+- Fixed PutCircle, PutPolyline and PutPolygon changing the global FormatSettings.DecimalSeparator of the application; opacities keep all the decimals
+- Fixed RouteByLocations: points on the Equator or on the Greenwich meridian are valid, an unassigned start point is no longer accepted
+- Fixed '%' in the javascript added by OnGetJavascript (e.g. "7 % 2" was truncated)
+- Fixed web messages: map events are reported as handled (no more duplicated OnWebUnhandledMessageReceived), memory leaks with non-object JSON messages and COM strings, access violation with messages that are not strings
+- Fixed exceptions raised in OnMapClick, OnMapRightClick and OnMapZoom: no longer silently swallowed
+- Fixed ComputeDistanceBetween: the 2 seconds timeout is real elapsed time (was about 30 seconds), the map is shown if needed, re-entrant calls are rejected
+- Fixed WebView2 initialization failure (e.g. missing WebView2Loader.dll): ShowMap raises the error instead of hanging the application
+- Fixed Demo compilation with Delphi 10.4 (Winapi.WebView2 unit not found)
+- Added Demo build scripts (Demo\BuildDemo.ps1, BuildAllDemos.ps1, BuildDemoD10.4/D11/D12/D13.ps1)
+- Breaking change: OnGetJavascript receives the final javascript (no %s/%d placeholders): write '%' instead of '%%'
+- Breaking change: a user OnWebMessageReceived handler is called for every message, in addition to the internal handling
+
 25 Mar 2026 - Version 2.0.0
 - Added Support for Delphi 13.1
 - Added AdvancedMarkerElement support with automatic fallback to legacy Marker
@@ -231,3 +143,9 @@ No documentation available, but the Demo explain very well the use of the compon
 24 Sep 2021 - Version 1.0.0
 - Google Map Viewer Component based on TEdgeBrowser
 - Full Demo available
+
+## License
+
+Copyright (c) 2021-2026 Ethea S.r.l.
+
+Licensed under the [Apache License, Version 2.0](LICENSE) (the "License"): you may not use this software except in compliance with the License. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.

@@ -1,0 +1,58 @@
+# DPM package spec file (https://delphi.dev)
+# The version and the commit are written by _sync\sync_project.py at every release.
+min dpm client version: 1.0.0
+metadata:
+  id: EtheaDev.DelphiGoogleMap
+  version: 2.1.0
+  description: 'TEdgeGoogleMapViewer: a VCL component based on WebView2 (TEdgeBrowser) to show Google Maps, with integrated routing and markers support.'
+  authors:
+    - Carlo Barazzetta
+  projectUrl: https://github.com/EtheaDev/DelphiGoogleMap
+  repositoryUrl: https://github.com/EtheaDev/DelphiGoogleMap
+  repositoryCommit: '#HASH#'
+  license: Apache-2.0
+  copyright: Ethea S.r.l.
+  tags:
+    - vcl
+    - google-maps
+    - webview2
+    - edge
+  frameworks:
+    - VCL
+  readme: README.md
+variables:
+  packagesource: /Packages/D$compilermajornoprefix$
+targetPlatforms:
+  - compiler: delphi10.4
+    platforms:
+      - win32
+      - win64
+    variables:
+      packagesource: /Packages/D10_4
+  - compiler from: delphi11.0
+    compiler to: delphi13.0
+    platforms:
+      - win32
+      - win64
+templates:
+  - name: default
+    source:
+      - src: /Source/*.pas
+      - src: /Packages/*.dcr
+      - src: /Packages/*.res
+      - src: $packageSource$/*.dpk
+      - src: $packageSource$/*.dproj
+      - src: /Demo/GoogleMaps/Bin/Win32/webview2loader.dll
+        dest: Redist/WebView2/x86
+      - src: /Demo/GoogleMaps/Bin/Win64/WebView2Loader.dll
+        dest: Redist/WebView2/x64
+    build:
+      - project: $packageSource$/DelphiGoogleMap.dproj
+    design:
+      - project: $packageSource$/dclDelphiGoogleMap.dproj
+    # TEdgeBrowser needs WebView2Loader.dll next to the executable
+    copyLocal:
+      - src: Redist/WebView2/x86/webview2loader.dll
+        platforms: [Win32]
+      - src: Redist/WebView2/x64/WebView2Loader.dll
+        platforms: [Win64]

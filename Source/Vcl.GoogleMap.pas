@@ -52,7 +52,7 @@ resourcestring
 
 const
   DEFAULT_ZOOM_FACTOR = 15;
-  DelphiGoogleMapViewerVersion = '2.0.0';
+  DelphiGoogleMapViewerVersion = '2.1.0';
 
 Type
   EGoogleMapError = Exception;
@@ -117,6 +117,12 @@ Type
   private
     FMapIsBusy: boolean;
     FViewerReady: boolean;
+    FViewerError: boolean;
+    FComputingDistance: boolean;
+    FOnWebMessageReceived: TWebMessageReceivedEvent;
+    //Center and address used by GetHTMLScript to fill the initialize() template
+    FShowCenter: TLatLng;
+    FShowAddress: string;
     FAddress: string;
     FOverviewMapControl: boolean;
     FTypeControl: boolean;
@@ -205,6 +211,8 @@ Type
     procedure DoPutMarker(LatLng: TLatLng; const ADescription: string;
       AAnimation: TGoogleMarkerAnimationId; const ALabel, AInfoTitle,
       AInfoWindowContent, ACustomMarkerJSON: string);
+    procedure WaitForMapReady;
+    procedure EnsureMapReady;
   protected
     procedure Loaded; override;
     function GetHTMLHeader: string; virtual;
@@ -237,6 +245,7 @@ Type
   public
     class function TextToCoord(const Value: String): Extended;
     class function CoordToText(const Coord: double): string;
+    class function JSQuotedStr(const AValue: string): string;
     class procedure RegisterGoogleMapsApiKey(const AApiKey: string);
     class procedure RegisterUserDataFolder(const ATempFolder: string);
     constructor Create(AOwner: TComponent); override;
@@ -326,7 +335,9 @@ Type
     property OnCapturePreviewCompleted;
     property OnContainsFullScreenElementChanged;
     property OnContentLoading;
-    property OnCreateWebViewCompleted;
+    //Redeclared with own storage: the inherited events are used internally by the
+    //component, so handlers assigned in the DFM must not replace them
+    property OnCreateWebViewCompleted: TWebViewStatusEvent read FOnCreateWebViewCompleted write FOnCreateWebViewCompleted;
     property OnDevToolsProtocolEventReceived;
     property OnDocumentTitleChanged;
     property OnExecuteScript;
@@ -334,7 +345,7 @@ Type
     property OnFrameNavigationCompleted;
     property OnHistoryChanged;
     property OnNavigationStarting;
-    property OnNavigationCompleted;
+    property OnNavigationCompleted: TNavigationCompletedEvent read FOnNavigationCompleted write FOnNavigationCompleted;
     property OnNewWindowRequested;
     property OnPermissionRequested;
     {$IF CompilerVersion >= 36} //Delphi 12+
@@ -345,7 +356,7 @@ Type
     property OnProcessFailed;
     property OnScriptDialogOpening;
     property OnSourceChanged;
-    property OnWebMessageReceived;
+    property OnWebMessageReceived: TWebMessageReceivedEvent read FOnWebMessageReceived write FOnWebMessageReceived;
     property OnWebResourceRequested;
     property OnWindowCloseRequested;
     property OnZoomFactorChanged;
@@ -392,6 +403,7 @@ implementation
 uses
   System.StrUtils
   , System.IOUtils
+  , Winapi.ActiveX
   , REST.Json
   , System.JSON
   ;
@@ -419,11 +431,12 @@ end;
 procedure TEdgeGoogleMapViewer.CustomWebViewCreateComplete(
   Sender: TCustomEdgeBrowser; AResult: HResult);
 begin
-  if not self.WebViewCreated then
-  raise EGoogleMapError.Create(ERROR_CANNOT_INITALIZE+slineBreak+
-    CHECK_DLL_IN_APP_PATH)
+  //Do not raise here: this is a WebView2 (COM) callback. The error is reported
+  //by ShowMap, that is waiting for FViewerReady.
+  if Self.WebViewCreated then
+    FViewerReady := True
   else
-    FViewerReady := True;
+    FViewerError := True;
   if Assigned(FOnCreateWebViewCompleted) then
     FOnCreateWebViewCompleted(Sender, AResult);
 end;
@@ -441,89 +454,169 @@ end;
 
 class function TEdgeGoogleMapViewer.TextToCoord(const Value: String): Extended;
 var
-  LFormatSettinga: TFormatSettings;
+  LFormatSettings: TFormatSettings;
 begin
-  LFormatSettinga.DecimalSeparator := '.';
-  Result := StrToFloat(Value, LFormatSettinga);
+  LFormatSettings := TFormatSettings.Invariant;
+  Result := StrToFloat(Value, LFormatSettings);
 end;
 
 function TEdgeGoogleMapViewer.HandleWebMessageEvent(AEvent : string) : boolean;
+const
+  evNone = 0;
+  evClick = 1;
+  evRightClick = 2;
+  evZoom = 3;
+  evDistance = 4;
+  evMapReady = 5;
 var
+  LJSONValue : TJSONValue;
   LEventValue : TJSONObject;
-  LEvent : string;
+  LEvent, LField : string;
   LLatLng : TLatLng;
-  Field:String;
+  LKind : Integer;
 begin
-  Result := False;
-  LEventValue := nil;
+  //1) Parse the message: a malformed message is left unhandled
+  LKind := evNone;
+  LJSONValue := nil;
   try
-    LEventValue := TJSONObject.ParseJSONValue(AEvent) as TJSONObject;
-    LEvent := LEventValue.GetValue('event').GetValue<string>;
-    if SameText(LEvent,'click') then
+    try
+      LJSONValue := TJSONObject.ParseJSONValue(AEvent);
+      //Not an object (nil, array, string...): not one of our messages
+      if LJSONValue is TJSONObject then
       begin
-       if Assigned(FOnMapClick) then
+        LEventValue := TJSONObject(LJSONValue);
+        LEvent := LEventValue.GetValue('event').GetValue<string>;
+        if SameText(LEvent,'click') or SameText(LEvent,'rightclick') then
         begin
           LLatLng.Latitude := LEventValue.GetValue('lat').GetValue<double>;
           LLatLng.Longitude := LEventValue.GetValue('lng').GetValue<double>;
-
-          FOnMapClick(Self,LLatLng);
-        end;
-      end;
-     if SameText(LEvent,'rightclick') then
-      begin
-       if Assigned(FOnMapRightClick) then
+          LLatLng.Description := '';
+          if SameText(LEvent,'click') then
+            LKind := evClick
+          else
+            LKind := evRightClick;
+        end
+        else if SameText(LEvent,'zoom_changed') then
         begin
-          LLatLng.Latitude := LEventValue.GetValue('lat').GetValue<double>;
-          LLatLng.Longitude := LEventValue.GetValue('lng').GetValue<double>;
-          FOnMapRightClick(Self,LLatLng);
-        end;
-      end;
-       if SameText(LEvent,'zoom_changed') then
-      begin
-        FZoom := LEventValue.GetValue('zoom').GetValue<integer>;
-        if Assigned(FOnMapZoom) then
+          FZoom := LEventValue.GetValue('zoom').GetValue<integer>;
+          LKind := evZoom;
+        end
+        else if SameText(LEvent,'response_value') then
+        begin
+          LField := LEventValue.GetValue('field').GetValue<string>;
+          if LField = 'distance' then
           begin
-            FOnMapZoom(Self,FZoom);
+            FDistance := LEventValue.GetValue('value').GetValue<Double>;
+            LKind := evDistance;
           end;
+        end
+        else if SameText(LEvent,'map_ready') then
+        begin
+          FMapIsBusy := False;
+          LKind := evMapReady;
+        end;
       end;
-       if SameText(LEvent,'response_value') then
-      begin
-        Field := LEventValue.GetValue('field').GetValue<string>;
-        if Field='distance' then
-            FDistance:=LEventValue.GetValue('value').GetValue<Double>;
-      end;
-  except
-
+    except
+      LKind := evNone;
+    end;
+  finally
+    LJSONValue.Free;
   end;
-  if Assigned(LEventValue) then
-    LEventValue.Free;
+
+  //2) Fire the user events outside the parsing try/except: their exceptions
+  //must not be swallowed nor turn the message into an "unhandled" one
+  Result := LKind <> evNone;
+  case LKind of
+    evClick:
+      if Assigned(FOnMapClick) then
+        FOnMapClick(Self, LLatLng);
+    evRightClick:
+      if Assigned(FOnMapRightClick) then
+        FOnMapRightClick(Self, LLatLng);
+    evZoom:
+      if Assigned(FOnMapZoom) then
+        FOnMapZoom(Self, FZoom);
+  end;
 end;
 
 procedure TEdgeGoogleMapViewer.CustomWebMessageReceived(ASender: TCustomEdgeBrowser;
   Args: TWebMessageReceivedEventArgs);
 var
-  LSource: PWideChar;
-  LwebMessageAsString: PWideChar;
+  LMessagePtr: PWideChar;
+  LMessage: string;
   LHandled : boolean;
 begin
-
-  Args.ArgsInterface.Get_Source(LSource);
-  Args.ArgsInterface.TryGetWebMessageAsString(LwebMessageAsString);
-
-  LHandled := HandleWebMessageEvent(LwebMessageAsString);
-
-  if not LHandled then
-    begin
-      if Assigned(FOnWebUnhandledMessageReceived) then
-        FOnWebUnhandledMessageReceived(ASender,Args);
+  //This runs inside a WebView2 (COM) callback: exceptions raised by the user
+  //handlers are reported by the application, never propagated to WebView2
+  try
+    LMessage := '';
+    LMessagePtr := nil;
+    //Fails (E_INVALIDARG) when the page posted an object instead of a string
+    if Succeeded(Args.ArgsInterface.TryGetWebMessageAsString(LMessagePtr)) then
+    try
+      LMessage := LMessagePtr;
+    finally
+      CoTaskMemFree(LMessagePtr);
     end;
+
+    try
+      LHandled := (LMessage <> '') and HandleWebMessageEvent(LMessage);
+    finally
+      if Assigned(FOnWebMessageReceived) then
+        FOnWebMessageReceived(ASender, Args);
+    end;
+
+    if not LHandled and Assigned(FOnWebUnhandledMessageReceived) then
+      FOnWebUnhandledMessageReceived(ASender, Args);
+  except
+    Application.HandleException(Self);
+  end;
 end;
 
 class function TEdgeGoogleMapViewer.CoordToText(const Coord: double): string;
 begin
   //Format Coordinates to String
-  Result := FloatToStrF(Coord, ffFixed, 8, 6);
-  Result := StringReplace(Result, ',','.',[]);
+  //Invariant settings: '.' as decimal separator, no dependency on the locale.
+  //FormatFloat is used (not FloatToStrF with Precision 8) so that longitudes >= 100
+  //keep all the 6 decimals.
+  Result := FormatFloat('0.000000', Coord, TFormatSettings.Invariant);
+end;
+
+class function TEdgeGoogleMapViewer.JSQuotedStr(const AValue: string): string;
+var
+  LBuilder: TStringBuilder;
+  C: Char;
+begin
+  //Returns AValue as a JavaScript string literal (double quoted), escaping
+  //quotes, backslashes, control chars, line separators and the HTML-sensitive
+  //chars (so that a value like '</script>' is safe inside an inline script)
+  LBuilder := TStringBuilder.Create(Length(AValue) + 2);
+  try
+    LBuilder.Append('"');
+    for C in AValue do
+    begin
+      case C of
+        '"': LBuilder.Append('\"');
+        '\': LBuilder.Append('\\');
+        #8:  LBuilder.Append('\b');
+        #9:  LBuilder.Append('\t');
+        #10: LBuilder.Append('\n');
+        #12: LBuilder.Append('\f');
+        #13: LBuilder.Append('\r');
+        '''', '<', '>', '&', #$2028, #$2029:
+          LBuilder.Append('\u' + IntToHex(Ord(C), 4));
+      else
+        if C < #32 then
+          LBuilder.Append('\u' + IntToHex(Ord(C), 4))
+        else
+          LBuilder.Append(C);
+      end;
+    end;
+    LBuilder.Append('"');
+    Result := LBuilder.ToString;
+  finally
+    LBuilder.Free;
+  end;
 end;
 
 function TEdgeGoogleMapViewer.B2S(value: boolean): string;
@@ -550,14 +643,15 @@ begin
   FMapShowDirectionsPanel := false;
   FMapColorScheme := csLIGHT;
   FZoom := DEFAULT_ZOOM_FACTOR;
-  FOnNavigationCompleted := OnNavigationCompleted;
-  FOnCreateWebViewCompleted := OnCreateWebViewCompleted;
 
+  //Hook the inherited events (OnNavigationCompleted, OnCreateWebViewCompleted
+  //and OnWebMessageReceived are redeclared in this class with own storage, so
+  //the user handlers assigned in the DFM don't replace these internal handlers)
   if not (csDesigning in ComponentState) then
   begin
-    OnNavigationCompleted := CustomDocumentComplete;
-    OnCreateWebViewCompleted := CustomWebViewCreateComplete;
-    OnWebMessageReceived := CustomWebMessageReceived;
+    TCustomEdgeBrowser(Self).OnNavigationCompleted := CustomDocumentComplete;
+    TCustomEdgeBrowser(Self).OnCreateWebViewCompleted := CustomWebViewCreateComplete;
+    TCustomEdgeBrowser(Self).OnWebMessageReceived := CustomWebMessageReceived;
   end;
 end;
 
@@ -591,16 +685,11 @@ procedure TEdgeGoogleMapViewer.PutMarkerByAddress(const AAddress: string;
 var
   LScriptCommand: String;
 begin
-  if not MapVisible then
-  begin
-    ShowMap(EmptyLatLng);
-    while FMapIsBusy do
-      Sleep(10);
-  end;
+  EnsureMapReady;
   LScriptCommand := Format('PutMarkerByAddress(%s, %s, %s)',[
-    QuotedStr(ClearAddressText(AAddress)),
-    QuotedStr(StripCRLF(AInfoTitle)),
-    QuotedStr(StripCRLF(AInfoWindowContent))
+    JSQuotedStr(ClearAddressText(AAddress)),
+    JSQuotedStr(StripCRLF(AInfoTitle)),
+    JSQuotedStr(StripCRLF(AInfoWindowContent))
     ]);
   ExecuteScript(LScriptCommand);
 end;
@@ -1053,6 +1142,7 @@ function TEdgeGoogleMapViewer.GetHTMLScript : string;
 var
   LJSScript : string;
 begin
+  //Built-in script: it is a Format template (%s, %d) for initialize()
   LJSScript := GetJSVariables + sLineBreak +
   GetJSInitialize + sLineBreak +
   GetJSCodeAddress + sLineBreak +
@@ -1073,8 +1163,42 @@ begin
   GetJSRouteAddress + sLineBreak +
   GetJSGeometry + sLineBreak +
   GetJSCalcRoute;
+
+  //Fill the template first: the handler receives plain, final JavaScript
+  LJSScript := Format(LJSScript,
+    [
+      CoordToText(FShowCenter.Latitude), //Latitudine
+      CoordToText(FShowCenter.Longitude), //Longitudine
+      MapZoom, //Zoom
+      B2S(FPanControl),
+      B2S(FZoomControl),
+      B2S(FTypeControl),
+      B2S(FFullScreenControl),
+      B2S(FScaleControl),
+      B2S(FStreetViewControl),
+      B2S(FOverviewMapControl),
+      AGoogleMapTypeId[FMapTypeId],
+      AGoogleMapColorScheme[FMapColorScheme], //ColorScheme
+      JSQuotedStr(FShowCenter.Description), //Description as Msg
+      JSQuotedStr(FShowCenter.Description), //Description as Info
+      JSQuotedStr(FShowAddress), //Address
+      B2S(FTraffic), //Traffic
+      B2S(FBicycling) //Bicycling
+    ]);
+
   if Assigned(FOnGetJavascript) then
     FOnGetJavascript(Self, LJSScript);
+
+  //Notify Delphi when the page is loaded and initialize() has run (also if it
+  //failed): setTimeout runs it after every "load" handler, body onload included
+  LJSScript := LJSScript + sLineBreak +
+  '  window.addEventListener("load", function() { setTimeout(function() {'+sLineBreak+
+  '    window.chrome.webview.postMessage(JSON.stringify({"event" : "map_ready"}));'+sLineBreak+
+  '  }, 0); });';
+
+  //The whole page goes through Format again (for the API key in the header)
+  LJSScript := StringReplace(LJSScript, '%', '%%', [rfReplaceAll]);
+
   Result :=
   '<script type="text/javascript"> '+sLineBreak+
   LJSScript + sLineBreak +
@@ -1095,6 +1219,9 @@ begin
 
   while not FViewerReady do
   begin
+    if FViewerError then
+      raise EGoogleMapError.Create(ERROR_CANNOT_INITALIZE+sLineBreak+
+        CHECK_DLL_IN_APP_PATH);
     Application.ProcessMessages;
     Sleep(10);
   end;
@@ -1126,29 +1253,16 @@ begin
   end;
 
   LAddress := ClearAddressText(MyAddress);
-  LAddress := StringReplace(LAddress,'''',' ',[rfReplaceAll]);
+  //Values used by GetHTMLScript to fill the initialize() template
+  FShowCenter := MyCenter;
+  FShowAddress := LAddress;
   HTMLString := GetHTMLHeader + GetHTMLStyle + GetHTMLScript + GetHTMLBody;
   HTMLString := Format(HTMLString,
     [
-      FApiKey, //ApiKey (in header script URL)
-      CoordToText(MyCenter.Latitude), //Latitudine
-      CoordToText(MyCenter.Longitude), //Longitudine
-      MapZoom, //Zoom
-      B2S(FPanControl),
-      B2S(FZoomControl),
-      B2S(FTypeControl),
-      B2S(FFullScreenControl),
-      B2S(FScaleControl),
-      B2S(FStreetViewControl),
-      B2S(FOverviewMapControl),
-      AGoogleMapTypeId[FMapTypeId],
-      AGoogleMapColorScheme[FMapColorScheme], //ColorScheme
-      QuotedStr(MyCenter.Description), //Description as Msg
-      QuotedStr(MyCenter.Description), //Description as Info
-      QuotedStr(LAddress), //Address
-      B2S(FTraffic), //Traffic
-      B2S(FBicycling) //Bicycling
+      FApiKey //ApiKey (in header script URL)
     ]);
+  //Busy until the page posts "map_ready" (see GetHTMLScript): NavigateToString
+  //is asynchronous, the scripts executed before that would be lost
   FMapIsBusy := True;
   try
     {$IFDEF DEBUG2}
@@ -1161,8 +1275,9 @@ begin
     {$ELSE}
     NavigateToString(HTMLString);
     {$ENDIF}
-  finally
+  except
     FMapIsBusy := False;
+    raise;
   end;
   FMapVisible := True;
 end;
@@ -1272,9 +1387,33 @@ begin
   ExecuteScript(ScriptCommand);
 end;
 
+procedure TEdgeGoogleMapViewer.WaitForMapReady;
+const
+  MAP_READY_TIMEOUT = 15000; //Milliseconds
+var
+  LStart: UInt64;
+begin
+  //Pump the messages: "map_ready" arrives through the WebView2 message loop.
+  //Timeout as a safety net (e.g. Google Maps script that cannot be loaded).
+  LStart := GetTickCount64;
+  while FMapIsBusy and (GetTickCount64 - LStart < MAP_READY_TIMEOUT) do
+  begin
+    Application.ProcessMessages;
+    Sleep(10);
+  end;
+end;
+
+procedure TEdgeGoogleMapViewer.EnsureMapReady;
+begin
+  if not MapVisible then
+    ShowMap(EmptyLatLng);
+  WaitForMapReady;
+end;
+
 procedure TEdgeGoogleMapViewer.HideMap;
 begin
   FMapVisible := False;
+  FMapIsBusy := False;
   if FViewerReady then
     Navigate(ABOUT_BLANK_PAGE);
 
@@ -1369,12 +1508,7 @@ var
   LInfoWindowContent : string;
   LAnimation : string;
 begin
-  if not MapVisible then
-  begin
-    ShowMap(EmptyLatLng);
-    while FMapIsBusy do
-      Sleep(10);
-  end;
+  EnsureMapReady;
   LInfoWindowContent := AInfoWindowContent;
   if (LInfoWindowContent = '') and (AInfoTitle = '') then
     LInfoWindowContent := ADescription;
@@ -1384,21 +1518,21 @@ begin
     LScriptCommand := Format('PutMarker(%s, %s, %s, %s, %s, %s, %s)',[
       CoordToText(LatLng.Latitude),
       CoordToText(LatLng.Longitude),
-      QuotedStr(ADescription),
+      JSQuotedStr(ADescription),
       LAnimation,
-      QuotedStr(ALabel),
-      QuotedStr(StripCRLF(AInfoTitle)),
-      QuotedStr(StripCRLF(LInfoWindowContent))
+      JSQuotedStr(ALabel),
+      JSQuotedStr(StripCRLF(AInfoTitle)),
+      JSQuotedStr(StripCRLF(LInfoWindowContent))
       ]);
   end else
   begin
     LScriptCommand := Format('PutCustomMarker(%s, %s, %s, %s, %s, %s, %s)',[
       CoordToText(LatLng.Latitude),
       CoordToText(LatLng.Longitude),
-      QuotedStr(ADescription),
-      QuotedStr(ALabel),
-      QuotedStr(StripCRLF(AInfoTitle)),
-      QuotedStr(StripCRLF(LInfoWindowContent)),
+      JSQuotedStr(ADescription),
+      JSQuotedStr(ALabel),
+      JSQuotedStr(StripCRLF(AInfoTitle)),
+      JSQuotedStr(StripCRLF(LInfoWindowContent)),
       JSONEncodeString(ACustomMarkerJSON)
       ]);
   end;
@@ -1411,16 +1545,11 @@ procedure TEdgeGoogleMapViewer.RoutebyAddress(StartAddress,
 var
   ScriptCommand: String;
 begin
-  if not MapVisible then
-  begin
-    ShowMap(EmptyLatLng);
-    while FMapIsBusy do
-      Sleep(10);
-  end;
+  EnsureMapReady;
   ScriptCommand := Format('routeByAddress(%s, %s, %s, %s)',[
-    QuotedStr(ClearAddressText(StartAddress)),
-    QuotedStr(ClearAddressText(DestinationAddress)),
-    QuotedStr(AGoogleRouteModeId[RouteMode]),
+    JSQuotedStr(ClearAddressText(StartAddress)),
+    JSQuotedStr(ClearAddressText(DestinationAddress)),
+    JSQuotedStr(AGoogleRouteModeId[RouteMode]),
     B2S(FMapShowDirectionsPanel)
     ]);
   ExecuteScript(ScriptCommand);
@@ -1565,7 +1694,7 @@ begin
     ScriptCommand := Format('GotoLatLng(%s,%s,%s,%s)',[
       CoordToText(LatLng.Latitude),
       CoordToText(LatLng.Longitude),
-      QuotedStr(LatLng.Description),
+      JSQuotedStr(LatLng.Description),
       B2S(AAddMarker)
       ]);
     ExecuteScript(ScriptCommand);
@@ -1577,20 +1706,15 @@ procedure TEdgeGoogleMapViewer.CalcRoute(Origin, Destination: TLatLng;
 var
   ScriptCommand: String;
 begin
-  if not MapVisible then
-  begin
-    ShowMap(EmptyLatLng);
-    while FMapIsBusy do
-      Sleep(10);
-  end;
+  EnsureMapReady;
   ScriptCommand := Format('calcRoute(%s, %s, %s, %s, %s, %s,%s, %s)',[
     CoordToText(Origin.Latitude),
     CoordToText(Origin.Longitude),
     CoordToText(Destination.Latitude),
     CoordToText(Destination.Longitude),
-    QuotedStr(AGoogleRouteModeId[RouteMode]),
-    QuotedStr(CoordToText(Origin.Latitude) + ',' + CoordToText(Origin.Longitude)),
-    QuotedStr(CoordToText(Destination.Latitude) + ',' +  CoordToText(Destination.Longitude)),
+    JSQuotedStr(AGoogleRouteModeId[RouteMode]),
+    JSQuotedStr(CoordToText(Origin.Latitude) + ',' + CoordToText(Origin.Longitude)),
+    JSQuotedStr(CoordToText(Destination.Latitude) + ',' +  CoordToText(Destination.Longitude)),
     B2S(FMapShowDirectionsPanel)
     ]);
   ExecuteScript(ScriptCommand);
@@ -1613,7 +1737,7 @@ begin
     ShowMap(FAddress)
   else
   begin
-    ScriptCommand := Format('codeAddress(%s)',[QuotedStr(ClearAddressText(Address))]);
+    ScriptCommand := Format('codeAddress(%s)',[JSQuotedStr(ClearAddressText(Address))]);
     ExecuteScript(ScriptCommand);
   end;
 end;
@@ -1643,26 +1767,18 @@ end;
 
 procedure TEdgeGoogleMapViewer.RouteByAddresses;
 begin
-  if not MapVisible then
-  begin
-    ShowMap(EmptyLatLng);
-    while FMapIsBusy do
-      Sleep(10);
-  end;
+  EnsureMapReady;
   if (FStartAddress <> '') and (FDestinationAddress <> '') then
     RouteByAddress(FStartAddress, FDestinationAddress, FMapRouteModeId);
 end;
 
 procedure TEdgeGoogleMapViewer.RouteByLocations;
 begin
-  if not MapVisible then
-  begin
-    ShowMap(EmptyLatLng);
-    while FMapIsBusy do
-      Sleep(10);
-  end;
-  if (FMapStart.Latitude <> 0) and (FMapStart.Longitude <> 0) and
-     (FMapDestination.Latitude <> 0) or (FMapDestination.Longitude <> 0) then
+  EnsureMapReady;
+  //A point is "assigned" when at least one coordinate is not zero
+  //(Lat = 0 or Lng = 0 alone is a valid point on the Equator or Greenwich)
+  if ((FMapStart.Latitude <> 0) or (FMapStart.Longitude <> 0)) and
+     ((FMapDestination.Latitude <> 0) or (FMapDestination.Longitude <> 0)) then
     CalcRoute(FMapStart, FMapDestination, FMapRouteModeId);
 end;
 
@@ -1714,14 +1830,10 @@ procedure TEdgeGoogleMapViewer.PutCircle(LatLng: TLatLng; Radius: Double; Editab
 var
   LScriptCommand: String;
 begin
-  FormatSettings.DecimalSeparator := '.';
-  if not MapVisible then
-  begin
-    ShowMap(EmptyLatLng);
-    while FMapIsBusy do
-      Sleep(10);
-  end;
-  LScriptCommand := Format('PutCircle(%s, %s, %f, %s, %s, %s, %s, %s, %f, %d, %s, %f,%s)',[
+  EnsureMapReady;
+  //Invariant settings: '.' as decimal separator without touching the
+  //application FormatSettings; %g keeps all the significant decimals
+  LScriptCommand := Format('PutCircle(%s, %s, %g, %s, %s, %s, %s, %s, %g, %d, %s, %g,%s)',[
     CoordToText(LatLng.Latitude),
     CoordToText(LatLng.Longitude),
     Radius,
@@ -1729,13 +1841,13 @@ begin
     LowerCase(BoolToStr(Draggable, True)),
     LowerCase(BoolToStr(Visible, True)),
     LowerCase(BoolToStr(Clickable, True)),
-    QuotedStr(StripCRLF(StrokeColor)),
+    JSQuotedStr(StripCRLF(StrokeColor)),
     StrokeOpacity,
     StrokeWeight,
-    QuotedStr(StripCRLF(FillColor)),
+    JSQuotedStr(StripCRLF(FillColor)),
     FillOpacity,
-    QuotedStr(StripCRLF(AInfoWindowContent))
-    ]);
+    JSQuotedStr(StripCRLF(AInfoWindowContent))
+    ], TFormatSettings.Invariant);
   ExecuteScript(LScriptCommand);
 end;
 
@@ -1762,57 +1874,58 @@ procedure TEdgeGoogleMapViewer.PutPolyline(Path:String; Geodesic, Editable, Visi
 var
   LScriptCommand: String;
 begin
-  FormatSettings.DecimalSeparator := '.';
-  if not MapVisible then
-  begin
-    ShowMap(EmptyLatLng);
-    while FMapIsBusy do
-      Sleep(10);
-  end;
-  LScriptCommand := Format('PutPolyline(%s, %s, %s, %s, %s, %s, %s, %f, %d, %s)',[
+  EnsureMapReady;
+  LScriptCommand := Format('PutPolyline(%s, %s, %s, %s, %s, %s, %s, %g, %d, %s)',[
     Path,
     LowerCase(BoolToStr(Geodesic, True)),
     LowerCase(BoolToStr(Editable, True)),
     LowerCase(BoolToStr(Visible, True)),
     LowerCase(BoolToStr(Clickable, True)),
     LowerCase(BoolToStr(FitBounds, True)),
-    QuotedStr(StripCRLF(StrokeColor)),
+    JSQuotedStr(StripCRLF(StrokeColor)),
     StrokeOpacity,
     StrokeWeight,
-    QuotedStr(StripCRLF(AInfoWindowContent))
-    ]);
+    JSQuotedStr(StripCRLF(AInfoWindowContent))
+    ], TFormatSettings.Invariant);
   ExecuteScript(LScriptCommand);
 end;
 
 function TEdgeGoogleMapViewer.ComputeDistanceBetween(Origin, Destination: TLatLng): Double;
-Const
-  MaxTimeResponse = 2000; //Miliseconds
-  Step = 1; //Miliseconds
+const
+  MaxTimeResponse = 2000; //Milliseconds
 var
   LScriptCommand: String;
-  i: Integer;
-Begin
+  LStart: UInt64;
+begin
+  //ProcessMessages below allows re-entrant calls, that would share FDistance
+  if FComputingDistance then
+    raise EGoogleMapError.Create('ComputeDistanceBetween already in progress');
+  FComputingDistance := True;
+  try
+    EnsureMapReady;
     LScriptCommand := Format('ComputeDistanceBetween(%s, %s, %s, %s)',[
       CoordToText(Origin.Latitude),
       CoordToText(Origin.Longitude),
       CoordToText(Destination.Latitude),
       CoordToText(Destination.Longitude)
     ]);
-    FDistance:=Null;
+    FDistance := Null;
     ExecuteScript(LScriptCommand);
-    //Wait for response
-    i:=0;
-    while (FDistance=Null) and (I<MaxTimeResponse)do
-    Begin
-        Application.ProcessMessages;
-        Sleep(Step);
-        I:=I+Step;
-    End;
-    if FDistance<>Null then
-      Result:=FDistance
-    Else
+    //Wait for response (elapsed time, not loop count: Sleep(1) lasts ~15 ms)
+    LStart := GetTickCount64;
+    while VarIsNull(FDistance) and (GetTickCount64 - LStart < MaxTimeResponse) do
+    begin
+      Application.ProcessMessages;
+      Sleep(1);
+    end;
+    if not VarIsNull(FDistance) then
+      Result := FDistance
+    else
       raise EGoogleMapError.Create('ComputeDistanceBetween timeout');
-End;
+  finally
+    FComputingDistance := False;
+  end;
+end;
 //Polygon
 
 procedure TEdgeGoogleMapViewer.ClearPolygons;
@@ -1836,26 +1949,20 @@ procedure TEdgeGoogleMapViewer.PutPolygon(Path:String; Editable, Visible, Clicka
 var
   LScriptCommand: String;
 begin
-  FormatSettings.DecimalSeparator := '.';
-  if not MapVisible then
-  begin
-    ShowMap(EmptyLatLng);
-    while FMapIsBusy do
-      Sleep(10);
-  end;
-  LScriptCommand := Format('PutPolygon(%s, %s, %s, %s, %s, %s, %f, %d, %s, %f, %s)',[
+  EnsureMapReady;
+  LScriptCommand := Format('PutPolygon(%s, %s, %s, %s, %s, %s, %g, %d, %s, %g, %s)',[
     Path,
     LowerCase(BoolToStr(Editable, True)),
     LowerCase(BoolToStr(Visible, True)),
     LowerCase(BoolToStr(Clickable, True)),
     LowerCase(BoolToStr(FitBounds, True)),
-    QuotedStr(StripCRLF(StrokeColor)),
+    JSQuotedStr(StripCRLF(StrokeColor)),
     StrokeOpacity,
     StrokeWeight,
-    QuotedStr(StripCRLF(FillColor)),
+    JSQuotedStr(StripCRLF(FillColor)),
     FillOpacity,
-    QuotedStr(StripCRLF(AInfoWindowContent))
-    ]);
+    JSQuotedStr(StripCRLF(AInfoWindowContent))
+    ], TFormatSettings.Invariant);
   ExecuteScript(LScriptCommand);
 end;
 
