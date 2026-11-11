@@ -11,7 +11,7 @@
 
 **TEdgeGoogleMapViewer**: a Delphi "WebView2" Component to View Google Map with integrated Routing and Markers Support
 
-### Actual official version 2.1.0 (VCL)
+### Actual official version 2.1.1 (VCL)
 
 | Component | Description |
 | - | - |
@@ -60,6 +60,9 @@ Open `Demo\GoogleMaps\GoogleMapsTest.dproj` to see every feature at work: marker
 Full documentation, with the Quick Start, every feature explained and the walkthrough of the demo, is on the [Project Site](https://ethea.it/docs/delphigooglemap/).
 
 ### RELEASE NOTES
+11 Nov 2026 - Version 2.1.1
+- Compatibility with Delphi 13.2
+
 07 Nov 2026 - Version 2.1.0
 - Fixed CoordToText: longitudes >= 100 lost the last decimals (e.g. 151.209296 became 151.209300)
 - Fixed TextToCoord: uses invariant format settings (no uninitialized TFormatSettings fields)

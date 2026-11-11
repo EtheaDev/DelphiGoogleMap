@@ -1,4 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>README</title>
 <style type="text/css">
+:root{color-scheme:light;}
+body{font-family:"Arial",sans-serif;font-size:12pt;color:#000000;background-color:#FFFFFF;}
+a{color:#0000FF;}
+.markdown-alert>:last-child{margin-bottom:0;}
+.markdown-alert-title{margin-top:0;}
+@media print{body{color:#000;background-color:#fff;}}
+</style>
+<script>
+document.addEventListener("click",function(e){var a=e.target.closest("a");if(a){var h=a.getAttribute("href");if(h&&h.charAt(0)==="#"){e.preventDefault();var t=document.getElementById(decodeURIComponent(h.substring(1)));if(t)t.scrollIntoView();}}});
+window.addEventListener("scroll",function(){if(window.chrome&&chrome.webview)chrome.webview.postMessage("scrollY:"+Math.round(window.scrollY)+":"+Math.max(0,Math.round(document.documentElement.scrollHeight-window.innerHeight)));});
+</script>
+</head>
+<body>
+<style type="text/css">
+img{
+  max-width: 100%;
+  height: auto;
+}
+video{
+  max-width: 100%;
+  height: auto;
+}
 code{
   font-family: "Consolas", monospace;
 }
@@ -21,141 +48,137 @@ table{
   border:1px solid;
   border-collapse:collapse;
 }
-th{  padding:5px;
+th{
+  padding:5px;
   border:1px solid;
 }
 td{
   padding:5px;
   border:1px solid;
 }
+mark{
+  background-color: #fff3a0;
+  color: #000;
+}
+kbd{
+  font-family: "Consolas", monospace;
+  border: 1px solid #bbb;
+  padding: 0 4px;
+}
+div.math{
+  text-align: center;
+}
+pre.mermaid{
+  border: none;
+  padding: 0;
+}
+.markdown-alert{
+  padding: 0.5em 1em;
+  margin-bottom: 1em;
+  border-left: 4px solid #d0d7de;
+}
+.markdown-alert-title{
+  font-weight: bold;
+}
+.markdown-alert-note{
+  border-left: 4px solid #0969da;
+}
+.markdown-alert-note .markdown-alert-title{
+  color: #0969da;
+}
+.markdown-alert-tip{
+  border-left: 4px solid #1a7f37;
+}
+.markdown-alert-tip .markdown-alert-title{
+  color: #1a7f37;
+}
+.markdown-alert-important{
+  border-left: 4px solid #8250df;
+}
+.markdown-alert-important .markdown-alert-title{
+  color: #8250df;
+}
+.markdown-alert-warning{
+  border-left: 4px solid #9a6700;
+}
+.markdown-alert-warning .markdown-alert-title{
+  color: #9a6700;
+}
+.markdown-alert-caution{
+  border-left: 4px solid #cf222e;
+}
+.markdown-alert-caution .markdown-alert-title{
+  color: #cf222e;
+}
 </style>
-<h1>DelphiGoogleMap  <a href="https://opensource.org/licenses/Apache-2.0"><img src="https://img.shields.io/badge/License-Apache%202.0-yellowgreen.svg" alt="License"/></a></h1>
-<p><strong>TEdgeGoogleMapViewer</strong>: a Delphi &ldquo;WebView2&rdquo; Component to View Google Map with integrated Routing and Markers Support</p>
-<h3>Actual official version 2.1.0 (VCL)</h3>
+<h1 id="delphigooglemap">DelphiGoogleMap</h1>
+<!-- raw HTML omitted -->
+<p><a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-green.svg" alt="License: Apache" /></a>
+<a href="https://github.com/EtheaDev/DelphiGoogleMap/releases"><img src="https://img.shields.io/github/v/release/EtheaDev/DelphiGoogleMap?label=release&amp;color=blue" alt="Latest release" /></a>
+<a href="https://www.embarcadero.com/products/delphi"><img src="https://img.shields.io/badge/Delphi-10.4.2%2B-e62329.svg" alt="Delphi 10.4.2+" /></a>
+<a href="https://docwiki.embarcadero.com/RADStudio/en/Main_Page"><img src="https://img.shields.io/badge/Platform-VCL-8a2be2.svg" alt="Platform: VCL" /></a>
+<a href="https://developer.microsoft.com/microsoft-edge/webview2/"><img src="https://img.shields.io/badge/WebView2-Edge-0078d4.svg" alt="Microsoft Edge WebView2" /></a>
+<a href="https://developers.google.com/maps/documentation/javascript"><img src="https://img.shields.io/badge/Google%20Maps-JavaScript%20API-4285f4.svg" alt="Google Maps JavaScript API" /></a>
+<a href="https://www.microsoft.com/windows"><img src="https://img.shields.io/badge/Windows-10%20%7C%2011-0078d6.svg" alt="Windows 10 and 11" /></a></p>
+<p><strong>TEdgeGoogleMapViewer</strong>: a Delphi “WebView2” Component to View Google Map with integrated Routing and Markers Support</p>
+<h3 id="actual-official-version-211-vcl">Actual official version 2.1.1 (VCL)</h3>
 <table>
-  <tr>
-    <th>Component</th>
-    <th>Description</th>
-  </tr>
-  <tr>
-    <td><img src="./Images/google-maps-128.png" alt="google-maps-128.png"/></td>
-    <td><strong>TEdgeGoogleMapViewer</strong> is a Delphi wrapper on &ldquo;WebView2&rdquo; Component that adds many Google Maps features like Routing and Markers Support (only for VCL). You can setup attributes of the components to see the Google Maps reacts to your changes.</td>
-  </tr>
+<thead>
+<tr>
+<th>Component</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img src="./Images/google-maps-128.png" alt="google-maps-128.png" /></td>
+<td><strong>TEdgeGoogleMapViewer</strong> is a Delphi wrapper on “WebView2” Component that adds many Google Maps features like Routing and Markers Support (only for VCL). You can setup attributes of the components to see the Google Maps reacts to your changes.</td>
+</tr>
+</tbody>
 </table>
-<h2>New Setup for automatic installation of components</h2>
-<p>From 1.6.1 version a new &ldquo;Installer&rdquo; read-to-use is located in the Release area: <a href="https://github.com/EtheaDev/DelphiGoogleMap/releases/latest/download/DelphiGoogleMaps_Setup.exe">Download the Installer</a>.</p>
-<p>The Installer automatically detect your Delphi versions, install sources, build and install packages and add source paths.</p>
-<p><img src="./Images/Setup.png" alt="Setup"/></p>
-<h2>Installation with DPM (Delphi Package Manager)</h2>
-<p>The library is also published on <a href="https://delphi.dev/packages/etheadev.delphigooglemap">delphi.dev</a> as the package <strong>EtheaDev.DelphiGoogleMap</strong> (Delphi 10.4 to 13, Win32 and Win64): you can install it with <a href="https://delphi.dev">DPM, the Delphi Package Manager</a>, as an alternative to the Setup. From the IDE, right click on your project in the Project Manager and choose <em>Manage DPM Packages</em>, or from the command line:</p>
-<pre><code>dpm install EtheaDev.DelphiGoogleMap &lt;path of your project&gt;.dproj
+<h2 id="installation">Installation</h2>
+<p>Run the <a href="https://github.com/EtheaDev/DelphiGoogleMap/releases/latest/download/DelphiGoogleMaps_Setup.exe">Installer</a>: it detects your Delphi versions, installs the sources, builds and installs the packages and adds the source paths.</p>
+<p>Or install the package with <a href="https://delphi.dev/packages/etheadev.delphigooglemap">DPM, the Delphi Package Manager</a> (Delphi 10.4 to 13, Win32 and Win64), which also copies <code>WebView2Loader.dll</code> next to the executable of your project:</p>
+<pre style="background-color:#FFFFFF;color:#000000;"><code>dpm install EtheaDev.DelphiGoogleMap &lt;path of your project&gt;.dproj</code></pre>
+<p>Without the installer, open <code>Packages\&lt;Delphi version&gt;\DelphiGoogleMapsPackages.groupproj</code>, build the run-time package, build and install the design-time one and add the <code>Source</code> folder to the Delphi source path.</p>
+<p>If you do not use DPM, <code>WebView2Loader.dll</code> (32 or 64 bit) has to be in the same folder as the executable: see <code>Demo\GoogleMaps\Bin\Win32</code> and <code>Win64</code>.</p>
+<h2 id="simple-to-use">Simple to use</h2>
+<p>You need a <a href="https://developers.google.com/maps/documentation/javascript/get-api-key">Google Maps API key</a>. Register it once, then set properties and call methods:</p>
+<div style="font-family: Arial, 'Courier New', monospace; font-size: 12pt;  background-color: #FFFFFF; color: #000000;">
+<pre><code><span>TEdgeGoogleMapViewer</span><span style="color: #555555; ">.</span><span>RegisterGoogleMapsApiKey</span><span style="color: #555555; ">(</span><span style="color: #A31515; ">'&lt;your Google Maps API key&gt;'</span><span style="color: #555555; ">);
+</span>
+<span style="color: #008000; font-style: italic; ">//Goto Address Example</span>
+<span>EdgeGoogleMapViewer</span><span style="color: #555555; ">.</span><span>GotoAddress</span><span style="color: #555555; ">(</span><span>MemoAddress</span><span style="color: #555555; ">.</span><span>Lines</span><span style="color: #555555; ">.</span><span>Text</span><span style="color: #555555; ">);
+</span>
+<span style="color: #008000; font-style: italic; ">//Setting Map View Mode</span>
+<span>EdgeGoogleMapViewer</span><span style="color: #555555; ">.</span><span>MapTypeId </span><span style="color: #555555; ">:=</span><span> mtHYBRID</span><span style="color: #555555; ">;
+</span>
+<span style="color: #008000; font-style: italic; ">//Route between two addresses, with the directions panel</span>
+<span>EdgeGoogleMapViewer</span><span style="color: #555555; ">.</span><span>MapShowDirectionsPanel </span><span style="color: #555555; ">:=</span><span> True</span><span style="color: #555555; ">;</span>
+<span>EdgeGoogleMapViewer</span><span style="color: #555555; ">.</span><span>MapStartAddress </span><span style="color: #555555; ">:=</span><span> </span><span style="color: #A31515; ">'Via Santa Cecilia 4, Carugate, Milano'</span><span style="color: #555555; ">;</span>
+<span>EdgeGoogleMapViewer</span><span style="color: #555555; ">.</span><span>MapDestinationAddress </span><span style="color: #555555; ">:=</span><span> </span><span style="color: #A31515; ">'Via San Francesco 5, Carugate, Milano'</span><span style="color: #555555; ">;</span>
+<span>EdgeGoogleMapViewer</span><span style="color: #555555; ">.</span><span>RouteByAddresses</span><span style="color: #555555; ">;</span>
 </code></pre>
-<p>DPM downloads the package, builds it for the Delphi version and the platforms of your project and adds it to the project. DPM also copies <code>WebView2Loader.dll</code> (Win32 or Win64) next to the executable of your project.</p>
-<h2>Simple to use</h2>
-<p>It's very easy to use Google Maps API directly from Delphi Code, settings Component properties or invoking methods, for example:</p>
-<pre><code class="pascal">//Goto Address Example
-EdgeGoogleMapViewer.GotoAddress(MemoAddress.Lines.Text);
-
-//Goto Latitude/Longitude Example
-var
-  Location: TLatLng;
-begin
-  Location.Latitude := TEdgeGoogleMapViewer.TextToCoord(Latitude.Text);
-  Location.Longitude := TEdgeGoogleMapViewer.TextToCoord(Longitude.Text);
-  EdgeGoogleMapViewer.GotoLocation(Location);
-
-//Setting Map View Mode
-  EdgeGoogleMapViewer.MapTypeId := TGoogleMapTypeId(MapTypeIdComboBox.ItemIndex);
-</code></pre>
-<h2>How it works</h2>
-<p>The component works in a simple way: builds an html page with some javascript functions inside it and loads it into the browser (NavigateToString), so the Delphi component can call those javascript functions inside the component methods, calling ExecuteScript(ScriptCommand) method of the TEdgeBrowser. If you want to analyse the content of the page, put a break-point into TEdgeGoogleMapViewer.ShowMap at this line:</p>
-<pre><code class="pascal">NavigateToString(HTMLString);
-</code></pre>
-<p>If you want to see how the component calls a javascript function inside the page, look for example at the method &ldquo;GotoAddress&rdquo; (strings passed to javascript must always be encoded with <code>JSQuotedStr</code>):</p>
-<pre><code class="pascal">procedure TEdgeGoogleMapViewer.GotoAddress(const Address: string);
-var
-  ScriptCommand: String;
-begin
-  FAddress := Address;
-  if FAddress = '' then
-    HideMap
-  else if not MapVisible then
-    ShowMap(FAddress)
-  else
-  begin
-    ScriptCommand := Format('codeAddress(%s)',[JSQuotedStr(ClearAddressText(Address))]);
-    ExecuteScript(ScriptCommand);
-  end;
-end;
-</code></pre>
-<p>You can extend the component with any functionality you can execute at javascipt level, adding the function into the code, in the method &ldquo;GetHTMLScript&rdquo; that collect all the Javascript functions, or you can add your personal javascript code in the event &ldquo;OnGetJavascript&rdquo;. The event receives the final javascript code (no Format placeholders), so write it as plain javascript (a <code>%</code> is written as <code>%</code>, not <code>%%</code>):</p>
-<pre><code class="pascal">procedure TformMain.EdgeGoogleMapViewerGetJavascript(ASender: TObject;
-  var AJavascript: string);
-begin
-  AJavascript := AJavascript + sLineBreak +
-    '  function IsEven(n) { return n % 2 === 0; }';
-end;
-</code></pre>
-<p>Look at the <a href="https://developers.google.com/maps/documentation/javascript?hl=it">GoogleAPI documentation</a> if you need more functionality and please make a pull request to the project.</p>
-<h2>What's new in v2.0</h2>
+</div>
+<p><img src="./Images/RouteWithDirectionPanel.jpg" alt="The demo showing a route with the directions panel" /></p>
+<p>Open <code>Demo\GoogleMaps\GoogleMapsTest.dproj</code> to see every feature at work: markers, circles, polylines and polygons, routing, light and dark maps, map events.</p>
+<h2 id="documentation">Documentation</h2>
+<p>Full documentation, with the Quick Start, every feature explained and the walkthrough of the demo, is on the <a href="https://ethea.it/docs/delphigooglemap/">Project Site</a>.</p>
+<h3 id="release-notes">RELEASE NOTES</h3>
+<p>11 Nov 2026 - Version 2.1.1</p>
 <ul>
-<li><strong>AdvancedMarkerElement</strong> — Uses the new Google Maps marker API with automatic fallback to legacy <code>google.maps.Marker</code></li>
-<li><strong>Color Scheme</strong> — New <code>MapColorScheme</code> property (<code>csLIGHT</code>, <code>csDARK</code>) to switch between light and dark map themes</li>
-<li><strong>InfoWindow header</strong> — New <code>PutMarker</code> overload with <code>AInfoTitle</code> parameter for bold header in InfoWindow (uses <code>setHeaderContent</code> API)</li>
-<li><strong>PutMarkerByAddress</strong> — New method for geocoding-based marker placement with built-in throttling (batch 5, delay 300ms)</li>
-<li><strong>Async API loading</strong> — Google Maps JavaScript API loaded dynamically with <code>loading=async</code> and callback for optimal performance</li>
-<li><strong>HideMap fix</strong> — <code>HideMap</code> now navigates to <code>about:blank</code>, properly clearing the map view</li>
+<li>Compatibility with Delphi 13.2</li>
 </ul>
-<h2>A complete demo is available!</h2>
-<p>Notice that in the same folder of the executable you must place the correct webview2loader.dll (32 or 64 bit) as you can see into Demo\GoogleMaps\Bin\Win32 and Demo\GoogleMaps\Bin\Win64.</p>
-<h3>Available for Delphi 10.4.2, Delphi 11, Delphi 12 and Delphi 13 (VCL 32bit and 64bit platforms)</h3>
-<p><img src="./Images/SupportingDelphi.jpg" alt="Delphi Support"/></p>
-<p>Related links: https://www.embarcadero.com/ - https://learndelphi.org/</p>
-<h2>MANUAL INSTALLATION</h2>
-<p>If you don't want to use the installer, you can build the packages:</p>
-<ul>
-<li>Open {DelphiGoogleMapFolder}\Packages{DelphiVer}\DelphiGoogleMapsPackages.groupproj from Delphi IDE</li>
-<li>Build Run-Time Package: DelphiGoogleMap</li>
-<li>Build and Install Design-Time Package:</li>
-<li>Add {DelphiGoogleMapFolder}\Source to Delphi source path</li>
-</ul>
-<h1>The Demo in action</h1>
-<p>Open \Demo\GoogleMaps\GoogleMapsTest.dproj: Build (32 or 64 bit) and Run.</p>
-<p><strong>Notice: you need a Google API key to activate the navigation</strong>: by default the Demo request to input API before using the component, or you can edit TformMain.EdgeGoogleMapViewerBeforeShowMap event to add your API KEY to the component.</p>
-<h3>Goto Address: Via S.Cecilia 4, Carugate, Milano</h3>
-<p>Input Address and click to &ldquo;Goto Address&rdquo;:</p>
-<p><img src="./Images/GoToAddress.jpg" alt="GoTo Address"/></p>
-<h3>Goto Latitude/Longitude (25.767314 / -80.135694)</h3>
-<p>Input Latutude and Longitude and click to &ldquo;Goto Latitude/Longitude&rdquo;</p>
-<p><img src="./Images/GoToLatitudeLongitude.jpg" alt="GoTo Latitude"/></p>
-<h3>Route Bicycling - RoadMap View Style</h3>
-<p>Select Routing Mode &ldquo;Bicycling&rdquo;, Select &ldquo;RoadMap&rdquo; View Mode, click to &ldquo;Route by Location&rdquo;:</p>
-<p><img src="./Images/RouteBicyclingRoadMap.jpg" alt="Route Bicycling RoadMap"/></p>
-<h3>Route By Addresses - Hybrid and Traffic from Satellite View Style</h3>
-<p>Select &ldquo;Hybrid&rdquo; View Mode, Activate Traffic and click to &ldquo;Route by Addreess&rdquo;:</p>
-<p><img src="./Images/RouteByAddressHybridTraffic.jpg" alt="RouteByAddressHybridTraffic"/></p>
-<h3>Route showing &ldquo;Direction Panel&rdquo;</h3>
-<p>Check &ldquo;Direction Panel&rdquo; and and click to &ldquo;Route by Addresses&rdquo;:</p>
-<p><img src="./Images/RouteWithDirectionPanel.jpg" alt="RouteWithDirectionPanel"/></p>
-<h3>Showing &ldquo;Print Panel&rdquo; embedded into Browser</h3>
-<p>Click on &ldquo;Show Print UI&rdquo; button:</p>
-<p><img src="./Images/ShowPrintUI.jpg" alt="ShowPrintUI"/></p>
-<h3>Markers from Customer Table (customers.xml)</h3>
-<p>Load Customer Table, scroll down the table: for every record a Marker is added to the Map. Zoom out map to see all Markers.</p>
-<p><img src="./Images/MarkersOfCustomers.jpg" alt="Markers Of Customers"/></p>
-<h3>DOCUMENTATION</h3>
-<p>No documentation available, but the Demo explain very well the use of the component.</p>
-<h3>RELEASE NOTES</h3>
 <p>07 Nov 2026 - Version 2.1.0</p>
 <ul>
 <li>Fixed CoordToText: longitudes &gt;= 100 lost the last decimals (e.g. 151.209296 became 151.209300)</li>
 <li>Fixed TextToCoord: uses invariant format settings (no uninitialized TFormatSettings fields)</li>
-<li>Fixed texts passed to javascript (addresses, descriptions, labels, info windows): apostrophes, newlines, backslashes and quotes no longer break the script (e.g. &ldquo;Via dell'Industria&rdquo;). New class function JSQuotedStr</li>
+<li>Fixed texts passed to javascript (addresses, descriptions, labels, info windows): apostrophes, newlines, backslashes and quotes no longer break the script (e.g. “Via dell'Industria”). New class function JSQuotedStr</li>
 <li>Fixed Put* methods and routing called with the map hidden: they now wait until the page and the Google Maps API are loaded (the first overlay or route was lost)</li>
 <li>Fixed OnCreateWebViewCompleted, OnNavigationCompleted and OnWebMessageReceived assigned at design-time: they no longer replace the internal handlers (map never shown, OnMapClick/OnMapZoom/ComputeDistanceBetween not working)</li>
 <li>Fixed PutCircle, PutPolyline and PutPolygon changing the global FormatSettings.DecimalSeparator of the application; opacities keep all the decimals</li>
 <li>Fixed RouteByLocations: points on the Equator or on the Greenwich meridian are valid, an unassigned start point is no longer accepted</li>
-<li>Fixed '%' in the javascript added by OnGetJavascript (e.g. &ldquo;7 % 2&rdquo; was truncated)</li>
+<li>Fixed '%' in the javascript added by OnGetJavascript (e.g. “7 % 2” was truncated)</li>
 <li>Fixed web messages: map events are reported as handled (no more duplicated OnWebUnhandledMessageReceived), memory leaks with non-object JSON messages and COM strings, access violation with messages that are not strings</li>
 <li>Fixed exceptions raised in OnMapClick, OnMapRightClick and OnMapZoom: no longer silently swallowed</li>
 <li>Fixed ComputeDistanceBetween: the 2 seconds timeout is real elapsed time (was about 30 seconds), the map is shown if needed, re-entrant calls are rejected</li>
@@ -174,7 +197,7 @@ end;
 <li>Added PutMarkerByAddress method with geocoding throttling (batch 5, delay 300ms)</li>
 <li>Google Maps API now loaded dynamically with loading=async and callback</li>
 <li>Fixed HideMap to properly clear the map view (navigates to about:blank)</li>
-<li>Updated Demo with Color Scheme selector and &ldquo;By Address&rdquo; marker tab</li>
+<li>Updated Demo with Color Scheme selector and “By Address” marker tab</li>
 </ul>
 <p>05 Nov 2025 - Version 1.6.4</p>
 <ul>
@@ -204,7 +227,7 @@ end;
 <p>21 Aug 2023 - Version 1.5.0</p>
 <ul>
 <li>Changed Packages: separated Run-Time and Design-Time Packages</li>
-<li>Added &ldquo;Show Print UI&rdquo; Panel command</li>
+<li>Added “Show Print UI” Panel command</li>
 <li>Added support for Delphi 12</li>
 </ul>
 <p>29 Nov 2022 - Version 1.4.0</p>
@@ -212,7 +235,7 @@ end;
 <li>FullScreen Control showing switch</li>
 <li>Zoom Control showing switch</li>
 <li>MapType Control showing switch</li>
-<li>Update Demo to implement &ldquo;fullscreen&rdquo; request</li>
+<li>Update Demo to implement “fullscreen” request</li>
 </ul>
 <p>15 Sep 2022 - Version 1.3.1</p>
 <ul>
@@ -244,3 +267,8 @@ end;
 <li>Google Map Viewer Component based on TEdgeBrowser</li>
 <li>Full Demo available</li>
 </ul>
+<h2 id="license">License</h2>
+<p>Copyright (c) 2021-2026 Ethea S.r.l.</p>
+<p>Licensed under the <a href="LICENSE">Apache License, Version 2.0</a> (the “License”): you may not use this software except in compliance with the License. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an “AS IS” BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.</p>
+</body>
+</html>

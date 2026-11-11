@@ -2,7 +2,7 @@
     <PropertyGroup>
         <ProjectGuid>{EE61C4FD-E556-46C0-968D-FA7BF0E0B7FF}</ProjectGuid>
         <MainSource>dclDelphiGoogleMap.dpk</MainSource>
-        <ProjectVersion>20.4</ProjectVersion>
+        <ProjectVersion>20.5</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Release</Config>
@@ -47,14 +47,14 @@
         <DCC_CBuilderOutput>All</DCC_CBuilderOutput>
         <SanitizedProjectName>dclDelphiGoogleMap</SanitizedProjectName>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=Ethea S.r.l.;FileDescription=Delphi Google Map;FileVersion=2.1.0.0;InternalName=;LegalCopyright=Copyright © 2021-2026 Ethea S.r.l.;LegalTrademarks=;OriginalFilename=;ProgramID=;ProductName=;ProductVersion=2.1;Comments=</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=Ethea S.r.l.;FileDescription=Delphi Google Map;FileVersion=2.1.1.0;InternalName=;LegalCopyright=Copyright © 2021-2026 Ethea S.r.l.;LegalTrademarks=;OriginalFilename=;ProgramID=;ProductName=;ProductVersion=2.1;Comments=</VerInfo_Keys>
         <DCC_Description>Ethea Delphi Google Maps Components</DCC_Description>
         <DllSuffix>$(Auto)</DllSuffix>
         <DCC_UnitSearchPath>..\..\Source;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_MajorVer>2</VerInfo_MajorVer>
         <VerInfo_MinorVer>1</VerInfo_MinorVer>
-        <VerInfo_Release>0</VerInfo_Release>
+        <VerInfo_Release>1</VerInfo_Release>
         <DesignOnlyPackage>true</DesignOnlyPackage>
         <DCC_OutputNeverBuildDcps>true</DCC_OutputNeverBuildDcps>
     </PropertyGroup>

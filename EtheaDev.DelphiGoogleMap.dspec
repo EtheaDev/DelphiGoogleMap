@@ -3,7 +3,7 @@
 min dpm client version: 1.0.0
 metadata:
   id: EtheaDev.DelphiGoogleMap
-  version: 2.1.0
+  version: 2.1.1
   description: 'TEdgeGoogleMapViewer: a VCL component based on WebView2 (TEdgeBrowser) to show Google Maps, with integrated routing and markers support.'
   authors:
     - Carlo Barazzetta
